@@ -544,10 +544,6 @@ curl -X GET
         "thumbnail": "https://solvi.ag/projects/9999/thumbnail.png",
         "ortho": "https://solvi-projects.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/ortho.tiff?...",
         "dem": "https://solvi-projects-dev.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/dem.tiff?..."
-      },
-      "tiles": {
-        "ortho": "https://ts1.solvi.nu/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/ortho_rgb/{z}/{x}/{y}.png?token=...",
-        "dem": "https://ts1.solvi.nu/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/dem_color/{z}/{x}/{y}.png?token=..."
       }
   },
 ```
@@ -555,8 +551,6 @@ curl -X GET
 This endpoint retrieves projects created by the user or shared with the user by others.
 
 The included `resources` are URLs that can be used to fetch the project outputs. These resource URLs are temporary, with a lifetime of 15 minutes before they expire.
-
-The response also includes URL templates for tiled maps in the `tiles` section: these URLs can be used directly with several popular map clients like [OpenLayers](https://openlayers.org/) or [Leaflet](https://leafletjs.com/). The URLs are temporary, with a lifetime of at least 48 hours.
 
 ### HTTP Request
 
@@ -567,6 +561,47 @@ The response also includes URL templates for tiled maps in the `tiles` section: 
 Parameter |  | Description
 --------- | ------- | -----------
 project_id | required | Project ID given when project is created
+
+## Project tiled imagery
+
+> Example request:
+
+```shell
+curl -X GET
+  -H "Authorization: Bearer <user-jwt-token>"
+  'https://solvi.ag/api/v1/projects/<project-id>/tiles/<type>
+```
+
+> Example response:
+
+```json
+{
+  "url": "https://ts2.solvi.nu/.../results/ortho.tiff/rgb/rgb/tile/{z}/{x}/{y}.png?token=...",
+  "resolution": 0.15961538646165616,
+  "bounds": {
+    "value": [
+      -115.407127627406,
+      33.13991737241373,
+      -115.39728408213948,
+      33.144345906954
+    ],
+    "crs": "EPSG:4326"
+  }
+}
+```
+
+This endpoint retrieves a tile template URL, suitable for use with popular map clients like [OpenLayers](https://openlayers.org/) or [Leaflet](https://leafletjs.com/). The URLs are temporary, with a lifetime of at least 48 hours.
+
+### HTTP Request
+
+`GET https://solvi.ag/api/v1/projects/<project-id>/tiles/<type>`
+
+### Parameters
+
+Parameter |  | Description
+--------- | ------- | -----------
+project_id | required | Project ID given when project is created
+type       | required | Type of tiles to fetch; currently either `ortho` for RGB orthomosaic or `dem` for colored elevation model, if available
 
 ## Webhooks
 
