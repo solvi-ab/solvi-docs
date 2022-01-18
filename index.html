@@ -272,6 +272,9 @@
                     <a href="#project-outputs" class="toc-h2 toc-link" data-title="Projects">Project outputs</a>
                   </li>
                   <li>
+                    <a href="#project-tiled-imagery" class="toc-h2 toc-link" data-title="Projects">Project tiled imagery</a>
+                  </li>
+                  <li>
                     <a href="#webhooks" class="toc-h2 toc-link" data-title="Projects">Webhooks</a>
                   </li>
               </ul>
@@ -317,7 +320,7 @@ reason need to revoke a key, you can also contact us.</p>
 <p>Make sure to replace <code>&lt;user-specific-token&gt;</code> with your token.</p>
 </blockquote>
 
-<p>All user-specific requests, like creating or getting projects, should use a user-specific token. When using a user-specific token, <em>do not</em> include the API key in the same request. A use-specific token has a limited lifetime and can therefore be used directly from a browser, or for passwordless authentication when the user is redirected from your portal to Solvi. A user-specific token can be used for a limited amount of time (currently 24 hours) before it expires. A user-specific token is created by using the <a href="#generate-user-specific-token">endpoint to create a user-specific token</a>.</p>
+<p>All user-specific requests, like creating or getting projects, should use a user-specific token. When using a user-specific token, <em>do not</em> include the API in the same request. A use-specific token has a limited lifetime and can therefore be used directly from a browser, or for passwordless authentication when the user is redirected from your portal to Solvi. A user-specific token can be used for a limited amount of time (currently 24 hours) before it expires. A user-specific token is created by using the <a href="#generate-user-specific-token">endpoint to create a user-specific token</a>.</p>
 
 <p>User specific requests should use the <code>Authorization</code> header <em>instead of</em> the <code>X-Api-Key</code> header:</p>
 
@@ -842,18 +845,12 @@ retrieved from the example above:</p>
         </span><span class="s2">"thumbnail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/9999/thumbnail.png"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"ortho"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi-projects.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/ortho.tiff?..."</span><span class="p">,</span><span class="w">
         </span><span class="s2">"dem"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi-projects-dev.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/dem.tiff?..."</span><span class="w">
-      </span><span class="p">},</span><span class="w">
-      </span><span class="s2">"tiles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"ortho"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://ts1.solvi.nu/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/ortho_rgb/{z}/{x}/{y}.png?token=..."</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"dem"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://ts1.solvi.nu/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/dem_color/{z}/{x}/{y}.png?token=..."</span><span class="w">
       </span><span class="p">}</span><span class="w">
   </span><span class="p">},</span><span class="w">
 </span></code></pre>
 <p>This endpoint retrieves projects created by the user or shared with the user by others.</p>
 
 <p>The included <code>resources</code> are URLs that can be used to fetch the project outputs. These resource URLs are temporary, with a lifetime of 15 minutes before they expire.</p>
-
-<p>The response also includes URL templates for tiled maps in the <code>tiles</code> section: these URLs can be used directly with several popular map clients like <a href="https://openlayers.org/">OpenLayers</a> or <a href="https://leafletjs.com/">Leaflet</a>. The URLs are temporary, with a lifetime of at least 48 hours.</p>
 <h3 id='http-request-11'>HTTP Request</h3>
 <p><code>GET https://solvi.ag/api/v1/projects/&lt;project_id&gt;</code></p>
 <h3 id='parameters-9'>Parameters</h3>
@@ -868,6 +865,53 @@ retrieved from the example above:</p>
 <td>project_id</td>
 <td>required</td>
 <td>Project ID given when project is created</td>
+</tr>
+</tbody></table>
+<h2 id='project-tiled-imagery'>Project tiled imagery</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X GET
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="s1">'https://solvi.ag/api/v1/projects/&lt;project-id&gt;/tiles/&lt;type&gt;
+</span></code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://ts2.solvi.nu/.../results/ortho.tiff/rgb/rgb/tile/{z}/{x}/{y}.png?token=..."</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"resolution"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.15961538646165616</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"bounds"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="mf">-115.407127627406</span><span class="p">,</span><span class="w">
+      </span><span class="mf">33.13991737241373</span><span class="p">,</span><span class="w">
+      </span><span class="mf">-115.39728408213948</span><span class="p">,</span><span class="w">
+      </span><span class="mf">33.144345906954</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="s2">"crs"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EPSG:4326"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>This endpoint retrieves a tile template URL, suitable for use with popular map clients like <a href="https://openlayers.org/">OpenLayers</a> or <a href="https://leafletjs.com/">Leaflet</a>. The URLs are temporary, with a lifetime of at least 48 hours.</p>
+<h3 id='http-request-12'>HTTP Request</h3>
+<p><code>GET https://solvi.ag/api/v1/projects/&lt;project-id&gt;/tiles/&lt;type&gt;</code></p>
+<h3 id='parameters-10'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>project_id</td>
+<td>required</td>
+<td>Project ID given when project is created</td>
+</tr>
+<tr>
+<td>type</td>
+<td>required</td>
+<td>Type of tiles to fetch; currently either <code>ortho</code> for RGB orthomosaic or <code>dem</code> for colored elevation model, if available</td>
 </tr>
 </tbody></table>
 <h2 id='webhooks'>Webhooks</h2>
