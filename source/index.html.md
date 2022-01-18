@@ -353,7 +353,7 @@ curl -X POST
 ```json
 {
   "status": "ok",
-  "upload_imagery_data": {
+  "imagery_upload_data": {
     "url": "https://solvi-projects.s3.eu-west-1.amazonaws.com",
     "fields": {
       "x-amz-storage-class": "STANDARD_IA",
@@ -371,19 +371,19 @@ curl -X POST
 After a project has been created, imagery can be uploaded to it by sending the `begin_upload` request. The response includes information required to upload
 imagery for the project.
 
-> Example JavaScript function to POST an image using `upload_imagery_data`
+> Example JavaScript function to POST an image using `imagery_upload_data`
 > retrieved from the example above:
 
 ```js
-function uploadFile (upload_imagery_data, f) {
+function uploadFile (imagery_upload_data, f) {
   const form = new FormData()
-  Object.keys(upload_imagery_data.fields).forEach(field => form.append(field, upload_imagery_data.fields[field]))
-  const key = upload_imagery_data.key_prefix + f.name
+  Object.keys(imagery_upload_data.fields).forEach(field => form.append(field, imagery_upload_data.fields[field]))
+  const key = imagery_upload_data.key_prefix + f.name
   form.append('key', key)
   form.append('Content-Type', 'image/jpeg')
   form.append('file', f)
 
-  return fetch(upload_imagery_data.url, { method: 'POST', body: form })
+  return fetch(imagery_upload_data.url, { method: 'POST', body: form })
     .then(response => {
       if (!response.ok) {
         throw new Error(`Unexpected response HTTP ${response.status} ${response.statusText}`)
@@ -393,18 +393,18 @@ function uploadFile (upload_imagery_data, f) {
 ```
 
 > Example JavaScript function to post an array of files using the `uploadFile`
-> function above, using `upload_imagery_data`
+> function above, using `imagery_upload_data`
 > retrieved from the example above:
 
 ```js
-function uploadFiles (upload_imagery_data, files) {
+function uploadFiles (imagery_upload_data, files) {
   return uploadNext()
 
   function uploadNext () {
     return new Promise(function (resolve, reject) {
       const file = files.shift()
       if (file) {
-        uploadFile(upload_imagery_data, file)
+        uploadFile(imagery_upload_data, file)
           .then(uploadNext)
           .catch(reject)
       } else {
@@ -416,7 +416,7 @@ function uploadFiles (upload_imagery_data, files) {
 ```
 
 
-The required parameters are included in the `upload_imagery_data` object: this object has a `url` property indicating the URL to POST imagery to, and a `fields` object, listing the HTTP form data fields required for the POST request. In addition to these fields, the form must also include a `key` field: the key is the must include a value prefixed by the `key_prefix` and value unique for each image (like its filename).
+The required parameters are included in the `imagery_upload_data` object: this object has a `url` property indicating the URL to POST imagery to, and a `fields` object, listing the HTTP form data fields required for the POST request. In addition to these fields, the form must also include a `key` field: the key is the must include a value prefixed by the `key_prefix` and value unique for each image (like its filename).
 
 ### HTTP Request
 
