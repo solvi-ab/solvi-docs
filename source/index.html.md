@@ -605,7 +605,7 @@ type       | required | Type of tiles to fetch; currently either `ortho` for RGB
 
 ## Webhooks
 
-Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook's configured URL. Currently, project status is the only available webhook in Solvi.
+Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook's configured URL. Currently, project status (event type `status_changed`) is the only available webhook in Solvi.
 
 > Example webhook request payload
 
@@ -613,13 +613,27 @@ Webhooks allow setting up integrations that subscribe to certain events from Sol
 {
   "project_id": 8993,
   "event_type": "status_changed",
-  "old_status": "created",
-  "new_status": "uploading"
+  "old_status": "not_processed",
+  "new_status": "processed"
 }
 ```
 
 The webhook is configured when [creating a project](#create-project) by specifing the `status_webhook` parameter, which should contain the URL of the webhook.
 
+### Webhook events
+
+The type of event that occured is determined by the `event_type` parameter of the request body. Currently, there is a single supported event type: `status_changed`, which indicates that the project's status has changed.
+
+#### Status changed
+
+The status change message contains `old_status`, the status of the project before this change, as well as `new_status`, the project's updated status.
+
+There are three different project statuses:
+
+* `not_processed` - the project has been created but not yet processed, project outputs will not be available
+* `processed` - the project has been processed and its outputs are available
+* `failed` - the processing for this project failed, outputs are not available
+ 
 ### Securing webhooks
 
 To ensure that Solvi is the sender of the webhook requests, you can optionally also specify a secret token when registering the webhook, by using the `webhook_secret` parameter: the secret can be any string of your choosing.
