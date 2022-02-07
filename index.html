@@ -915,7 +915,7 @@ retrieved from the example above:</p>
 </tr>
 </tbody></table>
 <h2 id='webhooks'>Webhooks</h2>
-<p>Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook&#39;s configured URL. Currently, project status is the only available webhook in Solvi.</p>
+<p>Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook&#39;s configured URL. Currently, project status (event type <code>status_changed</code>) is the only available webhook in Solvi.</p>
 
 <blockquote>
 <p>Example webhook request payload</p>
@@ -923,11 +923,23 @@ retrieved from the example above:</p>
 <pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
   </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">8993</span><span class="p">,</span><span class="w">
   </span><span class="s2">"event_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"status_changed"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"old_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"created"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"new_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uploading"</span><span class="w">
+  </span><span class="s2">"old_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not_processed"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"new_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 <p>The webhook is configured when <a href="#create-project">creating a project</a> by specifing the <code>status_webhook</code> parameter, which should contain the URL of the webhook.</p>
+<h3 id='webhook-events'>Webhook events</h3>
+<p>The type of event that occured is determined by the <code>event_type</code> parameter of the request body. Currently, there is a single supported event type: <code>status_changed</code>, which indicates that the project&#39;s status has changed.</p>
+<h4 id='status-changed'>Status changed</h4>
+<p>The status change message contains <code>old_status</code>, the status of the project before this change, as well as <code>new_status</code>, the project&#39;s updated status.</p>
+
+<p>There are three different project statuses:</p>
+
+<ul>
+<li><code>not_processed</code> - the project has been created but not yet processed, project outputs will not be available</li>
+<li><code>processed</code> - the project has been processed and its outputs are available</li>
+<li><code>failed</code> - the processing for this project failed, outputs are not available</li>
+</ul>
 <h3 id='securing-webhooks'>Securing webhooks</h3>
 <p>To ensure that Solvi is the sender of the webhook requests, you can optionally also specify a secret token when registering the webhook, by using the <code>webhook_secret</code> parameter: the secret can be any string of your choosing.</p>
 
