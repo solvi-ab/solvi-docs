@@ -48,7 +48,7 @@ curl "api_endpoint_here"
 ```
 > Make sure to replace `<user-specific-token>` with your token.
 
-All user-specific requests, like creating or getting projects, should use a user-specific token. When using a user-specific token, *do not* include the API in the same request. A use-specific token has a limited lifetime and can therefore be used directly from a browser, or for passwordless authentication when the user is redirected from your portal to Solvi. A user-specific token can be used for a limited amount of time (currently 24 hours) before it expires. A user-specific token is created by using the [endpoint to create a user-specific token](#generate-user-specific-token).
+Instead of using the API key, requests that act on behalf of a specific user, like creating or getting projects, should use a user-specific token to authenticate as the user. When using a user-specific token, *do not* include the API key in the same request. A user-specific token has a limited lifetime and is less security sensitive compared to the API key. For example, a user token can be sent to and used directly from for example a browser, or for passwordless authentication when the user is redirected from your portal to Solvi. A user-specific token can be used for a limited amount of time (currently 24 hours) before it expires. A user-specific token is created by using the [endpoint to create a user-specific token](#generate-user-specific-token).
 
 User specific requests should use the `Authorization` header *instead of* the `X-Api-Key` header:
 
