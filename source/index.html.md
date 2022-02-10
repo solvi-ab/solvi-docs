@@ -477,6 +477,7 @@ curl -X GET
         "project_id": 9999,
         "status": "processed",
         "name": "25-JUN-2018",
+        "plant_counts": "published",
         "field": {
             "id": 9999,
             "name": "Winter Wheat",
@@ -527,6 +528,7 @@ curl -X GET
       "project_id": 9999,
       "status": "processed",
       "name": "25-JUN-2018",
+      "plant_counts": "published",
       "field": {
           "id": 9999,
           "name": "Winter Wheat",
@@ -577,6 +579,7 @@ curl -X GET
 ```json
 {
   "url": "https://ts2.solvi.nu/.../results/ortho.tiff/rgb/rgb/tile/{z}/{x}/{y}.png?token=...",
+  "type": "tileset/orthomosaic",
   "resolution": 0.15961538646165616,
   "bounds": {
     "value": [
@@ -592,6 +595,13 @@ curl -X GET
 
 This endpoint retrieves a tile template URL, suitable for use with popular map clients like [OpenLayers](https://openlayers.org/) or [Leaflet](https://leafletjs.com/). The URLs are temporary, with a lifetime of at least 48 hours.
 
+Note that all types are not necessarily available for all projects. Requesting a tile type that is not available will give a HTTP 404 response.
+
+For `ortho` and `dem` tiles (`type` set to `"tileset/orthomosaic`), geographic bounds are returned in the `bounds` property, and the native
+resolution (meters/pixel) is given by `resolution`.
+
+For `plant_counts` (`type` set to `"tileset/plant_counts`), `number_plants` and `number_missing` give totals for the detected plants.
+
 ### HTTP Request
 
 `GET https://solvi.ag/api/v1/projects/<project-id>/tiles/<type>`
@@ -601,11 +611,11 @@ This endpoint retrieves a tile template URL, suitable for use with popular map c
 Parameter |  | Description
 --------- | ------- | -----------
 project_id | required | Project ID given when project is created
-type       | required | Type of tiles to fetch; currently either `ortho` for RGB orthomosaic or `dem` for colored elevation model, if available
+type       | required | Type of tiles to fetch; currently one of `ortho` for RGB orthomosaic, `dem` for colored elevation model or `plant_counts` for plant counts
 
 ## Webhooks
 
-Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook's configured URL. Currently, project status (event type `status_changed`) is the only available webhook in Solvi.
+Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook's configured URL. Currently, project status (event type `status_changed`) and plant counts published (event type `plant_counts_published`) are the two available events in Solvi.
 
 > Example webhook request payload
 
@@ -618,11 +628,14 @@ Webhooks allow setting up integrations that subscribe to certain events from Sol
 }
 ```
 
-The webhook is configured when [creating a project](#create-project) by specifing the `status_webhook` parameter, which should contain the URL of the webhook.
+The webhook is configured when [creating a project](#create-project) by specifing the `webhook` parameter, which should contain the URL of the webhook.
 
 ### Webhook events
 
-The type of event that occured is determined by the `event_type` parameter of the request body. Currently, there is a single supported event type: `status_changed`, which indicates that the project's status has changed.
+The type of event that occured is determined by the `event_type` parameter of the request body. Currently, there are two supported event types: 
+
+* `status_changed`, indicates that the project's status has changed
+* `plant_counts_published`, triggered when plant counts have been published for the project
 
 #### Status changed
 
@@ -633,7 +646,11 @@ There are three different project statuses:
 * `not_processed` - the project has been created but not yet processed, project outputs will not be available
 * `processed` - the project has been processed and its outputs are available
 * `failed` - the processing for this project failed, outputs are not available
- 
+
+#### Plant Counts Published
+
+Notifies that plant counts data has been published for this project. The results can be fetched using the tiles endpoint with `plant_counts` as type.
+
 ### Securing webhooks
 
 To ensure that Solvi is the sender of the webhook requests, you can optionally also specify a secret token when registering the webhook, by using the `webhook_secret` parameter: the secret can be any string of your choosing.
