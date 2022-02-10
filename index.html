@@ -776,6 +776,7 @@ retrieved from the example above:</p>
         </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
         </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"25-JUN-2018"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
         </span><span class="s2">"field"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
             </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Winter Wheat"</span><span class="p">,</span><span class="w">
@@ -828,6 +829,7 @@ retrieved from the example above:</p>
       </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
       </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
       </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"25-JUN-2018"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
       </span><span class="s2">"field"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
           </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
           </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Winter Wheat"</span><span class="p">,</span><span class="w">
@@ -880,6 +882,7 @@ retrieved from the example above:</p>
 </blockquote>
 <pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
   </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://ts2.solvi.nu/.../results/ortho.tiff/rgb/rgb/tile/{z}/{x}/{y}.png?token=..."</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tileset/orthomosaic"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"resolution"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.15961538646165616</span><span class="p">,</span><span class="w">
   </span><span class="s2">"bounds"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="s2">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -893,6 +896,13 @@ retrieved from the example above:</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 <p>This endpoint retrieves a tile template URL, suitable for use with popular map clients like <a href="https://openlayers.org/">OpenLayers</a> or <a href="https://leafletjs.com/">Leaflet</a>. The URLs are temporary, with a lifetime of at least 48 hours.</p>
+
+<p>Note that all types are not necessarily available for all projects. Requesting a tile type that is not available will give a HTTP 404 response.</p>
+
+<p>For <code>ortho</code> and <code>dem</code> tiles (<code>type</code> set to <code>&quot;tileset/orthomosaic</code>), geographic bounds are returned in the <code>bounds</code> property, and the native
+resolution (meters/pixel) is given by <code>resolution</code>.</p>
+
+<p>For <code>plant_counts</code> (<code>type</code> set to <code>&quot;tileset/plant_counts</code>), <code>number_plants</code> and <code>number_missing</code> give totals for the detected plants.</p>
 <h3 id='http-request-12'>HTTP Request</h3>
 <p><code>GET https://solvi.ag/api/v1/projects/&lt;project-id&gt;/tiles/&lt;type&gt;</code></p>
 <h3 id='parameters-10'>Parameters</h3>
@@ -911,11 +921,11 @@ retrieved from the example above:</p>
 <tr>
 <td>type</td>
 <td>required</td>
-<td>Type of tiles to fetch; currently either <code>ortho</code> for RGB orthomosaic or <code>dem</code> for colored elevation model, if available</td>
+<td>Type of tiles to fetch; currently one of <code>ortho</code> for RGB orthomosaic, <code>dem</code> for colored elevation model or <code>plant_counts</code> for plant counts</td>
 </tr>
 </tbody></table>
 <h2 id='webhooks'>Webhooks</h2>
-<p>Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook&#39;s configured URL. Currently, project status (event type <code>status_changed</code>) is the only available webhook in Solvi.</p>
+<p>Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook&#39;s configured URL. Currently, project status (event type <code>status_changed</code>) and plant counts published (event type <code>plant_counts_published</code>) are the two available events in Solvi.</p>
 
 <blockquote>
 <p>Example webhook request payload</p>
@@ -927,9 +937,14 @@ retrieved from the example above:</p>
   </span><span class="s2">"new_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>The webhook is configured when <a href="#create-project">creating a project</a> by specifing the <code>status_webhook</code> parameter, which should contain the URL of the webhook.</p>
+<p>The webhook is configured when <a href="#create-project">creating a project</a> by specifing the <code>webhook</code> parameter, which should contain the URL of the webhook.</p>
 <h3 id='webhook-events'>Webhook events</h3>
-<p>The type of event that occured is determined by the <code>event_type</code> parameter of the request body. Currently, there is a single supported event type: <code>status_changed</code>, which indicates that the project&#39;s status has changed.</p>
+<p>The type of event that occured is determined by the <code>event_type</code> parameter of the request body. Currently, there are two supported event types: </p>
+
+<ul>
+<li><code>status_changed</code>, indicates that the project&#39;s status has changed</li>
+<li><code>plant_counts_published</code>, triggered when plant counts have been published for the project</li>
+</ul>
 <h4 id='status-changed'>Status changed</h4>
 <p>The status change message contains <code>old_status</code>, the status of the project before this change, as well as <code>new_status</code>, the project&#39;s updated status.</p>
 
@@ -940,6 +955,8 @@ retrieved from the example above:</p>
 <li><code>processed</code> - the project has been processed and its outputs are available</li>
 <li><code>failed</code> - the processing for this project failed, outputs are not available</li>
 </ul>
+<h4 id='plant-counts-published'>Plant Counts Published</h4>
+<p>Notifies that plant counts data has been published for this project. The results can be fetched using the tiles endpoint with <code>plant_counts</code> as type.</p>
 <h3 id='securing-webhooks'>Securing webhooks</h3>
 <p>To ensure that Solvi is the sender of the webhook requests, you can optionally also specify a secret token when registering the webhook, by using the <code>webhook_secret</code> parameter: the secret can be any string of your choosing.</p>
 
