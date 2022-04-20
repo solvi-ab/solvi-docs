@@ -196,7 +196,7 @@ Gets all user farms and a list of fields related to each farm.
 
 ### HTTP Request
 
-`GET https://solvi.ag/api/v1/fields`
+`GET https://solvi.ag/api/v1/farms`
 
 
 # Fields
