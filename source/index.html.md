@@ -311,10 +311,11 @@ curl -X POST
 
 This endpoint creates a new project which is required before imagery upload. In response, you will receive URL to upload-page for the newly created project where the user can be redirected.
 
-There are multiple *types* of projects: `overlapping` (the default) and `stitched`:
+There are multiple *types* of projects: `overlapping` (the default), `stitched` and `scouting`:
 
 * `overlapping` should be used if you have a number of photos taken which should be stitched into a map by Solvi; this is the default and what you normally use
 * `stitched` can be used if you already have a single [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) that have been stitched by another system
+* In `scouting`, images will not be stitched and instead shown as separate, individual images without further processing 
 
 Projects can be connected to a Field. When multiple projects are related to the same Field, they appear in the same map view when data is processed. This allows for easier navigation between imagery over the same Field and over the time data comparison.
 
@@ -330,7 +331,7 @@ Optionally, a project can be created with a so-called *webhook* that will be cal
 
 Parameter | | Description
 --------- | ----------- | -----------
-type      | optional  | The type of imagery for this project: `overlapping` or `stitched`; default is `overlapping`
+type      | optional  | The type of imagery for this project: `overlapping`, `stitched` or `scouting`; default is `overlapping`
 field_id | | Unique field identifier
 field_name | optional | Name of the the field
 field_geom | optional | Boundaries of the field as a polygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat)
