@@ -279,6 +279,20 @@
                   </li>
               </ul>
           </li>
+          <li>
+            <a href="#plant-counts" class="toc-h1 toc-link" data-title="Plant Counts">Plant Counts</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#create-plant-counts" class="toc-h2 toc-link" data-title="Plant Counts">Create Plant Counts</a>
+                  </li>
+                  <li>
+                    <a href="#plant-count-data" class="toc-h2 toc-link" data-title="Plant Counts">Plant Count data</a>
+                  </li>
+                  <li>
+                    <a href="#publishing-plant-counts" class="toc-h2 toc-link" data-title="Plant Counts">Publishing Plant Counts</a>
+                  </li>
+              </ul>
+          </li>
       </div>
     </div>
     <div class="page-wrapper">
@@ -926,7 +940,7 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 </tr>
 </tbody></table>
 <h2 id='webhooks'>Webhooks</h2>
-<p>Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook&#39;s configured URL. Currently, project status (event type <code>status_changed</code>) and plant counts published (event type <code>plant_counts_published</code>) are the two available events in Solvi.</p>
+<p>Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook&#39;s configured URL. Currently, project status (event type <code>status_changed</code>) and plant counts published (event type <code>plant_counts_published</code>) are the three available events in Solvi.</p>
 
 <blockquote>
 <p>Example webhook request payload</p>
@@ -938,16 +952,17 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
   </span><span class="s2">"new_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>The webhook is configured when <a href="#create-project">creating a project</a> by specifing the <code>webhook</code> parameter, which should contain the URL of the webhook.</p>
+<p>The webhook is configured when <a href="#create-project">creating a project</a> or when <a href="#create-plant-counts">creating a plant count</a> by specifing the <code>webhook</code> parameter, which should contain the URL of the webhook.</p>
 <h3 id='webhook-events'>Webhook events</h3>
 <p>The type of event that occured is determined by the <code>event_type</code> parameter of the request body. Currently, there are two supported event types: </p>
 
 <ul>
 <li><code>status_changed</code>, indicates that the project&#39;s status has changed</li>
+<li><code>job_status_changed</code>, when a plant count job&#39;s status changes</li>
 <li><code>plant_counts_published</code>, triggered when plant counts have been published for the project</li>
 </ul>
-<h4 id='status-changed'>Status changed</h4>
-<p>The status change message contains <code>old_status</code>, the status of the project before this change, as well as <code>new_status</code>, the project&#39;s updated status.</p>
+<h4 id='status-changes'>Status changes</h4>
+<p>The status change messages contains <code>old_status</code>, the status of the project before this change, as well as <code>new_status</code>, the project&#39;s updated status.</p>
 
 <p>There are three different project statuses:</p>
 
@@ -955,6 +970,16 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 <li><code>not_processed</code> - the project has been created but not yet processed, project outputs will not be available</li>
 <li><code>processed</code> - the project has been processed and its outputs are available</li>
 <li><code>failed</code> - the processing for this project failed, outputs are not available</li>
+</ul>
+<h4 id='job-status-changes'>Job status changes</h4>
+<p>This is similar to the project status change message, but refers to a plant detection job&#39;s status. It contains a <code>job_id</code> for the detection that changed, <code>old_status</code>, the status of the project before this change, as well as <code>new_status</code>, the project&#39;s updated status.</p>
+
+<p>There are three different statuses:</p>
+
+<ul>
+<li><code>processing</code> - the plant count is being processed</li>
+<li><code>completed</code> - the plant count has been processed succesfully and its results are available</li>
+<li><code>fail</code> - the detection failed</li>
 </ul>
 <h4 id='plant-counts-published'>Plant Counts Published</h4>
 <p>Notifies that plant counts data has been published for this project. The results can be fetched using the tiles endpoint with <code>plant_counts</code> as type.</p>
@@ -969,6 +994,115 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 <p>When a secret token has been specified, Solvi will include the HTTP header <code>X-Solvi-Signature</code>, which will contain an HMAC-SHA1 signature of the body.</p>
 
 <p>This follows the same pattern as <a href="https://docs.github.com/en/developers/webhooks-and-events/securing-your-webhooks">securing webhooks on GitHub</a>, except for using the header <code>X-Solvi-Signature</code> instead.</p>
+<h1 id='plant-counts'>Plant Counts</h1>
+<p>This part of the API is currently only available for scouting projects.</p>
+<h2 id='create-plant-counts'>Create Plant Counts</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl 
+  -X POST 
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span> 
+  -H <span class="s1">'Content-Type: application/json'</span>
+  -d <span class="s1">'{"model": "base-models/shape"}'</span>
+  https://solvi.ag/api/v1/projects/&lt;project-id&gt;/plant_counts
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="w">  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Created"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"job_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88a2af8601cf2b7c4e14979f8df73bca7352ccce"</span><span class="p">,</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>This initiates a plant count for the specified project. At the moment, plant counts can only be created through the API for scouting projects.</p>
+
+<p>Creating a plant count is an asynchronous process, after creation the plant count will be processing, and the results can not be accessed until it has completed. This asynchronous process is called a <em>job</em>. To check the job&#39;s status, it can either be polled (see below) or a webhook URL can be submitted when starting the plant count; this webhook will be called when the job&#39;s status changes. See <a href="#webhooks">webhooks</a> for more details.</p>
+
+<p>The detection is performed using a detection model. By default, two different models are available:</p>
+
+<ul>
+<li><code>base-models/point</code> - used for basic counts and is applicable to crops like corn or vegetables in early growth-stages</li>
+<li><code>base-models/shape</code> - includes size estimates and health for individual plants, applicable for pre-harvest crops or trees</li>
+</ul>
+
+<p>In addition, more models might be available on a per-user basis.</p>
+<h3 id='http-request-13'>HTTP Request</h3>
+<p><code>POST https://solvi.ag/api/v1/projects/&lt;project-id&gt;/plant_counts</code></p>
+<h3 id='parameters-11'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>model</td>
+<td>required</td>
+<td>The detection model to be used</td>
+</tr>
+<tr>
+<td>webhook</td>
+<td>optional</td>
+<td>URL of the webhook to send status updates to</td>
+</tr>
+</tbody></table>
+<h2 id='plant-count-data'>Plant Count data</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl 
+  -X GET
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span> 
+  https://solvi.ag/api/v1/projects/&lt;project-id&gt;/plant_counts/&lt;job-id&gt;
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="w">  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"completed"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"https://solvi-staging-production.s3.eu-west-1.amazonaws.com/uploads/..."</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Gets the status of a previously started plant count, or overview information about a processed plant count.</p>
+
+<p>Depending on status of the detection job, different HTTP status codes will be used for the response:</p>
+
+<ul>
+<li><code>200</code>: completed successfully and the body contains JSON information about the result</li>
+<li><code>202</code>: processing is not yet complete</li>
+<li><code>404</code>: unknown job id or the job&#39;s result has expired and been removed</li>
+<li><code>500</code>: an internal error occurred during processing</li>
+</ul>
+
+<p>When processing has completed, the response will contain a <code>results</code> property which lists URLs that can be used to get the detection results. These URLs are valid for at least 24 hours. For scouting projects, a detection results in a JSON file containing a summary of the detection, as well as one GeoJSON file per image in the project.</p>
+
+<p>The results of a detection are kept in storage for one week. After this time, the results are removed from storage and requesting the results will return a 404 code. If a detection is published, the results will be kept in storage.</p>
+<h2 id='publishing-plant-counts'>Publishing Plant Counts</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl 
+  -X POST
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span> 
+  https://solvi.ag/api/v1/projects/&lt;project-id&gt;/plant_counts/&lt;job-id&gt;/publish
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="w">  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Success"</span><span class="p">,</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>After a plant count job has completed succesfully, its results can be published. This will achieve two things:</p>
+
+<ul>
+<li>The results can be viewed from the Plant Counts tool in Solvi&#39;s web app</li>
+<li>Results will not be removed from storage after a week</li>
+</ul>
 
       </div>
       <div class="dark-box">
