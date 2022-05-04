@@ -291,6 +291,9 @@
                   <li>
                     <a href="#publishing-plant-counts" class="toc-h2 toc-link" data-title="Plant Counts">Publishing Plant Counts</a>
                   </li>
+                  <li>
+                    <a href="#deleting-a-plant-count" class="toc-h2 toc-link" data-title="Plant Counts">Deleting a Plant Count</a>
+                  </li>
               </ul>
           </li>
       </div>
@@ -1043,6 +1046,11 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 <td>The detection model to be used</td>
 </tr>
 <tr>
+<td>detect_rows</td>
+<td>optional</td>
+<td><code>true</code> if row detection should be performed</td>
+</tr>
+<tr>
 <td>webhook</td>
 <td>optional</td>
 <td>URL of the webhook to send status updates to</td>
@@ -1103,6 +1111,23 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 <li>The results can be viewed from the Plant Counts tool in Solvi&#39;s web app</li>
 <li>Results will not be removed from storage after a week</li>
 </ul>
+<h2 id='deleting-a-plant-count'>Deleting a Plant Count</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl 
+  -X DELETE
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span> 
+  https://solvi.ag/api/v1/projects/&lt;project-id&gt;/plant_counts/&lt;job-id&gt;
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="w">  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"deleted"</span><span class="p">,</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Removes the results of a plant count.</p>
 
       </div>
       <div class="dark-box">
