@@ -723,6 +723,7 @@ In addition, more models might be available on a per-user basis.
 Parameter | | Description
 --------- | ----------- | -----------
 model     | required | The detection model to be used
+detect_rows | optional | `true` if row detection should be performed
 webhook   | optional | URL of the webhook to send status updates to
 
 ## Plant Count data
@@ -783,3 +784,24 @@ After a plant count job has completed succesfully, its results can be published.
 
 * The results can be viewed from the Plant Counts tool in Solvi's web app
 * Results will not be removed from storage after a week
+
+## Deleting a Plant Count
+
+> Example request:
+
+```shell
+curl 
+  -X DELETE
+  -H "Authorization: Bearer <user-jwt-token>" 
+  https://solvi.ag/api/v1/projects/<project-id>/plant_counts/<job-id>
+```
+
+> Example response:
+
+```json
+  {
+    "status": "deleted",
+  }
+```
+
+Removes the results of a plant count.
