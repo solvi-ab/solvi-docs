@@ -292,6 +292,9 @@
                     <a href="#publishing-plant-counts" class="toc-h2 toc-link" data-title="Plant Counts">Publishing Plant Counts</a>
                   </li>
                   <li>
+                    <a href="#listing-a-project-39-s-plant-counts" class="toc-h2 toc-link" data-title="Plant Counts">Listing a Project's Plant Counts</a>
+                  </li>
+                  <li>
                     <a href="#deleting-a-plant-count" class="toc-h2 toc-link" data-title="Plant Counts">Deleting a Plant Count</a>
                   </li>
               </ul>
@@ -1110,6 +1113,39 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 <ul>
 <li>The results can be viewed from the Plant Counts tool in Solvi&#39;s web app</li>
 <li>Results will not be removed from storage after a week</li>
+</ul>
+<h2 id='listing-a-project-39-s-plant-counts'>Listing a Project&#39;s Plant Counts</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl 
+  -X GET
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span> 
+  https://solvi.ag/api/v1/projects/&lt;project-id&gt;/plant_counts
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="w">  </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88a2af8601cf2b7c4e14979f8df73bca7352ccce"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"completed"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-02-08T09:18:37.655Z"</span><span class="p">,</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"34a2af8601cf2b7c4e14979f8df73bca7352aef43"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-03-12T14:33:31.241Z"</span><span class="p">,</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span></code></pre>
+<p>Lists all created plant counts for a project with their id and status. Status is one of:</p>
+
+<ul>
+<li><code>processing</code>: the detection has not yet completed</li>
+<li><code>completed</code>: detection has finished and can be viewed</li>
+<li><code>published</code>: this detection is the one currently published for the project</li>
+<li><code>fail</code>: detection failed</li>
 </ul>
 <h2 id='deleting-a-plant-count'>Deleting a Plant Count</h2>
 <blockquote>
