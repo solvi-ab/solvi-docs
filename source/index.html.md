@@ -785,6 +785,41 @@ After a plant count job has completed succesfully, its results can be published.
 * The results can be viewed from the Plant Counts tool in Solvi's web app
 * Results will not be removed from storage after a week
 
+## Listing a Project's Plant Counts
+
+> Example request:
+
+```shell
+curl 
+  -X GET
+  -H "Authorization: Bearer <user-jwt-token>" 
+  https://solvi.ag/api/v1/projects/<project-id>/plant_counts
+```
+
+> Example response:
+
+```json
+  [
+    {
+      "id": "88a2af8601cf2b7c4e14979f8df73bca7352ccce",
+      "status": "completed",
+      "created_at": "2019-02-08T09:18:37.655Z",
+    },
+    {
+      "id": "34a2af8601cf2b7c4e14979f8df73bca7352aef43",
+      "status": "published",
+      "created_at": "2021-03-12T14:33:31.241Z",
+    }
+  ]
+```
+
+Lists all created plant counts for a project with their id and status. Status is one of:
+
+* `processing`: the detection has not yet completed
+* `completed`: detection has finished and can be viewed
+* `published`: this detection is the one currently published for the project
+* `fail`: detection failed
+
 ## Deleting a Plant Count
 
 > Example request:
