@@ -128,6 +128,17 @@ Parameter |  | Description
 --------- | ------- | -----------
 user_id | required | User ID given when user is created
 
+# Attaching custom metadata
+
+When using the API, it is common that the farms, fields and projects in Solvi also exist in your own
+systems, and you need information to track which entity in your system a Solvi entity maps to. There
+are many ways to accomplish this, but one way is to attach metadata to the Solvi entities. Farms, fields
+and projects created through the API all support attaching arbitrary data to them. Solvi does not use this data, so you can put anything here, as long as it can be encoded in JSON.
+
+Endpoints to create or update farms, fields and projects all accept an optional parameter `metadata` for this purpose.
+
+Endpoints that return farms, fields and projects also return the metadata under the `metadata` property if set, or `null` otherwise.
+
 # Farms
 
 ## Create farm
@@ -159,9 +170,10 @@ Creates a new farm.
 
 ### Parameters
 
-Parameter | | Description
+Parameter |             | Description
 --------- | ----------- | -----------
-name | | Name of the the farm
+name      | required    | Name of the the farm
+metadata  | optional    | Optional arbitrary metadata
 
 ## Get farms
 
@@ -185,9 +197,11 @@ curl -X GET
           {
             "id": 2657,
             "name": "Veddige",
-            "created_at": "2019-03-08T04:05:38.628Z"
+            "created_at": "2019-03-08T04:05:38.628Z",
+            "metadata": null
           }
-        ]
+        ],
+        "metadata": null
       }
     ]
 ```
@@ -230,11 +244,13 @@ Creates a new field. Field boundaries can be provided as Polygon or MultiPolygon
 
 ### Parameters
 
-Parameter | | Description
+Parameter |             | Description
 --------- | ----------- | -----------
-name | | Name of the the field
-geom | optional | Boundaries of the field as a Polygon or Multipolygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat)
-farm_id | optional | The id of the farm to put the field under; if not specified, the user's last created farm is used
+name      | required    | Name of the the field
+geom      | optional    | Boundaries of the field as a Polygon or Multipolygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat)
+farm_id   | optional    | The id of the farm to put the field under; if not specified, the user's last created farm is used
+metadata  | optional    | Optional arbitrary metadata
+
 
 
 ## Get fields
@@ -264,9 +280,11 @@ curl -X GET
                   "survey_date": "2018-02-26T14:19:36.000Z",
                   "upload_date": "2018-02-27T12:45:05.556Z",
                   "url": "https://solvi.ag/projects/1291",
-                  "thumbnail_url": "https://solvi.ag/projects/1291/thumbnail.png"
+                  "thumbnail_url": "https://solvi.ag/projects/1291/thumbnail.png",
+                  "metadata": null
               }
-          ]
+          ],
+          "metadata": null
       }
     ]
 ```
@@ -305,7 +323,7 @@ curl -X POST
         [...]
       },
       "key_prefix":"uploads/26c1ce11-c9bf-4825-821c-72e9f600a6cf/originals/"
-    }
+    },
   }
 ```
 
@@ -329,16 +347,17 @@ Optionally, a project can be created with a so-called *webhook* that will be cal
 
 ### Parameters
 
-Parameter | | Description
---------- | ----------- | -----------
-type      | optional  | The type of imagery for this project: `overlapping`, `stitched` or `scouting`; default is `overlapping`
-field_id | | Unique field identifier
-field_name | optional | Name of the the field
-field_geom | optional | Boundaries of the field as a polygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat)
+Parameter  |             | Description
+---------- | ----------- | -----------
+type       | optional    | The type of imagery for this project: `overlapping`, `stitched` or `scouting`; default is `overlapping`
+field_id   |             | Unique field identifier
+field_name |             | Name of the the field
+field_geom | optional    | Boundaries of the field as a polygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat)
 status_webhook | optional | A URL to be called when the project's status changes
 webhook_secret | optional | A token to use to sign webhook requests, see [webhooks](#webhooks) for details
+metadata   | optional    | Optional arbitrary metadata
 
-## Upload project imagery
+## Upload local imagery
 
 > Example request:
 
@@ -429,6 +448,45 @@ Parameter |  | Description
 --------- | ------- | -----------
 project_id | required | Project ID given when project is created
 
+## Upload remote imagery
+
+> Example request:
+
+```shell
+curl -X POST
+  -H "Authorization: Bearer <user-jwt-token>"
+  -H "Content-Type: application/json"
+  "https://solvi.ag/api/v1/projects/<project_id>/process_external_ortho"
+  -d '{
+    "ortho_url": "https://example.com/my_ortho.tiff"
+  }'
+```
+
+> Example response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+This will start processing a prestitched ortho photo located at the URL provided in the `ortho_url` parameter. Note that the ortho must be possible to download through a simple HTTP GET request without any other authentication than is present in the URL itself. For example a presigned S3 URL is suitable.
+
+You should _not_ use the `complete_upload` endpoint in combination with this endpoint, processing will start immediately when using this endpoint.
+
+Note that this operation is only valid for projects of `prestitched` type.
+
+### HTTP Request
+
+`POST https://solvi.ag/api/v1/projects/<project_id>/process_external_ortho`
+
+### Parameters
+
+Parameter |  | Description
+--------- | ------- | -----------
+project_id | required | Project ID given when project is created
+ortho_url  | required | The URL to download the prestitched ortho from
+
 ## Processing uploaded imagery
 
 > Example request:
@@ -475,27 +533,29 @@ curl -X GET
 ```json
   [
     {
-        "project_id": 9999,
-        "status": "processed",
-        "name": "25-JUN-2018",
-        "plant_counts": "published",
-        "field": {
-            "id": 9999,
-            "name": "Winter Wheat",
-            "identfier": "WW-01",
-            "farm": {
-                "id": 656,
-                "name": "Borgeby Farm"
-            }
-        },
-        "survey_date": "2018-06-25T19:19:27.000Z",
-        "upload_date": "2018-06-25T20:50:14.870Z",
-        "url": "https://solvi.ag/projects/9999",
-        "thumbnail_url": "https://solvi.ag/projects/9999/thumbnail.png"
+      "project_id": 9999,
+      "status": "processed",
+      "name": "25-JUN-2018",
+      "plant_counts": "published",
+      "field": {
+          "id": 9999,
+          "name": "Winter Wheat",
+          "identfier": "WW-01",
+          "farm": {
+              "id": 656,
+              "name": "Borgeby Farm"
+          }
+      },
+      "survey_date": "2018-06-25T19:19:27.000Z",
+      "upload_date": "2018-06-25T20:50:14.870Z",
+      "url": "https://solvi.ag/projects/9999",
+      "thumbnail_url": "https://solvi.ag/projects/9999/thumbnail.png",
+      "metadata": null
     },
     {
       "name": "New project",
-      "url": "https://solvi.ag/projects/new"
+      "url": "https://solvi.ag/projects/new",
+      "metadata": null
     }
   ]
 ```
@@ -526,28 +586,29 @@ curl -X GET
 
 ```json
   {
-      "project_id": 9999,
-      "status": "processed",
-      "name": "25-JUN-2018",
-      "plant_counts": "published",
-      "field": {
-          "id": 9999,
-          "name": "Winter Wheat",
-          "identfier": "WW-01",
-          "farm": {
-              "id": 656,
-              "name": "Borgeby Farm"
-          }
-      },
-      "survey_date": "2018-06-25T19:19:27.000Z",
-      "upload_date": "2018-06-25T20:50:14.870Z",
-      "url": "https://solvi.ag/projects/9999",
-      "thumbnail_url": "https://solvi.ag/projects/9999/thumbnail.png",
-      "resources": {
-        "thumbnail": "https://solvi.ag/projects/9999/thumbnail.png",
-        "ortho": "https://solvi-projects.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/ortho.tiff?...",
-        "dem": "https://solvi-projects-dev.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/dem.tiff?..."
-      }
+    "project_id": 9999,
+    "status": "processed",
+    "name": "25-JUN-2018",
+    "plant_counts": "published",
+    "field": {
+        "id": 9999,
+        "name": "Winter Wheat",
+        "identfier": "WW-01",
+        "farm": {
+            "id": 656,
+            "name": "Borgeby Farm"
+        }
+    },
+    "survey_date": "2018-06-25T19:19:27.000Z",
+    "upload_date": "2018-06-25T20:50:14.870Z",
+    "url": "https://solvi.ag/projects/9999",
+    "thumbnail_url": "https://solvi.ag/projects/9999/thumbnail.png",
+    "resources": {
+      "thumbnail": "https://solvi.ag/projects/9999/thumbnail.png",
+      "ortho": "https://solvi-projects.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/ortho.tiff?...",
+      "dem": "https://solvi-projects-dev.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/dem.tiff?..."
+    },
+    "metadata": null
   },
 ```
 
@@ -679,7 +740,10 @@ This follows the same pattern as [securing webhooks on GitHub](https://docs.gith
 
 # Plant Counts
 
-This part of the API is currently only available for scouting projects.
+The plant counts API is under development and currently only supports a limited number of use cases:
+
+* Automatic plant counts in scouting projects
+* Request plant counts done for you (by Solvi personel) in any type of project
 
 ## Create Plant Counts
 
@@ -703,9 +767,17 @@ curl
   }
 ```
 
-This initiates a plant count for the specified project. At the moment, plant counts can only be created through the API for scouting projects.
+This initiates a plant count for the specified project. A plant count can either be:
 
-Creating a plant count is an asynchronous process, after creation the plant count will be processing, and the results can not be accessed until it has completed. This asynchronous process is called a _job_. To check the job's status, it can either be polled (see below) or a webhook URL can be submitted when starting the plant count; this webhook will be called when the job's status changes. See [webhooks](#webhooks) for more details.
+* automatic, meaning Plant AI will run unsupervised
+* detection done for you by Solvi personel, supervising the detection to ensure high quality.
+
+When using the API, automatic plant counts are currently only supported for scouting projects.
+
+To create a supervised "done for you" plant count, set the `request_done_for_you` parameter to `true`.
+
+Creating a plant count is an asynchronous process, after creation the plant count will be processing, and the results can not be accessed until it has completed. This asynchronous process is called a _job_. To check the job's status, it can either be polled (see below) or a webhook URL can be submitted when starting the plant count; this webhook will be called when the job's status changes. Plant count webhooks only work in automatic mode, "done for you" plant counts can either use polling, or add a project webhook and listen to when the projects plant count is published. See [webhooks](#webhooks) for more details. Note that "done for you" type plant counts can take up
+to 24 hours to complete.
 
 The detection is performed using a detection model. By default, two different models are available:
 
@@ -723,7 +795,8 @@ In addition, more models might be available on a per-user basis.
 Parameter | | Description
 --------- | ----------- | -----------
 model     | required | The detection model to be used
-detect_rows | optional | `true` if row detection should be performed
+detect_rows | optional | `true` if row detection should be performed; only supported in automatic scouting plant counts
+request_done_for_you | optional | `true` if detection should be done for you by Solvi personel
 webhook   | optional | URL of the webhook to send status updates to
 
 ## Plant Count data
