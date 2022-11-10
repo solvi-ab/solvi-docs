@@ -232,6 +232,9 @@
               </ul>
           </li>
           <li>
+            <a href="#attaching-custom-metadata" class="toc-h1 toc-link" data-title="Attaching custom metadata">Attaching custom metadata</a>
+          </li>
+          <li>
             <a href="#farms" class="toc-h1 toc-link" data-title="Farms">Farms</a>
               <ul class="toc-list-h2">
                   <li>
@@ -260,7 +263,10 @@
                     <a href="#create-project" class="toc-h2 toc-link" data-title="Projects">Create project</a>
                   </li>
                   <li>
-                    <a href="#upload-project-imagery" class="toc-h2 toc-link" data-title="Projects">Upload project imagery</a>
+                    <a href="#upload-local-imagery" class="toc-h2 toc-link" data-title="Projects">Upload local imagery</a>
+                  </li>
+                  <li>
+                    <a href="#upload-remote-imagery" class="toc-h2 toc-link" data-title="Projects">Upload remote imagery</a>
                   </li>
                   <li>
                     <a href="#processing-uploaded-imagery" class="toc-h2 toc-link" data-title="Projects">Processing uploaded imagery</a>
@@ -433,6 +439,15 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
 <td>User ID given when user is created</td>
 </tr>
 </tbody></table>
+<h1 id='attaching-custom-metadata'>Attaching custom metadata</h1>
+<p>When using the API, it is common that the farms, fields and projects in Solvi also exist in your own
+systems, and you need information to track which entity in your system a Solvi entity maps to. There
+are many ways to accomplish this, but one way is to attach metadata to the Solvi entities. Farms, fields
+and projects created through the API all support attaching arbitrary data to them. Solvi does not use this data, so you can put anything here, as long as it can be encoded in JSON.</p>
+
+<p>Endpoints to create or update farms, fields and projects all accept an optional parameter <code>metadata</code> for this purpose.</p>
+
+<p>Endpoints that return farms, fields and projects also return the metadata under the <code>metadata</code> property if set, or <code>null</code> otherwise.</p>
 <h1 id='farms'>Farms</h1><h2 id='create-farm'>Create farm</h2>
 <blockquote>
 <p>Example request:</p>
@@ -464,8 +479,13 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
 </thead><tbody>
 <tr>
 <td>name</td>
-<td></td>
+<td>required</td>
 <td>Name of the the farm</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>optional</td>
+<td>Optional arbitrary metadata</td>
 </tr>
 </tbody></table>
 <h2 id='get-farms'>Get farms</h2>
@@ -488,9 +508,11 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
           </span><span class="p">{</span><span class="w">
             </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2657</span><span class="p">,</span><span class="w">
             </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Veddige"</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-03-08T04:05:38.628Z"</span><span class="w">
+            </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-03-08T04:05:38.628Z"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
           </span><span class="p">}</span><span class="w">
-        </span><span class="p">]</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
 </span></code></pre>
@@ -528,7 +550,7 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
 </thead><tbody>
 <tr>
 <td>name</td>
-<td></td>
+<td>required</td>
 <td>Name of the the field</td>
 </tr>
 <tr>
@@ -540,6 +562,11 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
 <td>farm_id</td>
 <td>optional</td>
 <td>The id of the farm to put the field under; if not specified, the user&#39;s last created farm is used</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>optional</td>
+<td>Optional arbitrary metadata</td>
 </tr>
 </tbody></table>
 <h2 id='get-fields'>Get fields</h2>
@@ -567,9 +594,11 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
                   </span><span class="s2">"survey_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-26T14:19:36.000Z"</span><span class="p">,</span><span class="w">
                   </span><span class="s2">"upload_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-27T12:45:05.556Z"</span><span class="p">,</span><span class="w">
                   </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/1291"</span><span class="p">,</span><span class="w">
-                  </span><span class="s2">"thumbnail_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/1291/thumbnail.png"</span><span class="w">
+                  </span><span class="s2">"thumbnail_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/1291/thumbnail.png"</span><span class="p">,</span><span class="w">
+                  </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
               </span><span class="p">}</span><span class="w">
-          </span><span class="p">]</span><span class="w">
+          </span><span class="p">],</span><span class="w">
+          </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
 </span></code></pre>
@@ -599,7 +628,7 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
         </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
       </span><span class="p">},</span><span class="w">
       </span><span class="s2">"key_prefix"</span><span class="p">:</span><span class="s2">"uploads/26c1ce11-c9bf-4825-821c-72e9f600a6cf/originals/"</span><span class="w">
-    </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span></code></pre>
 <p>This endpoint creates a new project which is required before imagery upload. In response, you will receive URL to upload-page for the newly created project where the user can be redirected.</p>
@@ -639,7 +668,7 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
 </tr>
 <tr>
 <td>field_name</td>
-<td>optional</td>
+<td></td>
 <td>Name of the the field</td>
 </tr>
 <tr>
@@ -657,8 +686,13 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
 <td>optional</td>
 <td>A token to use to sign webhook requests, see <a href="#webhooks">webhooks</a> for details</td>
 </tr>
+<tr>
+<td>metadata</td>
+<td>optional</td>
+<td>Optional arbitrary metadata</td>
+</tr>
 </tbody></table>
-<h2 id='upload-project-imagery'>Upload project imagery</h2>
+<h2 id='upload-local-imagery'>Upload local imagery</h2>
 <blockquote>
 <p>Example request:</p>
 </blockquote>
@@ -748,6 +782,51 @@ retrieved from the example above:</p>
 <td>Project ID given when project is created</td>
 </tr>
 </tbody></table>
+<h2 id='upload-remote-imagery'>Upload remote imagery</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X POST
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  -H <span class="s2">"Content-Type: application/json"</span>
+  <span class="s2">"https://solvi.ag/api/v1/projects/&lt;project_id&gt;/process_external_ortho"</span>
+  -d <span class="s1">'{
+    "ortho_url": "https://example.com/my_ortho.tiff"
+  }'</span>
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>This will start processing a prestitched ortho photo located at the URL provided in the <code>ortho_url</code> parameter. Note that the ortho must be possible to download through a simple HTTP GET request without any other authentication than is present in the URL itself. For example a presigned S3 URL is suitable.</p>
+
+<p>You should <em>not</em> use the <code>complete_upload</code> endpoint in combination with this endpoint, processing will start immediately when using this endpoint.</p>
+
+<p>Note that this operation is only valid for projects of <code>prestitched</code> type.</p>
+<h3 id='http-request-9'>HTTP Request</h3>
+<p><code>POST https://solvi.ag/api/v1/projects/&lt;project_id&gt;/process_external_ortho</code></p>
+<h3 id='parameters-7'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>project_id</td>
+<td>required</td>
+<td>Project ID given when project is created</td>
+</tr>
+<tr>
+<td>ortho_url</td>
+<td>required</td>
+<td>The URL to download the prestitched ortho from</td>
+</tr>
+</tbody></table>
 <h2 id='processing-uploaded-imagery'>Processing uploaded imagery</h2>
 <blockquote>
 <p>Example request:</p>
@@ -765,9 +844,9 @@ retrieved from the example above:</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 <p>When project imagery has been uploaded, the upload must be completed, which will start the processing of the imagery.</p>
-<h3 id='http-request-9'>HTTP Request</h3>
+<h3 id='http-request-10'>HTTP Request</h3>
 <p><code>POST https://solvi.ag/api/v1/projects/&lt;project_id&gt;/complete_upload</code></p>
-<h3 id='parameters-7'>Parameters</h3>
+<h3 id='parameters-8'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -794,34 +873,36 @@ retrieved from the example above:</p>
 </blockquote>
 <pre class="highlight json tab-json"><code><span class="w">  </span><span class="p">[</span><span class="w">
     </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"25-JUN-2018"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"field"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Winter Wheat"</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"identfier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WW-01"</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"farm"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Borgeby Farm"</span><span class="w">
-            </span><span class="p">}</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"survey_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T19:19:27.000Z"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"upload_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T20:50:14.870Z"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/9999"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"thumbnail_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/9999/thumbnail.png"</span><span class="w">
+      </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"25-JUN-2018"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"field"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Winter Wheat"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"identfier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WW-01"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"farm"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
+              </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Borgeby Farm"</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="s2">"survey_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T19:19:27.000Z"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"upload_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T20:50:14.870Z"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/9999"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"thumbnail_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/9999/thumbnail.png"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="p">{</span><span class="w">
       </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"New project"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/new"</span><span class="w">
+      </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/new"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
     </span><span class="p">}</span><span class="w">
   </span><span class="p">]</span><span class="w">
 </span></code></pre>
 <p>This endpoint retrieves all projects created by the user or shared with user by others. If field boundaries are provided, only projects whose extent overlaps boundaries are returned.</p>
-<h3 id='http-request-10'>HTTP Request</h3>
+<h3 id='http-request-11'>HTTP Request</h3>
 <p><code>GET https://solvi.ag/api/v1/projects</code></p>
-<h3 id='parameters-8'>Parameters</h3>
+<h3 id='parameters-9'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -847,36 +928,37 @@ retrieved from the example above:</p>
 <p>Example response:</p>
 </blockquote>
 <pre class="highlight json tab-json"><code><span class="w">  </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"25-JUN-2018"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"field"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-          </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
-          </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Winter Wheat"</span><span class="p">,</span><span class="w">
-          </span><span class="s2">"identfier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WW-01"</span><span class="p">,</span><span class="w">
-          </span><span class="s2">"farm"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-              </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
-              </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Borgeby Farm"</span><span class="w">
-          </span><span class="p">}</span><span class="w">
-      </span><span class="p">},</span><span class="w">
-      </span><span class="s2">"survey_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T19:19:27.000Z"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"upload_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T20:50:14.870Z"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/9999"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"thumbnail_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/9999/thumbnail.png"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"resources"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"thumbnail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/9999/thumbnail.png"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"ortho"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi-projects.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/ortho.tiff?..."</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"dem"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi-projects-dev.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/dem.tiff?..."</span><span class="w">
-      </span><span class="p">}</span><span class="w">
+    </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"25-JUN-2018"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"field"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Winter Wheat"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"identfier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WW-01"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"farm"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Borgeby Farm"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"survey_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T19:19:27.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"upload_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T20:50:14.870Z"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/9999"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"thumbnail_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/9999/thumbnail.png"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"resources"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"thumbnail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/9999/thumbnail.png"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"ortho"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi-projects.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/ortho.tiff?..."</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"dem"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi-projects-dev.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/dem.tiff?..."</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
   </span><span class="p">},</span><span class="w">
 </span></code></pre>
 <p>This endpoint retrieves projects created by the user or shared with the user by others.</p>
 
 <p>The included <code>resources</code> are URLs that can be used to fetch the project outputs. These resource URLs are temporary, with a lifetime of 15 minutes before they expire.</p>
-<h3 id='http-request-11'>HTTP Request</h3>
+<h3 id='http-request-12'>HTTP Request</h3>
 <p><code>GET https://solvi.ag/api/v1/projects/&lt;project_id&gt;</code></p>
-<h3 id='parameters-9'>Parameters</h3>
+<h3 id='parameters-10'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -924,9 +1006,9 @@ retrieved from the example above:</p>
 resolution (meters/pixel) is given by <code>resolution</code>.</p>
 
 <p>For <code>plant_counts</code> (<code>type</code> set to <code>&quot;tileset/plant_counts</code>), <code>number_plants</code> and <code>number_missing</code> give totals for the detected plants.</p>
-<h3 id='http-request-12'>HTTP Request</h3>
+<h3 id='http-request-13'>HTTP Request</h3>
 <p><code>GET https://solvi.ag/api/v1/projects/&lt;project-id&gt;/tiles/&lt;type&gt;</code></p>
-<h3 id='parameters-10'>Parameters</h3>
+<h3 id='parameters-11'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -1001,7 +1083,12 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 
 <p>This follows the same pattern as <a href="https://docs.github.com/en/developers/webhooks-and-events/securing-your-webhooks">securing webhooks on GitHub</a>, except for using the header <code>X-Solvi-Signature</code> instead.</p>
 <h1 id='plant-counts'>Plant Counts</h1>
-<p>This part of the API is currently only available for scouting projects.</p>
+<p>The plant counts API is under development and currently only supports a limited number of use cases:</p>
+
+<ul>
+<li>Automatic plant counts in scouting projects</li>
+<li>Request plant counts done for you (by Solvi personel) in any type of project</li>
+</ul>
 <h2 id='create-plant-counts'>Create Plant Counts</h2>
 <blockquote>
 <p>Example request:</p>
@@ -1021,9 +1108,19 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
     </span><span class="s2">"job_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88a2af8601cf2b7c4e14979f8df73bca7352ccce"</span><span class="p">,</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>This initiates a plant count for the specified project. At the moment, plant counts can only be created through the API for scouting projects.</p>
+<p>This initiates a plant count for the specified project. A plant count can either be:</p>
 
-<p>Creating a plant count is an asynchronous process, after creation the plant count will be processing, and the results can not be accessed until it has completed. This asynchronous process is called a <em>job</em>. To check the job&#39;s status, it can either be polled (see below) or a webhook URL can be submitted when starting the plant count; this webhook will be called when the job&#39;s status changes. See <a href="#webhooks">webhooks</a> for more details.</p>
+<ul>
+<li>automatic, meaning Plant AI will run unsupervised</li>
+<li>detection done for you by Solvi personel, supervising the detection to ensure high quality.</li>
+</ul>
+
+<p>When using the API, automatic plant counts are currently only supported for scouting projects.</p>
+
+<p>To create a supervised &quot;done for you&quot; plant count, set the <code>request_done_for_you</code> parameter to <code>true</code>.</p>
+
+<p>Creating a plant count is an asynchronous process, after creation the plant count will be processing, and the results can not be accessed until it has completed. This asynchronous process is called a <em>job</em>. To check the job&#39;s status, it can either be polled (see below) or a webhook URL can be submitted when starting the plant count; this webhook will be called when the job&#39;s status changes. Plant count webhooks only work in automatic mode, &quot;done for you&quot; plant counts can either use polling, or add a project webhook and listen to when the projects plant count is published. See <a href="#webhooks">webhooks</a> for more details. Note that &quot;done for you&quot; type plant counts can take up
+to 24 hours to complete.</p>
 
 <p>The detection is performed using a detection model. By default, two different models are available:</p>
 
@@ -1033,9 +1130,9 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 </ul>
 
 <p>In addition, more models might be available on a per-user basis.</p>
-<h3 id='http-request-13'>HTTP Request</h3>
+<h3 id='http-request-14'>HTTP Request</h3>
 <p><code>POST https://solvi.ag/api/v1/projects/&lt;project-id&gt;/plant_counts</code></p>
-<h3 id='parameters-11'>Parameters</h3>
+<h3 id='parameters-12'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -1051,7 +1148,12 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 <tr>
 <td>detect_rows</td>
 <td>optional</td>
-<td><code>true</code> if row detection should be performed</td>
+<td><code>true</code> if row detection should be performed; only supported in automatic scouting plant counts</td>
+</tr>
+<tr>
+<td>request_done_for_you</td>
+<td>optional</td>
+<td><code>true</code> if detection should be done for you by Solvi personel</td>
 </tr>
 <tr>
 <td>webhook</td>
