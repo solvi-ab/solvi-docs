@@ -357,7 +357,7 @@ status_webhook | optional | A URL to be called when the project's status changes
 webhook_secret | optional | A token to use to sign webhook requests, see [webhooks](#webhooks) for details
 metadata   | optional    | Optional arbitrary metadata
 
-## Upload project imagery
+## Upload local imagery
 
 > Example request:
 
@@ -447,6 +447,45 @@ The required parameters are included in the `imagery_upload_data` object: this o
 Parameter |  | Description
 --------- | ------- | -----------
 project_id | required | Project ID given when project is created
+
+## Upload remote imagery
+
+> Example request:
+
+```shell
+curl -X POST
+  -H "Authorization: Bearer <user-jwt-token>"
+  -H "Content-Type: application/json"
+  "https://solvi.ag/api/v1/projects/<project_id>/process_external_ortho"
+  -d '{
+    "ortho_url": "https://example.com/my_ortho.tiff"
+  }'
+```
+
+> Example response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+This will start processing a prestitched ortho photo located at the URL provided in the `ortho_url` parameter. Note that the ortho must be possible to download through a simple HTTP GET request without any other authentication than is present in the URL itself. For example a presigned S3 URL is suitable.
+
+You should _not_ use the `complete_upload` endpoint in combination with this endpoint, processing will start immediately when using this endpoint.
+
+Note that this operation is only valid for projects of `prestitched` type.
+
+### HTTP Request
+
+`POST https://solvi.ag/api/v1/projects/<project_id>/process_external_ortho`
+
+### Parameters
+
+Parameter |  | Description
+--------- | ------- | -----------
+project_id | required | Project ID given when project is created
+ortho_url  | required | The URL to download the prestitched ortho from
 
 ## Processing uploaded imagery
 
