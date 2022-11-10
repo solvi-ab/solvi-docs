@@ -701,7 +701,10 @@ This follows the same pattern as [securing webhooks on GitHub](https://docs.gith
 
 # Plant Counts
 
-This part of the API is currently only available for scouting projects.
+The plant counts API is under development and currently only supports a limited number of use cases:
+
+* Automatic plant counts in scouting projects
+* Request plant counts done for you (by Solvi personel) in any type of project
 
 ## Create Plant Counts
 
@@ -725,9 +728,17 @@ curl
   }
 ```
 
-This initiates a plant count for the specified project. At the moment, plant counts can only be created through the API for scouting projects.
+This initiates a plant count for the specified project. A plant count can either be:
 
-Creating a plant count is an asynchronous process, after creation the plant count will be processing, and the results can not be accessed until it has completed. This asynchronous process is called a _job_. To check the job's status, it can either be polled (see below) or a webhook URL can be submitted when starting the plant count; this webhook will be called when the job's status changes. See [webhooks](#webhooks) for more details.
+* automatic, meaning Plant AI will run unsupervised
+* detection done for you by Solvi personel, supervising the detection to ensure high quality.
+
+When using the API, automatic plant counts are currently only supported for scouting projects.
+
+To create a supervised "done for you" plant count, set the `request_done_for_you` parameter to `true`.
+
+Creating a plant count is an asynchronous process, after creation the plant count will be processing, and the results can not be accessed until it has completed. This asynchronous process is called a _job_. To check the job's status, it can either be polled (see below) or a webhook URL can be submitted when starting the plant count; this webhook will be called when the job's status changes. Plant count webhooks only work in automatic mode, "done for you" plant counts can either use polling, or add a project webhook and listen to when the projects plant count is published. See [webhooks](#webhooks) for more details. Note that "done for you" type plant counts can take up
+to 24 hours to complete.
 
 The detection is performed using a detection model. By default, two different models are available:
 
@@ -745,7 +756,8 @@ In addition, more models might be available on a per-user basis.
 Parameter | | Description
 --------- | ----------- | -----------
 model     | required | The detection model to be used
-detect_rows | optional | `true` if row detection should be performed
+detect_rows | optional | `true` if row detection should be performed; only supported in automatic scouting plant counts
+request_done_for_you | optional | `true` if detection should be done for you by Solvi personel
 webhook   | optional | URL of the webhook to send status updates to
 
 ## Plant Count data
