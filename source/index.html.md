@@ -341,6 +341,8 @@ Fields can be created either beforehand - then `field_id` parameter should be sp
 
 Optionally, a project can be created with a so-called *webhook* that will be called every time the status of the project changes. This makes it possible for integration to for example react when a project finishes processing, without having to use polling to check the project's status. To add a webhook, specify the URL to be called with the `status_webhook` parameter. See the section on [webhooks](#webhooks) for details.
 
+The project's crop, survey date and altitude, data which will be displayed in Solvi's UI, can also be submitted.
+
 ### HTTP Request
 
 `POST https://solvi.ag/api/v1/projects`
@@ -355,7 +357,46 @@ field_name |             | Name of the the field
 field_geom | optional    | Boundaries of the field as a polygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat)
 status_webhook | optional | A URL to be called when the project's status changes
 webhook_secret | optional | A token to use to sign webhook requests, see [webhooks](#webhooks) for details
+survey_date | optional   | Date survey was conducted, formatted as YYYY-MM-DD
+crop       | optional    | The documented crop; free form string
+altitude   | optional    | Altitude the imagery was taken from in meters
 metadata   | optional    | Optional arbitrary metadata
+
+## Update project data
+
+> Example request:
+
+```shell
+curl -X PUT
+  -H "Authorization: Bearer <user-jwt-token>"
+  -H "Content-Type: application/json"
+  -d '{
+    "survey_date": "2022-08-18"
+  }'
+```
+
+> Example response:
+
+```json
+{
+    "status": "ok"
+}
+```
+
+### HTTP Request
+
+`PUT https://solvi.ag/api/v1/projects/<project_id>`
+
+### Parameters
+
+Parameter  |             | Description
+---------- | ----------- | -----------
+survey_date | optional   | Date survey was conducted, formatted as YYYY-MM-DD
+crop       | optional    | The documented crop; free form string
+altitude   | optional    | Altitude the imagery was taken from in meters
+metadata   | optional    | Optional arbitrary metadata
+
+This endpoint allows updating survey date, crop, altitude and metadata for a project.
 
 ## Upload local imagery
 
