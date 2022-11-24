@@ -738,7 +738,6 @@ The webhook is configured when [creating a project](#create-project) or when [cr
 The type of event that occured is determined by the `event_type` parameter of the request body. Currently, there are two supported event types: 
 
 * `status_changed`, indicates that the project's status has changed
-* `job_status_changed`, when a plant count job's status changes
 * `plant_counts_published`, triggered when plant counts have been published for the project
 
 #### Status changes
@@ -750,16 +749,6 @@ There are three different project statuses:
 * `not_processed` - the project has been created but not yet processed, project outputs will not be available
 * `processed` - the project has been processed and its outputs are available
 * `failed` - the processing for this project failed, outputs are not available
-
-#### Job status changes
-
-This is similar to the project status change message, but refers to a plant detection job's status. It contains a `job_id` for the detection that changed, `old_status`, the status of the project before this change, as well as `new_status`, the project's updated status.
-
-There are three different statuses:
-
-* `processing` - the plant count is being processed
-* `completed` - the plant count has been processed succesfully and its results are available
-* `fail` - the detection failed
 
 #### Plant Counts Published
 
@@ -817,7 +806,7 @@ When using the API, automatic plant counts are currently only supported for scou
 
 To create a supervised "done for you" plant count, set the `request_done_for_you` parameter to `true`.
 
-Creating a plant count is an asynchronous process, after creation the plant count will be processing, and the results can not be accessed until it has completed. This asynchronous process is called a _job_. To check the job's status, it can either be polled (see below) or a webhook URL can be submitted when starting the plant count; this webhook will be called when the job's status changes. Plant count webhooks only work in automatic mode, "done for you" plant counts can either use polling, or add a project webhook and listen to when the projects plant count is published. See [webhooks](#webhooks) for more details. Note that "done for you" type plant counts can take up
+Creating a plant count is an asynchronous process, after creation the plant count will be processing, and the results can not be accessed until it has completed. This asynchronous process is called a _job_. To check the job's status, it can either be polled (see below) or a webhook URL can be submitted when starting the plant count; this webhook will be called when the job's status changes. Plant count webhooks only work in automatic mode, "done for you" plant counts can either use polling, or add a project webhook and listen to when the project's plant count is published. See [webhooks](#webhooks) for more details. Note that "done for you" type plant counts can take up
 to 24 hours to complete.
 
 The detection is performed using a detection model. By default, two different models are available:
@@ -874,6 +863,25 @@ Depending on status of the detection job, different HTTP status codes will be us
 When processing has completed, the response will contain a `results` property which lists URLs that can be used to get the detection results. These URLs are valid for at least 24 hours. For scouting projects, a detection results in a JSON file containing a summary of the detection, as well as one GeoJSON file per image in the project.
 
 The results of a detection are kept in storage for one week. After this time, the results are removed from storage and requesting the results will return a 404 code. If a detection is published, the results will be kept in storage.
+
+## Plant Count Webhook
+
+In addition to polling a plant count for data, you can also register a webhook that will be notified when the plant count has been processed. The webhook URL is specified when you [create the plant count](#create-plant-counts). The webhook will [sign requests using the project's webhook secret](#securing-webhooks) if it is set.
+
+The webhook will currently only receive a single type of event: `job_status_changed`. This event triggers when the plant detection job's status changes. It contains:
+
+* `job_id` for the detection that changed
+* `project_id` of the project it refers to
+* `old_status` the status of the project before this change
+* `new_status` the job's updated status.
+
+There are three different statuses:
+
+* `processing` - the plant count is being processed
+* `completed` - the plant count has been processed succesfully and its results are available
+* `fail` - the detection failed
+
+
 
 ## Publishing Plant Counts
 
