@@ -966,3 +966,128 @@ curl
 
 Removes the results of a plant count. Please note that "done for you" plant counts can't be deleted.
 
+# Zonal Statistics
+
+The Zonal Statistics API lets you create zones in a project and create various statistics for them: primarily various vegetation indices as well as plant count statistics for projects where plant counts have been published.
+
+## Creating and calculating statistics for zones
+
+> Example request:
+
+```shell
+curl -X POST
+  -H "Authorization: Bearer <user-jwt-token>" 
+  -H "Content-Type: application/json"
+  -d '{
+    "indices": ["vari"],
+    "extra_data": {"plant_counts": true},
+    "geojson": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": {},
+          "geometry": {
+            "type": "Polygon"
+            "coordinates": [
+              [
+                [
+                  -115.40068410376747,
+                  33.14301501895726
+                ],
+                [
+                  -115.40068410376747,
+                  33.142561119287876
+                ],
+                [
+                  -115.4001781509446,
+                  33.142561119287876
+                ],
+                [
+                  -115.4001781509446,
+                  33.14301501895726
+                ],
+                [
+                  -115.40068410376747,
+                  33.14301501895726
+                ]
+              ]
+            ],
+          }
+        }
+      ]
+    }
+  }'
+  https://solvi.ag/api/v1/projects/<project-id>/zonal_statistics'
+```
+
+> Example response:
+
+```json
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "vari_p25": -0.12272727489471436,
+                "vari_p75": -0.051350148394703865,
+                "vari_mean": -0.08275701161977407,
+                "vari_median": -0.11009174585342407,
+                "vari_stdev": 0.05680577057554646,
+                "vari_min": -0.1606217622756958,
+                "vari_max": 0.1172839477658
+                [...]
+```
+
+Sets the zones for a project and calculates the provided statistics. The zones should be provided through the `geojson` parameter: it should contain a GeoJSON FeatureCollection with Polygon features. Other GeoJSON objects or invalid GeoJSON will result in a `400 Bad request` response.
+
+In addition to the zone features, the `indices` parameter lists the vegetation indices that should be calculated for the zones. The indices should be listed as lowercase abbreviations, for example VARI index should be listed as `"vari"`. Note that the available indices vary depending on the project's bands: for example, NDVI is only available if the project's orthophoto has red and near-infrared (NIR) bands. Listing unknown indices or indices that can't be calculated will also result in a `400 Bad request` response.
+
+For projects with published plant counts, plant count statistics can also be calculated by the optional parameter `extra_data`, which in this case should be set to `{"plant_counts": true}`.
+
+The endpoint responds with a GeoJSON FeatureCollection with the same geometries that were provided, but with properties added for the calculated statistics. This response is also saved with the project, and can be viewed on Solvi's web site, and also later fetched with the GET endpoint below.
+
+### HTTP Request
+
+`POST https://solvi.ag/api/v1/projects/<project-id>/zonal_statistics`
+
+### Parameters
+
+Parameter   |             | Description
+----------- | ----------- | -----------
+indices     | required    | List in vegetation indices to calculate; index names should be lower case strings
+geojson     | required    | GeoJSON FeatureCollection representing the zone features
+extra_data  | optional    | Extra data layers to calculate statistics for, expressed as an object with string layer names as keys and boolean values to indicate if layer should be used
+
+## Getting Zonal Statistics for a project
+
+> Example request:
+
+```shell
+curl 
+  -X GET
+  -H "Authorization: Bearer <user-jwt-token>" 
+  https://solvi.ag/api/v1/projects/<project-id>/zonal_statistics
+```
+
+> Example response:
+
+```json
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "vari_p25": -0.12272727489471436,
+                "vari_p75": -0.051350148394703865,
+                "vari_mean": -0.08275701161977407,
+                "vari_median": -0.11009174585342407,
+                "vari_stdev": 0.05680577057554646,
+                "vari_min": -0.1606217622756958,
+                "vari_max": 0.1172839477658
+                [...]
+```
+
+Fetches any saved zonal statistics for a project. The zones are returned as a GeoJSON FeatureCollection with statistics in each feature's `properties`. If no zones are defined for this project, a `404 Not found` is returned.
