@@ -298,6 +298,9 @@
                     <a href="#plant-count-data" class="toc-h2 toc-link" data-title="Plant Counts">Plant Count data</a>
                   </li>
                   <li>
+                    <a href="#plant-count-webhook" class="toc-h2 toc-link" data-title="Plant Counts">Plant Count Webhook</a>
+                  </li>
+                  <li>
                     <a href="#publishing-plant-counts" class="toc-h2 toc-link" data-title="Plant Counts">Publishing Plant Counts</a>
                   </li>
                   <li>
@@ -305,6 +308,17 @@
                   </li>
                   <li>
                     <a href="#deleting-a-plant-count" class="toc-h2 toc-link" data-title="Plant Counts">Deleting a Plant Count</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#zonal-statistics" class="toc-h1 toc-link" data-title="Zonal Statistics">Zonal Statistics</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#creating-and-calculating-statistics-for-zones" class="toc-h2 toc-link" data-title="Zonal Statistics">Creating and calculating statistics for zones</a>
+                  </li>
+                  <li>
+                    <a href="#getting-zonal-statistics-for-a-project" class="toc-h2 toc-link" data-title="Zonal Statistics">Getting Zonal Statistics for a project</a>
                   </li>
               </ul>
           </li>
@@ -1116,7 +1130,6 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 
 <ul>
 <li><code>status_changed</code>, indicates that the project&#39;s status has changed</li>
-<li><code>job_status_changed</code>, when a plant count job&#39;s status changes</li>
 <li><code>plant_counts_published</code>, triggered when plant counts have been published for the project</li>
 </ul>
 <h4 id='status-changes'>Status changes</h4>
@@ -1128,16 +1141,6 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 <li><code>not_processed</code> - the project has been created but not yet processed, project outputs will not be available</li>
 <li><code>processed</code> - the project has been processed and its outputs are available</li>
 <li><code>failed</code> - the processing for this project failed, outputs are not available</li>
-</ul>
-<h4 id='job-status-changes'>Job status changes</h4>
-<p>This is similar to the project status change message, but refers to a plant detection job&#39;s status. It contains a <code>job_id</code> for the detection that changed, <code>old_status</code>, the status of the project before this change, as well as <code>new_status</code>, the project&#39;s updated status.</p>
-
-<p>There are three different statuses:</p>
-
-<ul>
-<li><code>processing</code> - the plant count is being processed</li>
-<li><code>completed</code> - the plant count has been processed succesfully and its results are available</li>
-<li><code>fail</code> - the detection failed</li>
 </ul>
 <h4 id='plant-counts-published'>Plant Counts Published</h4>
 <p>Notifies that plant counts data has been published for this project. The results can be fetched using the tiles endpoint with <code>plant_counts</code> as type.</p>
@@ -1189,7 +1192,7 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 
 <p>To create a supervised &quot;done for you&quot; plant count, set the <code>request_done_for_you</code> parameter to <code>true</code>.</p>
 
-<p>Creating a plant count is an asynchronous process, after creation the plant count will be processing, and the results can not be accessed until it has completed. This asynchronous process is called a <em>job</em>. To check the job&#39;s status, it can either be polled (see below) or a webhook URL can be submitted when starting the plant count; this webhook will be called when the job&#39;s status changes. Plant count webhooks only work in automatic mode, &quot;done for you&quot; plant counts can either use polling, or add a project webhook and listen to when the projects plant count is published. See <a href="#webhooks">webhooks</a> for more details. Note that &quot;done for you&quot; type plant counts can take up
+<p>Creating a plant count is an asynchronous process, after creation the plant count will be processing, and the results can not be accessed until it has completed. This asynchronous process is called a <em>job</em>. To check the job&#39;s status, it can either be polled (see below) or a webhook URL can be submitted when starting the plant count; this webhook will be called when the job&#39;s status changes. Plant count webhooks only work in automatic mode, &quot;done for you&quot; plant counts can either use polling, or add a project webhook and listen to when the project&#39;s plant count is published. See <a href="#webhooks">webhooks</a> for more details. Note that &quot;done for you&quot; type plant counts can take up
 to 24 hours to complete.</p>
 
 <p>The detection is performed using a detection model. By default, two different models are available:</p>
@@ -1264,6 +1267,28 @@ to 24 hours to complete.</p>
 <p>When processing has completed, the response will contain a <code>results</code> property which lists URLs that can be used to get the detection results. These URLs are valid for at least 24 hours. For scouting projects, a detection results in a JSON file containing a summary of the detection, as well as one GeoJSON file per image in the project.</p>
 
 <p>The results of a detection are kept in storage for one week. After this time, the results are removed from storage and requesting the results will return a 404 code. If a detection is published, the results will be kept in storage.</p>
+
+<p>Note that &quot;done for you&quot; plant counts in legacy projects, processed before 2023-01-01, the returned result <em>may</em>
+be a single ZIP archive file containing a Shapefile. In newer projects, the returned data will always be uncompressed data in multiple files.</p>
+<h2 id='plant-count-webhook'>Plant Count Webhook</h2>
+<p>In addition to polling a plant count for data, you can also register a webhook that will be notified when the plant count has been processed. The webhook URL is specified when you <a href="#create-plant-counts">create the plant count</a>. The webhook will <a href="#securing-webhooks">sign requests using the project&#39;s webhook secret</a> if it is set.</p>
+
+<p>The webhook will currently only receive a single type of event: <code>job_status_changed</code>. This event triggers when the plant detection job&#39;s status changes. It contains:</p>
+
+<ul>
+<li><code>job_id</code> for the detection that changed</li>
+<li><code>project_id</code> of the project it refers to</li>
+<li><code>old_status</code> the status of the project before this change</li>
+<li><code>new_status</code> the job&#39;s updated status.</li>
+</ul>
+
+<p>There are three different statuses:</p>
+
+<ul>
+<li><code>processing</code> - the plant count is being processed</li>
+<li><code>completed</code> - the plant count has been processed succesfully and its results are available</li>
+<li><code>fail</code> - the detection failed</li>
+</ul>
 <h2 id='publishing-plant-counts'>Publishing Plant Counts</h2>
 <blockquote>
 <p>Example request:</p>
@@ -1335,7 +1360,137 @@ to 24 hours to complete.</p>
     </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"deleted"</span><span class="p">,</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>Removes the results of a plant count.</p>
+<p>Removes the results of a plant count. Please note that &quot;done for you&quot; plant counts can&#39;t be deleted.</p>
+<h1 id='zonal-statistics'>Zonal Statistics</h1>
+<p>The Zonal Statistics API lets you create zones in a project and create various statistics for them: primarily various vegetation indices as well as plant count statistics for projects where plant counts have been published.</p>
+<h2 id='creating-and-calculating-statistics-for-zones'>Creating and calculating statistics for zones</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X POST
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span> 
+  -H <span class="s2">"Content-Type: application/json"</span>
+  -d <span class="s1">'{
+    "indices": ["vari"],
+    "extra_data": {"plant_counts": true},
+    "geojson": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": {},
+          "geometry": {
+            "type": "Polygon"
+            "coordinates": [
+              [
+                [
+                  -115.40068410376747,
+                  33.14301501895726
+                ],
+                [
+                  -115.40068410376747,
+                  33.142561119287876
+                ],
+                [
+                  -115.4001781509446,
+                  33.142561119287876
+                ],
+                [
+                  -115.4001781509446,
+                  33.14301501895726
+                ],
+                [
+                  -115.40068410376747,
+                  33.14301501895726
+                ]
+              ]
+            ],
+          }
+        }
+      ]
+    }
+  }'</span>
+  https://solvi.ag/api/v1/projects/&lt;project-id&gt;/zonal_statistics<span class="s1">'
+</span></code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FeatureCollection"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"vari_p25"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.12272727489471436</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"vari_p75"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.051350148394703865</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"vari_mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.08275701161977407</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"vari_median"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.11009174585342407</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"vari_stdev"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05680577057554646</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"vari_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.1606217622756958</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"vari_max"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1172839477658</span><span class="w">
+                </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
+</span></code></pre>
+<p>Sets the zones for a project and calculates the provided statistics. The zones should be provided through the <code>geojson</code> parameter: it should contain a GeoJSON FeatureCollection with Polygon features. Other GeoJSON objects or invalid GeoJSON will result in a <code>400 Bad request</code> response.</p>
+
+<p>In addition to the zone features, the <code>indices</code> parameter lists the vegetation indices that should be calculated for the zones. The indices should be listed as lowercase abbreviations, for example VARI index should be listed as <code>&quot;vari&quot;</code>. Note that the available indices vary depending on the project&#39;s bands: for example, NDVI is only available if the project&#39;s orthophoto has red and near-infrared (NIR) bands. Listing unknown indices or indices that can&#39;t be calculated will also result in a <code>400 Bad request</code> response.</p>
+
+<p>For projects with published plant counts, plant count statistics can also be calculated by the optional parameter <code>extra_data</code>, which in this case should be set to <code>{&quot;plant_counts&quot;: true}</code>.</p>
+
+<p>The endpoint responds with a GeoJSON FeatureCollection with the same geometries that were provided, but with properties added for the calculated statistics. This response is also saved with the project, and can be viewed on Solvi&#39;s web site, and also later fetched with the GET endpoint below.</p>
+<h3 id='http-request-16'>HTTP Request</h3>
+<p><code>POST https://solvi.ag/api/v1/projects/&lt;project-id&gt;/zonal_statistics</code></p>
+<h3 id='parameters-14'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>indices</td>
+<td>required</td>
+<td>List in vegetation indices to calculate; index names should be lower case strings</td>
+</tr>
+<tr>
+<td>geojson</td>
+<td>required</td>
+<td>GeoJSON FeatureCollection representing the zone features</td>
+</tr>
+<tr>
+<td>extra_data</td>
+<td>optional</td>
+<td>Extra data layers to calculate statistics for, expressed as an object with string layer names as keys and boolean values to indicate if layer should be used</td>
+</tr>
+</tbody></table>
+<h2 id='getting-zonal-statistics-for-a-project'>Getting Zonal Statistics for a project</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl 
+  -X GET
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span> 
+  https://solvi.ag/api/v1/projects/&lt;project-id&gt;/zonal_statistics
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FeatureCollection"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"vari_p25"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.12272727489471436</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"vari_p75"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.051350148394703865</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"vari_mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.08275701161977407</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"vari_median"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.11009174585342407</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"vari_stdev"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05680577057554646</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"vari_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.1606217622756958</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"vari_max"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1172839477658</span><span class="w">
+                </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
+</span></code></pre>
+<p>Fetches any saved zonal statistics for a project. The zones are returned as a GeoJSON FeatureCollection with statistics in each feature&#39;s <code>properties</code>. If no zones are defined for this project, a <code>404 Not found</code> is returned.</p>
 
       </div>
       <div class="dark-box">
