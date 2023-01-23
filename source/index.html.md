@@ -864,6 +864,9 @@ When processing has completed, the response will contain a `results` property wh
 
 The results of a detection are kept in storage for one week. After this time, the results are removed from storage and requesting the results will return a 404 code. If a detection is published, the results will be kept in storage.
 
+Note that "done for you" plant counts in legacy projects, processed before 2023-01-01, the returned result _may_
+be a single ZIP archive file containing a Shapefile. In newer projects, the returned data will always be uncompressed data in multiple files.
+
 ## Plant Count Webhook
 
 In addition to polling a plant count for data, you can also register a webhook that will be notified when the plant count has been processed. The webhook URL is specified when you [create the plant count](#create-plant-counts). The webhook will [sign requests using the project's webhook secret](#securing-webhooks) if it is set.
@@ -961,4 +964,5 @@ curl
   }
 ```
 
-Removes the results of a plant count.
+Removes the results of a plant count. Please note that "done for you" plant counts can't be deleted.
+
