@@ -1086,10 +1086,10 @@ retrieved from the example above:</p>
 
 <p>Note that all types are not necessarily available for all projects. Requesting a tile type that is not available will give a HTTP 404 response.</p>
 
-<p>For <code>ortho</code> and <code>dem</code> tiles (<code>type</code> set to <code>&quot;tileset/orthomosaic</code>), geographic bounds are returned in the <code>bounds</code> property, and the native
+<p>For <code>ortho</code> and <code>dem</code> tiles (when response <code>type</code> is <code>&quot;tileset/orthomosaic</code>), geographic bounds are returned in the <code>bounds</code> property, and the native
 resolution (meters/pixel) is given by <code>resolution</code>.</p>
 
-<p>For <code>plant_counts</code> (<code>type</code> set to <code>&quot;tileset/plant_counts</code>), <code>number_plants</code> and <code>number_missing</code> give totals for the detected plants.</p>
+<p>For <code>plant_counts</code> (when response <code>type</code> is <code>&quot;tileset/plant_counts</code>), <code>number_plants</code> and <code>number_missing</code> give totals for the detected plants.</p>
 <h3 id='http-request-14'>HTTP Request</h3>
 <p><code>GET https://solvi.ag/api/v1/projects/&lt;project-id&gt;/tiles/&lt;type&gt;</code></p>
 <h3 id='parameters-12'>Parameters</h3>
