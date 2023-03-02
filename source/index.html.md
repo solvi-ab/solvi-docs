@@ -700,10 +700,10 @@ This endpoint retrieves a tile template URL, suitable for use with popular map c
 
 Note that all types are not necessarily available for all projects. Requesting a tile type that is not available will give a HTTP 404 response.
 
-For `ortho` and `dem` tiles (`type` set to `"tileset/orthomosaic`), geographic bounds are returned in the `bounds` property, and the native
+For `ortho` and `dem` tiles (when response `type` is `"tileset/orthomosaic`), geographic bounds are returned in the `bounds` property, and the native
 resolution (meters/pixel) is given by `resolution`.
 
-For `plant_counts` (`type` set to `"tileset/plant_counts`), `number_plants` and `number_missing` give totals for the detected plants.
+For `plant_counts` (when response `type` is `"tileset/plant_counts`), `number_plants` and `number_missing` give totals for the detected plants.
 
 ### HTTP Request
 
