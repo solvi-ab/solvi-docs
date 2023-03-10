@@ -549,6 +549,8 @@ curl -X POST
 
 When project imagery has been uploaded, the upload must be completed, which will start the processing of the imagery.
 
+If processing was successfully started, the HTTP response code will be `200`. In addition, a response of `402` (Payment required) can also be returned, if the upload or credit quota for the user is not sufficient for processing the upload.
+
 ### HTTP Request
 
 `POST https://solvi.ag/api/v1/projects/<project_id>/complete_upload`
