@@ -928,6 +928,8 @@ retrieved from the example above:</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 <p>When project imagery has been uploaded, the upload must be completed, which will start the processing of the imagery.</p>
+
+<p>If processing was successfully started, the HTTP response code will be <code>200</code>. In addition, a response of <code>402</code> (Payment required) can also be returned, if the upload or credit quota for the user is not sufficient for processing the upload.</p>
 <h3 id='http-request-11'>HTTP Request</h3>
 <p><code>POST https://solvi.ag/api/v1/projects/&lt;project_id&gt;/complete_upload</code></p>
 <h3 id='parameters-9'>Parameters</h3>
