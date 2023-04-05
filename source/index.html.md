@@ -339,7 +339,7 @@ Projects can be connected to a Field. When multiple projects are related to the 
 
 Fields can be either be:
 
-* [created either beforehand](#create-field); for this case, set the `field_id` parameter to the previously created field's `id`
+* [created beforehand](#create-field); for this case, set the `field_id` parameter to the previously created field's `id`
 * created on the fly by sending `field_name` and `field_geom` (optional), which will create a new field for the project; do not include `field_id`
 
 Optionally, a project can be created with a so-called *webhook* that will be called every time the status of the project changes. This makes it possible for integration to for example react when a project finishes processing, without having to use polling to check the project's status. To add a webhook, specify the URL to be called with the `status_webhook` parameter. See the section on [webhooks](#webhooks) for details.
