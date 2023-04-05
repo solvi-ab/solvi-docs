@@ -337,7 +337,10 @@ There are multiple *types* of projects: `overlapping` (the default), `stitched` 
 
 Projects can be connected to a Field. When multiple projects are related to the same Field, they appear in the same map view when data is processed. This allows for easier navigation between imagery over the same Field and over the time data comparison.
 
-Fields can be created either beforehand - then `field_id` parameter should be specified when creating a project, or on the fly by sending in `field_name` and `field_geom`.
+Fields can be either be:
+
+* [created either beforehand](#create-field); for this case, set the `field_id` parameter to the previously created field's `id`
+* created on the fly by sending `field_name` and `field_geom` (optional), which will create a new field for the project; do not include `field_id`
 
 Optionally, a project can be created with a so-called *webhook* that will be called every time the status of the project changes. This makes it possible for integration to for example react when a project finishes processing, without having to use polling to check the project's status. To add a webhook, specify the URL to be called with the `status_webhook` parameter. See the section on [webhooks](#webhooks) for details.
 
@@ -352,7 +355,7 @@ The project's crop, survey date and altitude, data which will be displayed in So
 Parameter  |             | Description
 ---------- | ----------- | -----------
 type       | optional    | The type of imagery for this project: `overlapping`, `stitched` or `scouting`; default is `overlapping`
-field_id   |             | Unique field identifier
+field_id   |             | Solvi field id as returned from [Fields API](#fields)
 field_name |             | Name of the the field
 field_geom | optional    | Boundaries of the field as a polygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat)
 status_webhook | optional | A URL to be called when the project's status changes
