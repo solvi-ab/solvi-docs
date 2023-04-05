@@ -269,6 +269,7 @@ curl -X GET
 ```json
     [
       {
+          "id": 199,
           "name": "wheat field",
           "created_at": "2018-02-27T12:45:05.550Z",
           "projects": [
