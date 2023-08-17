@@ -481,7 +481,7 @@ function uploadFiles (imagery_upload_data, files) {
 ```
 
 
-The required parameters are included in the `imagery_upload_data` object: this object has a `url` property indicating the URL to POST imagery to, and a `fields` object, listing the HTTP form data fields required for the POST request. In addition to these fields, the form must also include a `key` field: the key is the must include a value prefixed by the `key_prefix` and value unique for each image (like its filename).
+The required parameters are included in the `imagery_upload_data` object: this object has a `url` property indicating the URL to POST imagery to, and a `fields` object, listing the HTTP form data fields required for the POST request. In addition to these fields, the form must also include a `key` field, this is the destination path for the uploaded file: the key must start with specified `key_prefix` and its value must be unique for each image, usually the key is set from the `key_prefix` and the uploaded file's filename. Note that subdirectories are not allowed and the filename can't contain special characters like `/`, `\` and `:`.
 
 ### HTTP Request
 
