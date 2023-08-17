@@ -600,7 +600,6 @@ and projects created through the API all support attaching arbitrary data to the
 </blockquote>
 <pre class="highlight json tab-json"><code><span class="w">    </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
-          </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">199</span><span class="p">,</span><span class="w">
           </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wheat field"</span><span class="p">,</span><span class="w">
           </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-27T12:45:05.550Z"</span><span class="p">,</span><span class="w">
           </span><span class="s2">"projects"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -661,12 +660,7 @@ and projects created through the API all support attaching arbitrary data to the
 
 <p>Projects can be connected to a Field. When multiple projects are related to the same Field, they appear in the same map view when data is processed. This allows for easier navigation between imagery over the same Field and over the time data comparison.</p>
 
-<p>Fields can be either be:</p>
-
-<ul>
-<li><a href="#create-field">created beforehand</a>; for this case, set the <code>field_id</code> parameter to the previously created field&#39;s <code>id</code></li>
-<li>created on the fly by sending <code>field_name</code> and <code>field_geom</code> (optional), which will create a new field for the project; do not include <code>field_id</code></li>
-</ul>
+<p>Fields can be created either beforehand - then <code>field_id</code> parameter should be specified when creating a project, or on the fly by sending in <code>field_name</code> and <code>field_geom</code>.</p>
 
 <p>Optionally, a project can be created with a so-called <em>webhook</em> that will be called every time the status of the project changes. This makes it possible for integration to for example react when a project finishes processing, without having to use polling to check the project&#39;s status. To add a webhook, specify the URL to be called with the <code>status_webhook</code> parameter. See the section on <a href="#webhooks">webhooks</a> for details.</p>
 
@@ -689,7 +683,7 @@ and projects created through the API all support attaching arbitrary data to the
 <tr>
 <td>field_id</td>
 <td></td>
-<td>Solvi field id as returned from <a href="#fields">Fields API</a></td>
+<td>Unique field identifier</td>
 </tr>
 <tr>
 <td>field_name</td>
@@ -855,7 +849,7 @@ retrieved from the example above:</p>
   <span class="p">}</span>
 <span class="p">}</span>
 </code></pre>
-<p>The required parameters are included in the <code>imagery_upload_data</code> object: this object has a <code>url</code> property indicating the URL to POST imagery to, and a <code>fields</code> object, listing the HTTP form data fields required for the POST request. In addition to these fields, the form must also include a <code>key</code> field: the key is the must include a value prefixed by the <code>key_prefix</code> and value unique for each image (like its filename).</p>
+<p>The required parameters are included in the <code>imagery_upload_data</code> object: this object has a <code>url</code> property indicating the URL to POST imagery to, and a <code>fields</code> object, listing the HTTP form data fields required for the POST request. In addition to these fields, the form must also include a <code>key</code> field, this is the destination path for the uploaded file: the key must start with specified <code>key_prefix</code> and its value must be unique for each image, usually the key is set from the <code>key_prefix</code> and the uploaded file&#39;s filename. Note that subdirectories are not allowed and the filename can&#39;t contain special characters like <code>/</code>, <code>\</code> and <code>:</code>.</p>
 <h3 id='http-request-9'>HTTP Request</h3>
 <p><code>POST https://solvi.ag/api/v1/projects/&lt;project_id&gt;/begin_upload</code></p>
 <h3 id='parameters-7'>Parameters</h3>
