@@ -6,9 +6,7 @@ language_tabs: # must be one of https://git.io/vQNgJ
 
 toc_footers:
 
-
 includes:
-
 
 search: false
 ---
@@ -19,6 +17,21 @@ Solvi API is organized around REST and allows for programmatic access to resourc
 
 In Solvi, a Project represents a single upload of multiple images. Projects can be grouped under Fields, which in turn are grouped into Farms to make it easier to organize and share data. Current API implementation allows to create and fetch projects for the specific user, as well as upload and stitch images into maps. Once processed, the outputs such as orthomosaics and elevation maps can either be accessed through the API or the user can be redirected to Solvi to view and analyze the processed imagery.
 
+## HTTP Response Codes
+
+Like any REST API, Solvi's API indicates the result of a request through the HTTP status code in the response. After sending a request to an endpoint, the returned status must be checked to ensure the request succeeded.
+
+- _Successful_ results return a `2xx` status:
+  - `200` is used for `GET` requests
+  - `201` is returned after successfully creating a new entity from a `POST` request
+- An _invalid request_ is indictaed by a `4xx` status:
+  - `400` is used to indicate the parameters were invalid
+  - `404` if the requested resource does not exist
+  - `402` if the account does not have enough quota
+  - `403` if the authenticated user is not allowed to perform this request
+- `302` is used if the request was not properly authenticated (this will likely change in the future)
+- `5xx` means an internal error occurred: please contact support since this indicates a
+
 # Authentication
 
 > Example API key request:
@@ -27,9 +40,10 @@ In Solvi, a Project represents a single upload of multiple images. Projects can 
 curl "api_endpoint_here"
   -H "X-Api-Key: <your-api-key>"
 ```
+
 > Make sure to replace `<your-api-key>` with your API key.
 
-To use Solvi API you first need an *API key*. You will get an API key from Solvi, [contact us](mailto:support@solvi.nu) to get your key. If you for some
+To use Solvi API you first need an _API key_. You will get an API key from Solvi, [contact us](mailto:support@solvi.nu) to get your key. If you for some
 reason need to revoke a key, you can also contact us.
 
 Please note that the API key should be kept secret and not be exposed to end-users: for example, never send the API key to a web browser.
@@ -46,11 +60,12 @@ Requests requiring an API key should add the `X-Api-Key` header:
 curl "api_endpoint_here"
   -H "Authorization: Bearer <user-specific-token>"
 ```
+
 > Make sure to replace `<user-specific-token>` with your token.
 
-Instead of using the API key, requests that act on behalf of a specific user, like creating or getting projects, should use a user-specific token to authenticate as the user. When using a user-specific token, *do not* include the API key in the same request. A user-specific token has a limited lifetime and is less security sensitive compared to the API key. For example, a user token can be sent to and used directly from for example a browser, or for passwordless authentication when the user is redirected from your portal to Solvi. A user-specific token can be used for a limited amount of time (currently 24 hours) before it expires. A user-specific token is created by using the [endpoint to create a user-specific token](#generate-user-specific-token).
+Instead of using the API key, requests that act on behalf of a specific user, like creating or getting projects, should use a user-specific token to authenticate as the user. When using a user-specific token, _do not_ include the API key in the same request. A user-specific token has a limited lifetime and is less security sensitive compared to the API key. For example, a user token can be sent to and used directly from for example a browser, or for passwordless authentication when the user is redirected from your portal to Solvi. A user-specific token can be used for a limited amount of time (currently 24 hours) before it expires. A user-specific token is created by using the [endpoint to create a user-specific token](#generate-user-specific-token).
 
-User specific requests should use the `Authorization` header *instead of* the `X-Api-Key` header:
+User specific requests should use the `Authorization` header _instead of_ the `X-Api-Key` header:
 
 `Authorization: Bearer <user-specific-token>`
 
@@ -71,10 +86,10 @@ curl -X POST
 > Example response:
 
 ```json
-  {
-    "status": "success",
-    "user_id": 182
-  }
+{
+  "status": "success",
+  "user_id": 182
+}
 ```
 
 This endpoint registers a new user. If successful, the response will return `user_id` that you would use later to generate user-specific tokens.
@@ -85,12 +100,12 @@ This endpoint registers a new user. If successful, the response will return `use
 
 ### Parameters
 
-Parameter |  | Description
---------- | ------- | -----------
-email | required | Email
-password | required | Password
-first_name | required | First name
-last_name | required | Last name
+| Parameter  |          | Description |
+| ---------- | -------- | ----------- |
+| email      | required | Email       |
+| password   | required | Password    |
+| first_name | required | First name  |
+| last_name  | required | Last name   |
 
 <aside>
 Parameters above must be wrapped into `user` attribute and sent as JSON payload in POST request, see the example.
@@ -109,11 +124,11 @@ curl -X GET
 > Example response:
 
 ```json
-  {
-    "status": "success",
-    "user_id": 26,
-    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyNiwiZXhwIjo0OCwiZXhwIjoxNTAxMjU2NzAyfQ.cu5zIye7ubBhv7YsFIxXkO0E_W0hG0VrlOTQx6L3b3c"
-  }
+{
+  "status": "success",
+  "user_id": 26,
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyNiwiZXhwIjo0OCwiZXhwIjoxNTAxMjU2NzAyfQ.cu5zIye7ubBhv7YsFIxXkO0E_W0hG0VrlOTQx6L3b3c"
+}
 ```
 
 This endpoint gives a token for the specific user that should be used to create and retrieve user projects. Every request will generate na ew token. The token is valid for 24 hours.
@@ -124,9 +139,9 @@ This endpoint gives a token for the specific user that should be used to create 
 
 ### Parameters
 
-Parameter |  | Description
---------- | ------- | -----------
-user_id | required | User ID given when user is created
+| Parameter |          | Description                        |
+| --------- | -------- | ---------------------------------- |
+| user_id   | required | User ID given when user is created |
 
 # Attaching custom metadata
 
@@ -156,10 +171,10 @@ curl -X POST
 > Example response:
 
 ```json
-  {
-    "status": "success",
-    "farm_id": 793
-  }
+{
+  "status": "success",
+  "farm_id": 793
+}
 ```
 
 Creates a new farm.
@@ -170,10 +185,10 @@ Creates a new farm.
 
 ### Parameters
 
-Parameter |             | Description
---------- | ----------- | -----------
-name      | required    | Name of the the farm
-metadata  | optional    | Optional arbitrary metadata
+| Parameter |          | Description                 |
+| --------- | -------- | --------------------------- |
+| name      | required | Name of the the farm        |
+| metadata  | optional | Optional arbitrary metadata |
 
 ## Get farms
 
@@ -189,21 +204,21 @@ curl -X GET
 > Example response:
 
 ```json
-    [
+[
+  {
+    "name": "My farm",
+    "created_at": "2019-02-08T09:18:37.655Z",
+    "fields": [
       {
-        "name": "My farm",
-        "created_at": "2019-02-08T09:18:37.655Z",
-        "fields": [
-          {
-            "id": 2657,
-            "name": "Veddige",
-            "created_at": "2019-03-08T04:05:38.628Z",
-            "metadata": null
-          }
-        ],
+        "id": 2657,
+        "name": "Veddige",
+        "created_at": "2019-03-08T04:05:38.628Z",
         "metadata": null
       }
-    ]
+    ],
+    "metadata": null
+  }
+]
 ```
 
 Gets all user farms and a list of fields related to each farm.
@@ -211,7 +226,6 @@ Gets all user farms and a list of fields related to each farm.
 ### HTTP Request
 
 `GET https://solvi.ag/api/v1/farms`
-
 
 # Fields
 
@@ -230,10 +244,10 @@ curl -X POST
 > Example response:
 
 ```json
-  {
-    "status": "success",
-    "field_id": 793
-  }
+{
+  "status": "success",
+  "field_id": 793
+}
 ```
 
 Creates a new field. Field boundaries can be provided as Polygon or MultiPolygon in GeoJSON format. The farm to organize the field under can also be provided. The response contains `field_id` which can be later used to relate projects to the specific field.
@@ -244,14 +258,12 @@ Creates a new field. Field boundaries can be provided as Polygon or MultiPolygon
 
 ### Parameters
 
-Parameter |             | Description
---------- | ----------- | -----------
-name      | required    | Name of the the field
-geom      | optional    | Boundaries of the field as a Polygon or Multipolygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat)
-farm_id   | optional    | The id of the farm to put the field under; if not specified, the user's last created farm is used
-metadata  | optional    | Optional arbitrary metadata
-
-
+| Parameter |          | Description                                                                                                                                                          |
+| --------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name      | required | Name of the the field                                                                                                                                                |
+| geom      | optional | Boundaries of the field as a Polygon or Multipolygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat) |
+| farm_id   | optional | The id of the farm to put the field under; if not specified, the user's last created farm is used                                                                    |
+| metadata  | optional | Optional arbitrary metadata                                                                                                                                          |
 
 ## Get fields
 
@@ -267,27 +279,27 @@ curl -X GET
 > Example response:
 
 ```json
-    [
+[
+  {
+    "id": 199,
+    "name": "wheat field",
+    "created_at": "2018-02-27T12:45:05.550Z",
+    "projects": [
       {
-          "id": 199,
-          "name": "wheat field",
-          "created_at": "2018-02-27T12:45:05.550Z",
-          "projects": [
-              {
-                  "project_id": 1291,
-                  "status": "processed",
-                  "name": "27-FEB-2018",
-                  "field_name": "Wheat field",
-                  "survey_date": "2018-02-26T14:19:36.000Z",
-                  "upload_date": "2018-02-27T12:45:05.556Z",
-                  "url": "https://solvi.ag/projects/1291",
-                  "thumbnail_url": "https://solvi.ag/projects/1291/thumbnail.png",
-                  "metadata": null
-              }
-          ],
-          "metadata": null
+        "project_id": 1291,
+        "status": "processed",
+        "name": "27-FEB-2018",
+        "field_name": "Wheat field",
+        "survey_date": "2018-02-26T14:19:36.000Z",
+        "upload_date": "2018-02-27T12:45:05.556Z",
+        "url": "https://solvi.ag/projects/1291",
+        "thumbnail_url": "https://solvi.ag/projects/1291/thumbnail.png",
+        "metadata": null
       }
-    ]
+    ],
+    "metadata": null
+  }
+]
 ```
 
 Gets all user fields and a list of projects related to each field.
@@ -295,7 +307,6 @@ Gets all user fields and a list of projects related to each field.
 ### HTTP Request
 
 `GET https://solvi.ag/api/v1/fields`
-
 
 # Projects
 
@@ -330,20 +341,20 @@ curl -X POST
 
 This endpoint creates a new project which is required before imagery upload. In response, you will receive URL to upload-page for the newly created project where the user can be redirected.
 
-There are multiple *types* of projects: `overlapping` (the default), `stitched` and `scouting`:
+There are multiple _types_ of projects: `overlapping` (the default), `stitched` and `scouting`:
 
-* `overlapping` should be used if you have a number of photos taken which should be stitched into a map by Solvi; this is the default and what you normally use
-* `stitched` can be used if you already have a single [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) that have been stitched by another system
-* In `scouting`, images will not be stitched and instead shown as separate, individual images without further processing 
+- `overlapping` should be used if you have a number of photos taken which should be stitched into a map by Solvi; this is the default and what you normally use
+- `stitched` can be used if you already have a single [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) that have been stitched by another system
+- In `scouting`, images will not be stitched and instead shown as separate, individual images without further processing
 
 Projects can be connected to a Field. When multiple projects are related to the same Field, they appear in the same map view when data is processed. This allows for easier navigation between imagery over the same Field and over the time data comparison.
 
 Fields can be either be:
 
-* [created beforehand](#create-field); for this case, set the `field_id` parameter to the previously created field's `id`
-* created on the fly by sending `field_name` and `field_geom` (optional), which will create a new field for the project; do not include `field_id`
+- [created beforehand](#create-field); for this case, set the `field_id` parameter to the previously created field's `id`
+- created on the fly by sending `field_name` and `field_geom` (optional), which will create a new field for the project; do not include `field_id`
 
-Optionally, a project can be created with a so-called *webhook* that will be called every time the status of the project changes. This makes it possible for integration to for example react when a project finishes processing, without having to use polling to check the project's status. To add a webhook, specify the URL to be called with the `status_webhook` parameter. See the section on [webhooks](#webhooks) for details.
+Optionally, a project can be created with a so-called _webhook_ that will be called every time the status of the project changes. This makes it possible for integration to for example react when a project finishes processing, without having to use polling to check the project's status. To add a webhook, specify the URL to be called with the `status_webhook` parameter. See the section on [webhooks](#webhooks) for details.
 
 The project's crop, survey date and altitude, data which will be displayed in Solvi's UI, can also be submitted.
 
@@ -353,18 +364,18 @@ The project's crop, survey date and altitude, data which will be displayed in So
 
 ### Parameters
 
-Parameter  |             | Description
----------- | ----------- | -----------
-type       | optional    | The type of imagery for this project: `overlapping`, `stitched` or `scouting`; default is `overlapping`
-field_id   |             | Solvi field id as returned from [Fields API](#fields)
-field_name |             | Name of the the field
-field_geom | optional    | Boundaries of the field as a polygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat)
-status_webhook | optional | A URL to be called when the project's status changes
-webhook_secret | optional | A token to use to sign webhook requests, see [webhooks](#webhooks) for details
-survey_date | optional   | Date survey was conducted, formatted as YYYY-MM-DD
-crop       | optional    | The documented crop; free form string
-altitude   | optional    | Altitude the imagery was taken from in meters
-metadata   | optional    | Optional arbitrary metadata
+| Parameter      |          | Description                                                                                                                                          |
+| -------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| type           | optional | The type of imagery for this project: `overlapping`, `stitched` or `scouting`; default is `overlapping`                                              |
+| field_id       |          | Solvi field id as returned from [Fields API](#fields)                                                                                                |
+| field_name     |          | Name of the the field                                                                                                                                |
+| field_geom     | optional | Boundaries of the field as a polygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat) |
+| status_webhook | optional | A URL to be called when the project's status changes                                                                                                 |
+| webhook_secret | optional | A token to use to sign webhook requests, see [webhooks](#webhooks) for details                                                                       |
+| survey_date    | optional | Date survey was conducted, formatted as YYYY-MM-DD                                                                                                   |
+| crop           | optional | The documented crop; free form string                                                                                                                |
+| altitude       | optional | Altitude the imagery was taken from in meters                                                                                                        |
+| metadata       | optional | Optional arbitrary metadata                                                                                                                          |
 
 ## Update project data
 
@@ -383,7 +394,7 @@ curl -X PUT
 
 ```json
 {
-    "status": "ok"
+  "status": "ok"
 }
 ```
 
@@ -393,12 +404,12 @@ curl -X PUT
 
 ### Parameters
 
-Parameter  |             | Description
----------- | ----------- | -----------
-survey_date | optional   | Date survey was conducted, formatted as YYYY-MM-DD
-crop       | optional    | The documented crop; free form string
-altitude   | optional    | Altitude the imagery was taken from in meters
-metadata   | optional    | Optional arbitrary metadata
+| Parameter   |          | Description                                        |
+| ----------- | -------- | -------------------------------------------------- |
+| survey_date | optional | Date survey was conducted, formatted as YYYY-MM-DD |
+| crop        | optional | The documented crop; free form string              |
+| altitude    | optional | Altitude the imagery was taken from in meters      |
+| metadata    | optional | Optional arbitrary metadata                        |
 
 This endpoint allows updating survey date, crop, altitude and metadata for a project.
 
@@ -419,41 +430,79 @@ curl -X POST
 {
   "status": "ok",
   "imagery_upload_data": {
-    "url": "https://solvi-projects.s3.eu-west-1.amazonaws.com",
+    "type": "post_form_data",
+    "url": "https://solvi-production.s3.eu-west-1.amazonaws.com",
     "fields": {
       "x-amz-storage-class": "STANDARD_IA",
-      "policy": "eyJleHBpcmF0aW9uIjoiMjAyMC0wOC0wN1QwNzozMjo1MVoiLCJjb25kaXRpb25zIjpbeyJidWNrZXQiOiJzb2x2aS1wcm9qZWN0cy1kZXYifSxbInN0YXJ0cy13aXRoIiwiJGtleSIsInVwbG9hZHMvMjZjMWNlMTEtYzliZi00ODI1LTgyMWMtNzJlOWY2MDBhNmNmL29yaWdpbmFscy8iXSxbInN0YXJ0cy13aXRoIiwiJENvbnRlbnQtVHlwZSIsIiJdLHsieC1hbXotc3RvcmFnZS1jbGFzcyI6IlNUQU5EQVJEX0lBIn0seyJ4LWFtei1jcmVkZW50aWFsIjoiQUtJQVVWTUhLR1RRRldMTlkyTUgvMjAyMDA4MDUvZXUtd2VzdC0xL3MzL2F3czRfcmVxdWVzdCJ9LHsieC1hbXotYWxnb3JpdGhtIjoiQVdTNC1ITUFDLVNIQTI1NiJ9LHsieC1hbXotZGF0ZSI6IjIwMjAwODA1VDA3MzI1MVoifV18",
-      "x-amz-credential": "AKIAUVMHKGTQFWLNY2MX/20200805/eu-west-1/s3/aws4_request",
+      "policy": "eyJleHBpcmF0aW9uIjoiMjAyNS0wNS0yMVQwNjowMjo1N1oiLCJjb25kaXRpb25zIjpbeyJidWNrZXQiOiJzb2x2aS1wcm9kdWN0aW9uIn0sWyJzdGFydHMtd2l0aCIsIiRrZXkiLCJ1cGxvYWRzLzgxMDQ0N2JkLWQ5MzEtNGJiNS05OTE0LTA2NGZlNDRiODUzZS9vcmlnaW5hbHMvIl0sWyJzdGFydHMtd2l0aCIsIiRDb250ZW50LVR5cGUiLCIiXSx7IngtYW16LXN0b3JhZ2UtY2xhc3MiOiJTVEFOREFSRF9JQSJ9LHsieC1gbXotY3JlZGVudGlhbCI6IkFLSUFVVk1IS0dUUUsyQVVBNExRLzIwMjUwNTE0L2V1LXdlc3QtMS9zMy9hd3M0X3JlcXVlc3QifSx7IngtYW16LWFsZ29yaXRobSI6IkFXUzQtSE1BQy1TSEEyNTYifSx7IngtYW16LWRhdGUiOiIyMDI1MDUxNFQwNjAyNTdaIn1dfQ==",
+      "x-amz-credential": "AKIAUVMHKGTQK2AUA4LQ/20250514/eu-west-1/s3/aws4_request",
       "x-amz-algorithm": "AWS4-HMAC-SHA256",
-      "x-amz-date": "20200805T073251Z",
-      "x-amz-signature": "5494b8f7ca5c78c45daf7d8099f3c4b93e141567d3691dbec3dcc0f6fd2e0181"
+      "x-amz-date": "20250514T060257Z",
+      "x-amz-signature": "5811e53afc5d1f2e94fc614a29b699d89529d112eb432d7c6d332fafbbf9c987"
     },
-    "key_prefix": "uploads/26c1ce11-c9bf-4825-821c-72e9f600a6cf/originals/"
+    "key_prefix": "uploads/26c1ce11-c9bf-4825-821c-72e9f600a6cf/originals/",
+    "number_parallel_hint": 3
   }
 }
 ```
 
-After a project has been created, imagery can be uploaded to it by sending the `begin_upload` request. The response includes information required to upload
-imagery for the project.
+> or
 
-> Example JavaScript function to POST an image using `imagery_upload_data`
+```json
+{
+  "status": "ok",
+  "imagery_upload_data": {
+    "type": "url_template",
+    "template": "https://uploads.solvi.ag/uploads/26c1ce11-c9bf-4825-821c-72e9f600a6cf/originals/$filename?token=eyJhbGciOiJIUzI1NiJ9.eyJrZXlQcmVmaXgiOiJ1cGxvYWRzLzVkM2UyZDIwLTIxYTMtNGMyOC1hZWYzLTIxYTU5Y2Y0MzhhZC9vcmlnaW5hbHMvIiwiZXhwIjoxNzQ3ODA3MjgwfQ.UQzDIM020OOrwsFwzEFCtIjLEJJiYYFsPZdwLqLZf58",
+    "number_parallel_hint": 3
+  }
+}
+```
+
+After a project has been created, imagery can be uploaded to it by sending the `begin_upload` request. The response includes information required to upload imagery for the project. The response can be of two different types depending on your project type and customer configuration: `post_form_data` and `url_template`.
+
+> Example JavaScript function to upload an image using `imagery_upload_data`
 > retrieved from the example above:
 
 ```js
-function uploadFile (imagery_upload_data, f) {
-  const form = new FormData()
-  Object.keys(imagery_upload_data.fields).forEach(field => form.append(field, imagery_upload_data.fields[field]))
-  const key = imagery_upload_data.key_prefix + f.name
-  form.append('key', key)
-  form.append('Content-Type', 'image/jpeg')
-  form.append('file', f)
-
-  return fetch(imagery_upload_data.url, { method: 'POST', body: form })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Unexpected response HTTP ${response.status} ${response.statusText}`)
+function uploadFile(imagery_upload_data, f) {
+  let fetchPromise;
+  switch (imagery_upload_data.type) {
+    case "url_template" {
+      const url = imagery_upload_data.template.replace("$filename", f.name);
+      fetchPromise = fetch(url, {
+        method: "PUT",
+        body: f,
+        headers: { "Content-Type": f.type },
+      });
+      break
+    }
+    case "post_form_data" {
+      const form = new FormData();
+      for (const key in imagery_upload_data.fields) {
+        form.append(key, imagery_upload_data.fields[key]);
       }
-    })
+      form.append("key", imagery_upload_data.key_prefix + f.name);
+      form.append("Content-Type", f.type);
+      form.append("file", f);
+
+      fetchPromise = fetch(imagery_upload_data.url, {
+        method: "POST",
+        body: form,
+      });
+      break
+    }
+    default:
+      throw new Error(`Unexpected upload type ${imagery_upload_data.type}`)
+  }
+
+  return fetchPromise.then((response) => {
+    if (!response.ok) {
+      throw new Error(
+        `Unexpected response HTTP ${response.status} ${response.statusText}`
+      );
+    }
+  });
 }
 ```
 
@@ -462,26 +511,62 @@ function uploadFile (imagery_upload_data, f) {
 > retrieved from the example above:
 
 ```js
-function uploadFiles (imagery_upload_data, files) {
-  return uploadNext()
+function uploadFiles(imagery_upload_data, files) {
+  return uploadNext();
 
-  function uploadNext () {
+  function uploadNext() {
     return new Promise(function (resolve, reject) {
-      const file = files.shift()
+      const file = files.shift();
       if (file) {
-        uploadFile(imagery_upload_data, file)
-          .then(uploadNext)
-          .catch(reject)
+        uploadFile(imagery_upload_data, file).then(uploadNext).catch(reject);
       } else {
-        resolve()
+        resolve();
       }
-    })
+    });
   }
 }
 ```
 
+> Example Python implementation to upload a file using `imagery_upload_data` using the [requests](https://requests.readthedocs.io/en/latest/) library:
+
+```python
+import os
+import requests
+
+def upload_file(imagery_upload_data, file_path):
+  with open(file_path, "rb") as f:
+    if imagery_upload_data["type"] == "post_form_data":
+      form_data = imagery_upload_data["fields"]
+      key = imagery_upload_data["key_prefix"] + os.path.basename(file_path)
+      form_data["key"] = key
+      form_data["Content-Type"] = "image/jpeg"
+
+      response = requests.post(
+        imagery_upload_data["url"],
+        data=form_data,
+        files={"file": (key, f)},
+      )
+    elif imagery_upload_data["type"] == "url_template":
+      url = imagery_upload_data["template"].replace(
+        "$filename", os.path.basename(file_path)
+      )
+      response = requests.put(url, data=f)
+    else:
+      raise Exception(f'Unknown type "{imagery_upload_data["type"]}"')
+
+    if response.status_code not in [200, 201, 204]:
+      raise Exception(
+        f"Error uploading image '{file_path}': HTTP {response.status_code} - {response.text}"
+      )
+```
+
+### `post_form_data` method
 
 The required parameters are included in the `imagery_upload_data` object: this object has a `url` property indicating the URL to POST imagery to, and a `fields` object, listing the HTTP form data fields required for the POST request. In addition to these fields, the form must also include a `key` field, this is the destination path for the uploaded file: the key must start with specified `key_prefix` and its value must be unique for each image, usually the key is set from the `key_prefix` and the uploaded file's filename. Note that subdirectories are not allowed and the filename can't contain special characters like `/`, `\` and `:`.
+
+### `url_template` method
+
+The response includes a property called `url_template` which should be used to create URLs to `PUT` files to. The template includes that part `$filename` which should be replaced with the actual name of the file being uploaded. Note that subdirectories are not allowed and the filename can't contain special characters like `/`, `\` and `:`.
 
 ### HTTP Request
 
@@ -489,9 +574,9 @@ The required parameters are included in the `imagery_upload_data` object: this o
 
 ### Parameters
 
-Parameter |  | Description
---------- | ------- | -----------
-project_id | required | Project ID given when project is created
+| Parameter  |          | Description                              |
+| ---------- | -------- | ---------------------------------------- |
+| project_id | required | Project ID given when project is created |
 
 ## Upload remote imagery
 
@@ -527,10 +612,10 @@ Note that this operation is only valid for projects of `prestitched` type.
 
 ### Parameters
 
-Parameter |  | Description
---------- | ------- | -----------
-project_id | required | Project ID given when project is created
-ortho_url  | required | The URL to download the prestitched ortho from
+| Parameter  |          | Description                                    |
+| ---------- | -------- | ---------------------------------------------- |
+| project_id | required | Project ID given when project is created       |
+| ortho_url  | required | The URL to download the prestitched ortho from |
 
 ## Processing uploaded imagery
 
@@ -547,7 +632,7 @@ curl -X POST
 
 ```json
 {
-  "status": "ok",
+  "status": "ok"
 }
 ```
 
@@ -561,9 +646,9 @@ If processing was successfully started, the HTTP response code will be `200`. In
 
 ### Parameters
 
-Parameter |  | Description
---------- | ------- | -----------
-project_id | required | Project ID given when project is created
+| Parameter  |          | Description                              |
+| ---------- | -------- | ---------------------------------------- |
+| project_id | required | Project ID given when project is created |
 
 ## Get projects
 
@@ -578,33 +663,33 @@ curl -X GET
 > Example response:
 
 ```json
-  [
-    {
-      "project_id": 9999,
-      "status": "processed",
-      "name": "25-JUN-2018",
-      "plant_counts": "published",
-      "field": {
-          "id": 9999,
-          "name": "Winter Wheat",
-          "identfier": "WW-01",
-          "farm": {
-              "id": 656,
-              "name": "Borgeby Farm"
-          }
-      },
-      "survey_date": "2018-06-25T19:19:27.000Z",
-      "upload_date": "2018-06-25T20:50:14.870Z",
-      "url": "https://solvi.ag/projects/9999",
-      "thumbnail_url": "https://solvi.ag/projects/9999/thumbnail.png",
-      "metadata": null
+[
+  {
+    "project_id": 9999,
+    "status": "processed",
+    "name": "25-JUN-2018",
+    "plant_counts": "published",
+    "field": {
+      "id": 9999,
+      "name": "Winter Wheat",
+      "identfier": "WW-01",
+      "farm": {
+        "id": 656,
+        "name": "Borgeby Farm"
+      }
     },
-    {
-      "name": "New project",
-      "url": "https://solvi.ag/projects/new",
-      "metadata": null
-    }
-  ]
+    "survey_date": "2018-06-25T19:19:27.000Z",
+    "upload_date": "2018-06-25T20:50:14.870Z",
+    "url": "https://solvi.ag/projects/9999",
+    "thumbnail_url": "https://solvi.ag/projects/9999/thumbnail.png",
+    "metadata": null
+  },
+  {
+    "name": "New project",
+    "url": "https://solvi.ag/projects/new",
+    "metadata": null
+  }
+]
 ```
 
 This endpoint retrieves all projects created by the user or shared with user by others. If field boundaries are provided, only projects whose extent overlaps boundaries are returned.
@@ -615,9 +700,9 @@ This endpoint retrieves all projects created by the user or shared with user by 
 
 ### Parameters
 
-Parameter | | Description
---------- | ----------- | -----------
-field_geom | optional | Boundaries of the field as a polygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat).
+| Parameter  |          | Description                                                                                                                                           |
+| ---------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| field_geom | optional | Boundaries of the field as a polygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat). |
 
 ## Project outputs
 
@@ -669,9 +754,9 @@ The included `resources` are URLs that can be used to fetch the project outputs.
 
 ### Parameters
 
-Parameter |  | Description
---------- | ------- | -----------
-project_id | required | Project ID given when project is created
+| Parameter  |          | Description                              |
+| ---------- | -------- | ---------------------------------------- |
+| project_id | required | Project ID given when project is created |
 
 ## Project tiled imagery
 
@@ -692,10 +777,7 @@ curl -X GET
   "resolution": 0.15961538646165616,
   "bounds": {
     "value": [
-      -115.407127627406,
-      33.13991737241373,
-      -115.39728408213948,
-      33.144345906954
+      -115.407127627406, 33.13991737241373, -115.39728408213948, 33.144345906954
     ],
     "crs": "EPSG:4326"
   }
@@ -717,10 +799,10 @@ For `plant_counts` (when response `type` is `"tileset/plant_counts`), `number_pl
 
 ### Parameters
 
-Parameter |  | Description
---------- | ------- | -----------
-project_id | required | Project ID given when project is created
-type       | required | Type of tiles to fetch; currently one of `ortho` for RGB orthomosaic, `dem` for colored elevation model or `plant_counts` for plant counts
+| Parameter  |          | Description                                                                                                                                |
+| ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| project_id | required | Project ID given when project is created                                                                                                   |
+| type       | required | Type of tiles to fetch; currently one of `ortho` for RGB orthomosaic, `dem` for colored elevation model or `plant_counts` for plant counts |
 
 ## Webhooks
 
@@ -741,10 +823,10 @@ The webhook is configured when [creating a project](#create-project) or when [cr
 
 ### Webhook events
 
-The type of event that occured is determined by the `event_type` parameter of the request body. Currently, there are two supported event types: 
+The type of event that occured is determined by the `event_type` parameter of the request body. Currently, there are two supported event types:
 
-* `status_changed`, indicates that the project's status has changed
-* `plant_counts_published`, triggered when plant counts have been published for the project
+- `status_changed`, indicates that the project's status has changed
+- `plant_counts_published`, triggered when plant counts have been published for the project
 
 #### Status changes
 
@@ -752,9 +834,9 @@ The status change messages contains `old_status`, the status of the project befo
 
 There are three different project statuses:
 
-* `not_processed` - the project has been created but not yet processed, project outputs will not be available
-* `processed` - the project has been processed and its outputs are available
-* `failed` - the processing for this project failed, outputs are not available
+- `not_processed` - the project has been created but not yet processed, project outputs will not be available
+- `processed` - the project has been processed and its outputs are available
+- `failed` - the processing for this project failed, outputs are not available
 
 #### Plant Counts Published
 
@@ -778,17 +860,17 @@ This follows the same pattern as [securing webhooks on GitHub](https://docs.gith
 
 The plant counts API is under development and currently only supports a limited number of use cases:
 
-* Automatic plant counts in scouting projects
-* Request plant counts done for you (by Solvi personel) in any type of project
+- Automatic plant counts in scouting projects
+- Request plant counts done for you (by Solvi personel) in any type of project
 
 ## Create Plant Counts
 
 > Example request:
 
 ```shell
-curl 
-  -X POST 
-  -H "Authorization: Bearer <user-jwt-token>" 
+curl
+  -X POST
+  -H "Authorization: Bearer <user-jwt-token>"
   -H 'Content-Type: application/json'
   -d '{"model": "base-models/shape"}'
   https://solvi.ag/api/v1/projects/<project-id>/plant_counts
@@ -797,16 +879,16 @@ curl
 > Example response:
 
 ```json
-  {
-    "status": "Created",
-    "job_id": "88a2af8601cf2b7c4e14979f8df73bca7352ccce",
-  }
+{
+  "status": "Created",
+  "job_id": "88a2af8601cf2b7c4e14979f8df73bca7352ccce"
+}
 ```
 
 This initiates a plant count for the specified project. A plant count can either be:
 
-* automatic, meaning Plant AI will run unsupervised
-* detection done for you by Solvi personel, supervising the detection to ensure high quality.
+- automatic, meaning Plant AI will run unsupervised
+- detection done for you by Solvi personel, supervising the detection to ensure high quality.
 
 When using the API, automatic plant counts are currently only supported for scouting projects.
 
@@ -817,8 +899,8 @@ to 24 hours to complete.
 
 The detection is performed using a detection model. By default, two different models are available:
 
-* `base-models/point` - used for basic counts and is applicable to crops like corn or vegetables in early growth-stages
-* `base-models/shape` - includes size estimates and health for individual plants, applicable for pre-harvest crops or trees
+- `base-models/point` - used for basic counts and is applicable to crops like corn or vegetables in early growth-stages
+- `base-models/shape` - includes size estimates and health for individual plants, applicable for pre-harvest crops or trees
 
 In addition, more models might be available on a per-user basis.
 
@@ -828,43 +910,43 @@ In addition, more models might be available on a per-user basis.
 
 ### Parameters
 
-Parameter | | Description
---------- | ----------- | -----------
-model     | required | The detection model to be used
-detect_rows | optional | `true` if row detection should be performed; only supported in automatic scouting plant counts
-request_done_for_you | optional | `true` if detection should be done for you by Solvi personel
-webhook   | optional | URL of the webhook to send status updates to
+| Parameter            |          | Description                                                                                    |
+| -------------------- | -------- | ---------------------------------------------------------------------------------------------- |
+| model                | required | The detection model to be used                                                                 |
+| detect_rows          | optional | `true` if row detection should be performed; only supported in automatic scouting plant counts |
+| request_done_for_you | optional | `true` if detection should be done for you by Solvi personel                                   |
+| webhook              | optional | URL of the webhook to send status updates to                                                   |
 
 ## Plant Count data
 
 > Example request:
 
 ```shell
-curl 
+curl
   -X GET
-  -H "Authorization: Bearer <user-jwt-token>" 
+  -H "Authorization: Bearer <user-jwt-token>"
   https://solvi.ag/api/v1/projects/<project-id>/plant_counts/<job-id>
 ```
 
 > Example response:
 
 ```json
-  {
-    "status": "completed",
-    "results": [
-      "https://solvi-staging-production.s3.eu-west-1.amazonaws.com/uploads/..."
-    ]
-  }
+{
+  "status": "completed",
+  "results": [
+    "https://solvi-staging-production.s3.eu-west-1.amazonaws.com/uploads/..."
+  ]
+}
 ```
 
 Gets the status of a previously started plant count, or overview information about a processed plant count.
 
 Depending on status of the detection job, different HTTP status codes will be used for the response:
 
-* `200`: completed successfully and the body contains JSON information about the result
-* `202`: processing is not yet complete
-* `404`: unknown job id or the job's result has expired and been removed
-* `500`: an internal error occurred during processing
+- `200`: completed successfully and the body contains JSON information about the result
+- `202`: processing is not yet complete
+- `404`: unknown job id or the job's result has expired and been removed
+- `500`: an internal error occurred during processing
 
 When processing has completed, the response will contain a `results` property which lists URLs that can be used to get the detection results. These URLs are valid for at least 24 hours. For scouting projects, a detection results in a JSON file containing a summary of the detection, as well as one GeoJSON file per image in the project.
 
@@ -879,95 +961,93 @@ In addition to polling a plant count for data, you can also register a webhook t
 
 The webhook will currently only receive a single type of event: `job_status_changed`. This event triggers when the plant detection job's status changes. It contains:
 
-* `job_id` for the detection that changed
-* `project_id` of the project it refers to
-* `old_status` the status of the project before this change
-* `new_status` the job's updated status.
+- `job_id` for the detection that changed
+- `project_id` of the project it refers to
+- `old_status` the status of the project before this change
+- `new_status` the job's updated status.
 
 There are three different statuses:
 
-* `processing` - the plant count is being processed
-* `completed` - the plant count has been processed succesfully and its results are available
-* `fail` - the detection failed
-
-
+- `processing` - the plant count is being processed
+- `completed` - the plant count has been processed succesfully and its results are available
+- `fail` - the detection failed
 
 ## Publishing Plant Counts
 
 > Example request:
 
 ```shell
-curl 
+curl
   -X POST
-  -H "Authorization: Bearer <user-jwt-token>" 
+  -H "Authorization: Bearer <user-jwt-token>"
   https://solvi.ag/api/v1/projects/<project-id>/plant_counts/<job-id>/publish
 ```
 
 > Example response:
 
 ```json
-  {
-    "status": "Success",
-  }
+{
+  "status": "Success"
+}
 ```
 
 After a plant count job has completed succesfully, its results can be published. This will achieve two things:
 
-* The results can be viewed from the Plant Counts tool in Solvi's web app
-* Results will not be removed from storage after a week
+- The results can be viewed from the Plant Counts tool in Solvi's web app
+- Results will not be removed from storage after a week
 
 ## Listing a Project's Plant Counts
 
 > Example request:
 
 ```shell
-curl 
+curl
   -X GET
-  -H "Authorization: Bearer <user-jwt-token>" 
+  -H "Authorization: Bearer <user-jwt-token>"
   https://solvi.ag/api/v1/projects/<project-id>/plant_counts
 ```
 
 > Example response:
 
 ```json
-  [
-    {
-      "id": "88a2af8601cf2b7c4e14979f8df73bca7352ccce",
-      "status": "completed",
-      "created_at": "2019-02-08T09:18:37.655Z",
-    },
-    {
-      "id": "34a2af8601cf2b7c4e14979f8df73bca7352aef43",
-      "status": "published",
-      "created_at": "2021-03-12T14:33:31.241Z",
-    }
-  ]
+[
+  {
+    "id": "88a2af8601cf2b7c4e14979f8df73bca7352ccce",
+    "status": "completed",
+    "created_at": "2019-02-08T09:18:37.655Z"
+  },
+  {
+    "id": "34a2af8601cf2b7c4e14979f8df73bca7352aef43",
+    "status": "published",
+    "created_at": "2021-03-12T14:33:31.241Z"
+  }
+]
 ```
 
 Lists all created plant counts for a project with their id and status. Status is one of:
 
-* `processing`: the detection has not yet completed
-* `completed`: detection has finished and can be viewed
-* `published`: this detection is the one currently published for the project
-* `fail`: detection failed
+- `processing`: the detection has not yet completed
+- `completed`: detection has finished and can be viewed
+- `published`: this detection is the one currently published for the project
+- `fail`: detection failed
 
 ## Deleting a Plant Count
 
 > Example request:
 
 ```shell
-curl 
+curl
   -X DELETE
-  -H "Authorization: Bearer <user-jwt-token>" 
+  -H "Authorization: Bearer <user-jwt-token>"
   https://solvi.ag/api/v1/projects/<project-id>/plant_counts/<job-id>
 ```
 
 > Example response:
 
 ```json
-  {
-    "status": "deleted",
-  }
+{
+  "status": "deleted"
+}
 ```
 
 Removes the results of a plant count. Please note that "done for you" plant counts can't be deleted.
@@ -982,7 +1062,7 @@ The Zonal Statistics API lets you create zones in a project and create various s
 
 ```shell
 curl -X POST
-  -H "Authorization: Bearer <user-jwt-token>" 
+  -H "Authorization: Bearer <user-jwt-token>"
   -H "Content-Type: application/json"
   -d '{
     "indices": ["vari"],
@@ -1060,20 +1140,20 @@ The endpoint responds with a GeoJSON FeatureCollection with the same geometries 
 
 ### Parameters
 
-Parameter   |             | Description
------------ | ----------- | -----------
-indices     | required    | List in vegetation indices to calculate; index names should be lower case strings
-geojson     | required    | GeoJSON FeatureCollection representing the zone features
-extra_data  | optional    | Extra data layers to calculate statistics for, expressed as an object with string layer names as keys and boolean values to indicate if layer should be used
+| Parameter  |          | Description                                                                                                                                                  |
+| ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| indices    | required | List in vegetation indices to calculate; index names should be lower case strings                                                                            |
+| geojson    | required | GeoJSON FeatureCollection representing the zone features                                                                                                     |
+| extra_data | optional | Extra data layers to calculate statistics for, expressed as an object with string layer names as keys and boolean values to indicate if layer should be used |
 
 ## Getting Zonal Statistics for a project
 
 > Example request:
 
 ```shell
-curl 
+curl
   -X GET
-  -H "Authorization: Bearer <user-jwt-token>" 
+  -H "Authorization: Bearer <user-jwt-token>"
   https://solvi.ag/api/v1/projects/<project-id>/zonal_statistics
 ```
 
