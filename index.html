@@ -327,6 +327,14 @@
                   </li>
               </ul>
           </li>
+          <li>
+            <a href="#transactions" class="toc-h1 toc-link" data-title="Transactions">Transactions</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#get-transactions" class="toc-h2 toc-link" data-title="Transactions">Get transactions</a>
+                  </li>
+              </ul>
+          </li>
       </div>
     </div>
     <div class="page-wrapper">
@@ -1046,6 +1054,26 @@ retrieved from the example above:</p>
 <td>required</td>
 <td>Project ID given when project is created</td>
 </tr>
+<tr>
+<td>created_from</td>
+<td>optional</td>
+<td>Filter by project creation date, start of interval</td>
+</tr>
+<tr>
+<td>created_to</td>
+<td>optional</td>
+<td>Filter by project creation date, end of interval</td>
+</tr>
+<tr>
+<td>survey_date_from</td>
+<td>optional</td>
+<td>Filter by project survey date, start of interval</td>
+</tr>
+<tr>
+<td>survey_date_to</td>
+<td>optional</td>
+<td>Filter by project survey date, end of interval</td>
+</tr>
 </tbody></table>
 <h2 id='get-projects'>Get projects</h2>
 <blockquote>
@@ -1064,6 +1092,11 @@ retrieved from the example above:</p>
     </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"25-JUN-2018"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"user"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Joe Smith"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"joe@example.com"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
     </span><span class="s2">"field"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
       </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
       </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Winter Wheat"</span><span class="p">,</span><span class="w">
@@ -1077,7 +1110,26 @@ retrieved from the example above:</p>
     </span><span class="s2">"upload_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T20:50:14.870Z"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/9999"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"thumbnail_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi.ag/projects/9999/thumbnail.png"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+    </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"number_images"</span><span class="p">:</span><span class="w"> </span><span class="mi">322</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"bands"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rgb"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"crop"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Wheat"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"relative_altitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">99.9</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"absolute_altitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">95.443</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"extent"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MultiPolygon"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"coordinates"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">[</span><span class="w">
+          </span><span class="p">[</span><span class="w">
+            </span><span class="p">[</span><span class="mf">12.335404361111113</span><span class="p">,</span><span class="w"> </span><span class="mf">57.30721566666666</span><span class="p">],</span><span class="w">
+            </span><span class="p">[</span><span class="mf">12.337469722222222</span><span class="p">,</span><span class="w"> </span><span class="mf">57.30721566666666</span><span class="p">],</span><span class="w">
+            </span><span class="p">[</span><span class="mf">12.337469722222222</span><span class="p">,</span><span class="w"> </span><span class="mf">57.30810941666666</span><span class="p">],</span><span class="w">
+            </span><span class="p">[</span><span class="mf">12.335404361111113</span><span class="p">,</span><span class="w"> </span><span class="mf">57.30810941666666</span><span class="p">],</span><span class="w">
+            </span><span class="p">[</span><span class="mf">12.335404361111113</span><span class="p">,</span><span class="w"> </span><span class="mf">57.30721566666666</span><span class="p">]</span><span class="w">
+          </span><span class="p">]</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
   </span><span class="p">},</span><span class="w">
   </span><span class="p">{</span><span class="w">
     </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"New project"</span><span class="p">,</span><span class="w">
@@ -1462,7 +1514,7 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 </span></code></pre>
 <p>Removes the results of a plant count. Please note that &quot;done for you&quot; plant counts can&#39;t be deleted.</p>
 <h1 id='zonal-statistics'>Zonal Statistics</h1>
-<p>The Zonal Statistics API lets you create zones in a project and create various statistics for them: primarily various vegetation indices as well as plant count statistics for projects where plant counts have been published.</p>
+<p>The Zonal Statistics API lets you create zones in a project and calculate various statistics for them: primarily various vegetation indices as well as plant count statistics for projects where plant counts have been published.</p>
 <h2 id='creating-and-calculating-statistics-for-zones'>Creating and calculating statistics for zones</h2>
 <blockquote>
 <p>Example request:</p>
@@ -1510,8 +1562,8 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
       ]
     }
   }'</span>
-  https://solvi.ag/api/v1/projects/&lt;project-id&gt;/zonal_statistics<span class="s1">'
-</span></code></pre>
+  https://solvi.ag/api/v1/projects/&lt;project-id&gt;/zonal_statistics
+</code></pre>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
@@ -1530,13 +1582,13 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
                 </span><span class="s2">"vari_max"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1172839477658</span><span class="w">
                 </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
 </span></code></pre>
-<p>Sets the zones for a project and calculates the provided statistics. The zones should be provided through the <code>geojson</code> parameter: it should contain a GeoJSON FeatureCollection with Polygon features. Other GeoJSON objects or invalid GeoJSON will result in a <code>400 Bad request</code> response.</p>
+<p>Sets the zones for a project and calculates the provided statistics, if one of the <code>indices</code> or <code>extra_data</code> parameters are included. The zones should be provided through the <code>geojson</code> parameter: it should contain a GeoJSON FeatureCollection with Polygon features. Other GeoJSON objects or invalid GeoJSON will result in a <code>400 Bad request</code> response.</p>
 
-<p>In addition to the zone features, the <code>indices</code> parameter lists the vegetation indices that should be calculated for the zones. The indices should be listed as lowercase abbreviations, for example VARI index should be listed as <code>&quot;vari&quot;</code>. Note that the available indices vary depending on the project&#39;s bands: for example, NDVI is only available if the project&#39;s orthophoto has red and near-infrared (NIR) bands. Listing unknown indices or indices that can&#39;t be calculated will also result in a <code>400 Bad request</code> response.</p>
+<p>In addition to the zone features, the <code>indices</code> parameter lists the vegetation indices that should be calculated for the zones. The indices should be listed as lowercase abbreviations, for example VARI index should be listed as <code>&quot;vari&quot;</code>. Note that the available indices vary depending on the project&#39;s bands: for example, NDVI is only available if the project&#39;s orthophoto has red and near-infrared (NIR) bands. Listing unknown indices or indices that can&#39;t be calculated will also result in a <code>400 Bad request</code> response. If <code>indices</code> are omitted, no indices will be calculated.</p>
 
 <p>For projects with published plant counts, plant count statistics can also be calculated by the optional parameter <code>extra_data</code>, which in this case should be set to <code>{&quot;plant_counts&quot;: true}</code>.</p>
 
-<p>The endpoint responds with a GeoJSON FeatureCollection with the same geometries that were provided, but with properties added for the calculated statistics. This response is also saved with the project, and can be viewed on Solvi&#39;s web site, and also later fetched with the GET endpoint below.</p>
+<p>The endpoint responds with a GeoJSON FeatureCollection with the same geometries that were provided, but with properties added for the calculated statistics (if any). This response is also saved with the project, and can be viewed on Solvi&#39;s web site, and also later fetched with the GET endpoint below.</p>
 <h3 id='http-request-16'>HTTP Request</h3>
 <p><code>POST https://solvi.ag/api/v1/projects/&lt;project-id&gt;/zonal_statistics</code></p>
 <h3 id='parameters-14'>Parameters</h3>
@@ -1548,14 +1600,14 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 </tr>
 </thead><tbody>
 <tr>
-<td>indices</td>
-<td>required</td>
-<td>List in vegetation indices to calculate; index names should be lower case strings</td>
-</tr>
-<tr>
 <td>geojson</td>
 <td>required</td>
 <td>GeoJSON FeatureCollection representing the zone features</td>
+</tr>
+<tr>
+<td>indices</td>
+<td>optional</td>
+<td>List in vegetation indices to calculate; index names should be lower case strings</td>
 </tr>
 <tr>
 <td>extra_data</td>
@@ -1591,6 +1643,80 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
                 </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
 </span></code></pre>
 <p>Fetches any saved zonal statistics for a project. The zones are returned as a GeoJSON FeatureCollection with statistics in each feature&#39;s <code>properties</code>. If no zones are defined for this project, a <code>404 Not found</code> is returned.</p>
+<h1 id='transactions'>Transactions</h1>
+<p>The Transactions API allows you to retrieve the user&#39;s credit and upload transaction history, including purchases and usage from project uploads and PlantAI detections.</p>
+<h2 id='get-transactions'>Get transactions</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl
+  -X GET
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  https://solvi.ag/api/v1/transactions
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"datetime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2023-03-01T09:00:00.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credits"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"purchase"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"datetime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2023-03-14T14:20:00.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uploads"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"upload"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"project"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1233</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Corn Field"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
+      </span><span class="err">...</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"datetime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2023-03-15T10:30:00.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credits"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-25</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"plantai_detection"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"area_ha"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"project"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1234</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Wheat Field Survey"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
+      </span><span class="err">...</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre>
+<p>Retrieves the transaction history for the authenticated user, showing both usage (negative amounts) and purchases (positive amounts). By default, returns transactions from the last year. Transactions can be filtered by date range using the <code>from</code> and <code>to</code> parameters.</p>
+
+<p>Usage transactions include details about the related project and, for PlantAI detections, the analyzed area in hectares.</p>
+<h3 id='http-request-17'>HTTP Request</h3>
+<p><code>GET https://solvi.ag/api/v1/transactions</code></p>
+<h3 id='parameters-15'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>from</td>
+<td>optional</td>
+<td>Start date to filter transactions (ISO 8601 format, e.g., &quot;2023-01-01&quot;); defaults to 1 year ago if neither <code>from</code> nor <code>to</code> is specified</td>
+</tr>
+<tr>
+<td>to</td>
+<td>optional</td>
+<td>End date to filter transactions (ISO 8601 format, e.g., &quot;2023-12-31&quot;)</td>
+</tr>
+</tbody></table>
+<h3 id='response'>Response</h3>
+<p>For usage related to a specific project, information about the project is included in the response. See <a href="#get-projects">Get Projects</a> for full information about the details included.</p>
 
       </div>
       <div class="dark-box">
