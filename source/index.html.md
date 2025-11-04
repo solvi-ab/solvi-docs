@@ -646,9 +646,13 @@ If processing was successfully started, the HTTP response code will be `200`. In
 
 ### Parameters
 
-| Parameter  |          | Description                              |
-| ---------- | -------- | ---------------------------------------- |
-| project_id | required | Project ID given when project is created |
+| Parameter        |          | Description                                        |
+| ---------------- | -------- | -------------------------------------------------- |
+| project_id       | required | Project ID given when project is created           |
+| created_from     | optional | Filter by project creation date, start of interval |
+| created_to       | optional | Filter by project creation date, end of interval   |
+| survey_date_from | optional | Filter by project survey date, start of interval   |
+| survey_date_to   | optional | Filter by project survey date, end of interval     |
 
 ## Get projects
 
@@ -669,6 +673,11 @@ curl -X GET
     "status": "processed",
     "name": "25-JUN-2018",
     "plant_counts": "published",
+    "user": {
+      "name": "Joe Smith",
+      "email": "joe@example.com"
+    },
+    "plant_counts": "",
     "field": {
       "id": 9999,
       "name": "Winter Wheat",
@@ -682,7 +691,26 @@ curl -X GET
     "upload_date": "2018-06-25T20:50:14.870Z",
     "url": "https://solvi.ag/projects/9999",
     "thumbnail_url": "https://solvi.ag/projects/9999/thumbnail.png",
-    "metadata": null
+    "metadata": null,
+    "number_images": 322,
+    "bands": "rgb",
+    "crop": "Wheat",
+    "relative_altitude": 99.9,
+    "absolute_altitude": 95.443,
+    "extent": {
+      "type": "MultiPolygon",
+      "coordinates": [
+        [
+          [
+            [12.335404361111113, 57.30721566666666],
+            [12.337469722222222, 57.30721566666666],
+            [12.337469722222222, 57.30810941666666],
+            [12.335404361111113, 57.30810941666666],
+            [12.335404361111113, 57.30721566666666]
+          ]
+        ]
+      ]
+    }
   },
   {
     "name": "New project",
@@ -1054,7 +1082,7 @@ Removes the results of a plant count. Please note that "done for you" plant coun
 
 # Zonal Statistics
 
-The Zonal Statistics API lets you create zones in a project and create various statistics for them: primarily various vegetation indices as well as plant count statistics for projects where plant counts have been published.
+The Zonal Statistics API lets you create zones in a project and calculate various statistics for them: primarily various vegetation indices as well as plant count statistics for projects where plant counts have been published.
 
 ## Creating and calculating statistics for zones
 
@@ -1104,7 +1132,7 @@ curl -X POST
       ]
     }
   }'
-  https://solvi.ag/api/v1/projects/<project-id>/zonal_statistics'
+  https://solvi.ag/api/v1/projects/<project-id>/zonal_statistics
 ```
 
 > Example response:
@@ -1126,13 +1154,13 @@ curl -X POST
                 [...]
 ```
 
-Sets the zones for a project and calculates the provided statistics. The zones should be provided through the `geojson` parameter: it should contain a GeoJSON FeatureCollection with Polygon features. Other GeoJSON objects or invalid GeoJSON will result in a `400 Bad request` response.
+Sets the zones for a project and calculates the provided statistics, if one of the `indices` or `extra_data` parameters are included. The zones should be provided through the `geojson` parameter: it should contain a GeoJSON FeatureCollection with Polygon features. Other GeoJSON objects or invalid GeoJSON will result in a `400 Bad request` response.
 
-In addition to the zone features, the `indices` parameter lists the vegetation indices that should be calculated for the zones. The indices should be listed as lowercase abbreviations, for example VARI index should be listed as `"vari"`. Note that the available indices vary depending on the project's bands: for example, NDVI is only available if the project's orthophoto has red and near-infrared (NIR) bands. Listing unknown indices or indices that can't be calculated will also result in a `400 Bad request` response.
+In addition to the zone features, the `indices` parameter lists the vegetation indices that should be calculated for the zones. The indices should be listed as lowercase abbreviations, for example VARI index should be listed as `"vari"`. Note that the available indices vary depending on the project's bands: for example, NDVI is only available if the project's orthophoto has red and near-infrared (NIR) bands. Listing unknown indices or indices that can't be calculated will also result in a `400 Bad request` response. If `indices` are omitted, no indices will be calculated.
 
 For projects with published plant counts, plant count statistics can also be calculated by the optional parameter `extra_data`, which in this case should be set to `{"plant_counts": true}`.
 
-The endpoint responds with a GeoJSON FeatureCollection with the same geometries that were provided, but with properties added for the calculated statistics. This response is also saved with the project, and can be viewed on Solvi's web site, and also later fetched with the GET endpoint below.
+The endpoint responds with a GeoJSON FeatureCollection with the same geometries that were provided, but with properties added for the calculated statistics (if any). This response is also saved with the project, and can be viewed on Solvi's web site, and also later fetched with the GET endpoint below.
 
 ### HTTP Request
 
@@ -1142,8 +1170,8 @@ The endpoint responds with a GeoJSON FeatureCollection with the same geometries 
 
 | Parameter  |          | Description                                                                                                                                                  |
 | ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| indices    | required | List in vegetation indices to calculate; index names should be lower case strings                                                                            |
 | geojson    | required | GeoJSON FeatureCollection representing the zone features                                                                                                     |
+| indices    | optional | List in vegetation indices to calculate; index names should be lower case strings                                                                            |
 | extra_data | optional | Extra data layers to calculate statistics for, expressed as an object with string layer names as keys and boolean values to indicate if layer should be used |
 
 ## Getting Zonal Statistics for a project
@@ -1177,3 +1205,75 @@ curl
 ```
 
 Fetches any saved zonal statistics for a project. The zones are returned as a GeoJSON FeatureCollection with statistics in each feature's `properties`. If no zones are defined for this project, a `404 Not found` is returned.
+
+# Transactions
+
+The Transactions API allows you to retrieve the user's credit and upload transaction history, including purchases and usage from project uploads and PlantAI detections.
+
+## Get transactions
+
+> Example request:
+
+```shell
+curl
+  -X GET
+  -H "Authorization: Bearer <user-jwt-token>"
+  https://solvi.ag/api/v1/transactions
+```
+
+> Example response:
+
+```json
+[
+  {
+    "datetime": "2023-03-01T09:00:00.000Z",
+    "unit": "credits",
+    "amount": 1000,
+    "type": "purchase"
+  },
+  {
+    "datetime": "2023-03-14T14:20:00.000Z",
+    "unit": "uploads",
+    "amount": -1,
+    "type": "upload",
+    "project": {
+      "project_id": 1233,
+      "name": "Corn Field",
+      "status": "processed",
+      ...
+    }
+  },
+  {
+    "datetime": "2023-03-15T10:30:00.000Z",
+    "unit": "credits",
+    "amount": -25,
+    "type": "plantai_detection",
+    "area_ha": 2.5,
+    "project": {
+      "project_id": 1234,
+      "name": "Wheat Field Survey",
+      "status": "processed",
+      ...
+    }
+  }
+]
+```
+
+Retrieves the transaction history for the authenticated user, showing both usage (negative amounts) and purchases (positive amounts). By default, returns transactions from the last year. Transactions can be filtered by date range using the `from` and `to` parameters.
+
+Usage transactions include details about the related project and, for PlantAI detections, the analyzed area in hectares.
+
+### HTTP Request
+
+`GET https://solvi.ag/api/v1/transactions`
+
+### Parameters
+
+| Parameter |          | Description                                                                                                                             |
+| --------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| from      | optional | Start date to filter transactions (ISO 8601 format, e.g., "2023-01-01"); defaults to 1 year ago if neither `from` nor `to` is specified |
+| to        | optional | End date to filter transactions (ISO 8601 format, e.g., "2023-12-31")                                                                   |
+
+### Response
+
+For usage related to a specific project, information about the project is included in the response. See [Get Projects](#get-projects) for full information about the details included.
