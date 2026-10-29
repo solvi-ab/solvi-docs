@@ -80,7 +80,7 @@ curl -X POST
   -H "X-Api-Key: <your-api-key>"
   -H "Content-Type: application/json"
   -d '{ "user": { "email": "john@example.com", "password": "password", "first_name": "John", "last_name": "Doe"}}'
-  "https://solvi.ag/api/v1/users"
+  "https://api.solvi.ag/v1/users"
 ```
 
 > Example response:
@@ -96,7 +96,7 @@ This endpoint registers a new user. If successful, the response will return `use
 
 ### HTTP Request
 
-`POST https://solvi.ag/api/v1/users`
+`POST https://api.solvi.ag/v1/users`
 
 ### Parameters
 
@@ -118,7 +118,7 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
 ```shell
 curl -X GET
   -H "X-Api-Key: <your-api-key>"
-  "https://solvi.ag/api/v1/users/<user_id>/token"
+  "https://api.solvi.ag/v1/users/<user_id>/token"
 ```
 
 > Example response:
@@ -135,7 +135,7 @@ This endpoint gives a token for the specific user that should be used to create 
 
 ### HTTP Request
 
-`GET https://solvi.ag/api/v1/users/<user_id>/token`
+`GET https://api.solvi.ag/v1/users/<user_id>/token`
 
 ### Parameters
 
@@ -165,7 +165,7 @@ curl -X POST
   -H "Authorization: Bearer <user-jwt-token>"
   -H "Content-Type: application/json"
   -d '{"farm": {"name": "My second farm"}}'
-  "https://solvi.ag/api/v1/farms"
+  "https://api.solvi.ag/v1/farms"
 ```
 
 > Example response:
@@ -181,7 +181,7 @@ Creates a new farm.
 
 ### HTTP Request
 
-`POST https://solvi.ag/api/v1/farms`
+`POST https://api.solvi.ag/v1/farms`
 
 ### Parameters
 
@@ -198,7 +198,7 @@ Creates a new farm.
 curl -X GET
   -H "Authorization: Bearer <user-jwt-token>"
   -H "Content-Type: application/json"
-  "https://solvi.ag/api/v1/farms"
+  "https://api.solvi.ag/v1/farms"
 ```
 
 > Example response:
@@ -225,7 +225,7 @@ Gets all user farms and a list of fields related to each farm.
 
 ### HTTP Request
 
-`GET https://solvi.ag/api/v1/farms`
+`GET https://api.solvi.ag/v1/farms`
 
 # Fields
 
@@ -238,7 +238,7 @@ curl -X POST
   -H "Authorization: Bearer <user-jwt-token>"
   -H "Content-Type: application/json"
   -d '{"field": { "name": "Winter Wheat", "geom": "{\"type\":\"Polygon\",\"coordinates\":[[[100.0, 0.0],[101.0, 0.0],[101.0, 1.0],[100.0, 1.0],[100.0, 0.0]]]}"}}'
-  "https://solvi.ag/api/v1/fields"
+  "https://api.solvi.ag/v1/fields"
 ```
 
 > Example response:
@@ -254,7 +254,7 @@ Creates a new field. Field boundaries can be provided as Polygon or MultiPolygon
 
 ### HTTP Request
 
-`POST https://solvi.ag/api/v1/fields`
+`POST https://api.solvi.ag/v1/fields`
 
 ### Parameters
 
@@ -273,7 +273,7 @@ Creates a new field. Field boundaries can be provided as Polygon or MultiPolygon
 curl -X GET
   -H "Authorization: Bearer <user-jwt-token>"
   -H "Content-Type: application/json"
-  "https://solvi.ag/api/v1/fields"
+  "https://api.solvi.ag/v1/fields"
 ```
 
 > Example response:
@@ -292,8 +292,8 @@ curl -X GET
         "field_name": "Wheat field",
         "survey_date": "2018-02-26T14:19:36.000Z",
         "upload_date": "2018-02-27T12:45:05.556Z",
-        "url": "https://solvi.ag/projects/1291",
-        "thumbnail_url": "https://solvi.ag/projects/1291/thumbnail.png",
+        "url": "https://app.solvi.ag/projects/1291",
+        "thumbnail_url": "https://app.solvi.ag/projects/1291/thumbnail.png",
         "metadata": null
       }
     ],
@@ -306,7 +306,7 @@ Gets all user fields and a list of projects related to each field.
 
 ### HTTP Request
 
-`GET https://solvi.ag/api/v1/fields`
+`GET https://api.solvi.ag/v1/fields`
 
 # Projects
 
@@ -319,7 +319,7 @@ curl -X POST
   -H "Authorization: Bearer <user-jwt-token>"
   -H "Content-Type: application/json"
   -d '{ "type": "overlapping", "field_id": "field_1", "field_name": "Wheat Field", "field_geom": "{\"type\":\"Polygon\",\"coordinates\":[[[100.0, 0.0],[101.0, 0.0],[101.0, 1.0],[100.0, 1.0],[100.0, 0.0]]]}" }'
-  "https://solvi.ag/api/v1/projects"
+  "https://api.solvi.ag/v1/projects"
 ```
 
 > Example response:
@@ -328,7 +328,7 @@ curl -X POST
   {
     "status": "success",
     "project_id": 142,
-    "project_url": "https://solvi.ag/projects/142/photos/upload",
+    "project_url": "https://app.solvi.ag/projects/142/photos/upload",
     "imagery_upload_data": {
       "url":"https://solvi-projects-dev.s3.eu-west-1.amazonaws.com",
       "fields": {
@@ -360,7 +360,7 @@ The project's crop, survey date and altitude, data which will be displayed in So
 
 ### HTTP Request
 
-`POST https://solvi.ag/api/v1/projects`
+`POST https://api.solvi.ag/v1/projects`
 
 ### Parameters
 
@@ -400,7 +400,7 @@ curl -X PUT
 
 ### HTTP Request
 
-`PUT https://solvi.ag/api/v1/projects/<project_id>`
+`PUT https://api.solvi.ag/v1/projects/<project_id>`
 
 ### Parameters
 
@@ -421,7 +421,7 @@ This endpoint allows updating survey date, crop, altitude and metadata for a pro
 curl -X POST
   -H "Authorization: Bearer <user-jwt-token>"
   -H "Content-Type: application/json"
-  "https://solvi.ag/api/v1/projects/<project_id>/begin_upload"
+  "https://api.solvi.ag/v1/projects/<project_id>/begin_upload"
 ```
 
 > Example response:
@@ -570,7 +570,7 @@ The response includes a property called `url_template` which should be used to c
 
 ### HTTP Request
 
-`POST https://solvi.ag/api/v1/projects/<project_id>/begin_upload`
+`POST https://api.solvi.ag/v1/projects/<project_id>/begin_upload`
 
 ### Parameters
 
@@ -586,7 +586,7 @@ The response includes a property called `url_template` which should be used to c
 curl -X POST
   -H "Authorization: Bearer <user-jwt-token>"
   -H "Content-Type: application/json"
-  "https://solvi.ag/api/v1/projects/<project_id>/process_external_ortho"
+  "https://api.solvi.ag/v1/projects/<project_id>/process_external_ortho"
   -d '{
     "ortho_url": "https://example.com/my_ortho.tiff"
   }'
@@ -608,7 +608,7 @@ Note that this operation is only valid for projects of `prestitched` type.
 
 ### HTTP Request
 
-`POST https://solvi.ag/api/v1/projects/<project_id>/process_external_ortho`
+`POST https://api.solvi.ag/v1/projects/<project_id>/process_external_ortho`
 
 ### Parameters
 
@@ -625,7 +625,7 @@ Note that this operation is only valid for projects of `prestitched` type.
 curl -X POST
   -H "Authorization: Bearer <user-jwt-token>"
   -H "Content-Type: application/json"
-  "https://solvi.ag/api/v1/projects/<project_id>/complete_upload"
+  "https://api.solvi.ag/v1/projects/<project_id>/complete_upload"
 ```
 
 > Example response:
@@ -642,7 +642,7 @@ If processing was successfully started, the HTTP response code will be `200`. In
 
 ### HTTP Request
 
-`POST https://solvi.ag/api/v1/projects/<project_id>/complete_upload`
+`POST https://api.solvi.ag/v1/projects/<project_id>/complete_upload`
 
 ### Parameters
 
@@ -661,7 +661,7 @@ If processing was successfully started, the HTTP response code will be `200`. In
 ```shell
 curl -X GET
   -H "Authorization: Bearer <user-jwt-token>"
-  'https://solvi.ag/api/v1/projects?field_geom={"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[100.0, 0.0],[101.0, 0.0],[101.0, 1.0],[100.0, 1.0],[100.0, 0.0]]]}]}'
+  'https://api.solvi.ag/v1/projects?field_geom={"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[100.0, 0.0],[101.0, 0.0],[101.0, 1.0],[100.0, 1.0],[100.0, 0.0]]]}]}'
 ```
 
 > Example response:
@@ -689,8 +689,8 @@ curl -X GET
     },
     "survey_date": "2018-06-25T19:19:27.000Z",
     "upload_date": "2018-06-25T20:50:14.870Z",
-    "url": "https://solvi.ag/projects/9999",
-    "thumbnail_url": "https://solvi.ag/projects/9999/thumbnail.png",
+    "url": "https://app.solvi.ag/projects/9999",
+    "thumbnail_url": "https://app.solvi.ag/projects/9999/thumbnail.png",
     "metadata": null,
     "number_images": 322,
     "bands": "rgb",
@@ -714,7 +714,7 @@ curl -X GET
   },
   {
     "name": "New project",
-    "url": "https://solvi.ag/projects/new",
+    "url": "https://app.solvi.ag/projects/new",
     "metadata": null
   }
 ]
@@ -724,7 +724,7 @@ This endpoint retrieves all projects created by the user or shared with user by 
 
 ### HTTP Request
 
-`GET https://solvi.ag/api/v1/projects`
+`GET https://api.solvi.ag/v1/projects`
 
 ### Parameters
 
@@ -739,7 +739,7 @@ This endpoint retrieves all projects created by the user or shared with user by 
 ```shell
 curl -X GET
   -H "Authorization: Bearer <user-jwt-token>"
-  'https://solvi.ag/api/v1/projects/<project-id>
+  'https://api.solvi.ag/v1/projects/<project-id>
 ```
 
 > Example response:
@@ -761,10 +761,10 @@ curl -X GET
     },
     "survey_date": "2018-06-25T19:19:27.000Z",
     "upload_date": "2018-06-25T20:50:14.870Z",
-    "url": "https://solvi.ag/projects/9999",
-    "thumbnail_url": "https://solvi.ag/projects/9999/thumbnail.png",
+    "url": "https://app.solvi.ag/projects/9999",
+    "thumbnail_url": "https://app.solvi.ag/projects/9999/thumbnail.png",
     "resources": {
-      "thumbnail": "https://solvi.ag/projects/9999/thumbnail.png",
+      "thumbnail": "https://app.solvi.ag/projects/9999/thumbnail.png",
       "ortho": "https://solvi-projects.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/ortho.tiff?...",
       "dem": "https://solvi-projects-dev.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/dem.tiff?..."
     },
@@ -778,7 +778,7 @@ The included `resources` are URLs that can be used to fetch the project outputs.
 
 ### HTTP Request
 
-`GET https://solvi.ag/api/v1/projects/<project_id>`
+`GET https://api.solvi.ag/v1/projects/<project_id>`
 
 ### Parameters
 
@@ -793,7 +793,7 @@ The included `resources` are URLs that can be used to fetch the project outputs.
 ```shell
 curl -X GET
   -H "Authorization: Bearer <user-jwt-token>"
-  'https://solvi.ag/api/v1/projects/<project-id>/tiles/<type>
+  'https://api.solvi.ag/v1/projects/<project-id>/tiles/<type>
 ```
 
 > Example response:
@@ -823,7 +823,7 @@ For `plant_counts` (when response `type` is `"tileset/plant_counts`), `number_pl
 
 ### HTTP Request
 
-`GET https://solvi.ag/api/v1/projects/<project-id>/tiles/<type>`
+`GET https://api.solvi.ag/v1/projects/<project-id>/tiles/<type>`
 
 ### Parameters
 
@@ -901,7 +901,7 @@ curl
   -H "Authorization: Bearer <user-jwt-token>"
   -H 'Content-Type: application/json'
   -d '{"model": "base-models/shape"}'
-  https://solvi.ag/api/v1/projects/<project-id>/plant_counts
+  https://api.solvi.ag/v1/projects/<project-id>/plant_counts
 ```
 
 > Example response:
@@ -934,7 +934,7 @@ In addition, more models might be available on a per-user basis.
 
 ### HTTP Request
 
-`POST https://solvi.ag/api/v1/projects/<project-id>/plant_counts`
+`POST https://api.solvi.ag/v1/projects/<project-id>/plant_counts`
 
 ### Parameters
 
@@ -953,7 +953,7 @@ In addition, more models might be available on a per-user basis.
 curl
   -X GET
   -H "Authorization: Bearer <user-jwt-token>"
-  https://solvi.ag/api/v1/projects/<project-id>/plant_counts/<job-id>
+  https://api.solvi.ag/v1/projects/<project-id>/plant_counts/<job-id>
 ```
 
 > Example response:
@@ -1008,7 +1008,7 @@ There are three different statuses:
 curl
   -X POST
   -H "Authorization: Bearer <user-jwt-token>"
-  https://solvi.ag/api/v1/projects/<project-id>/plant_counts/<job-id>/publish
+  https://api.solvi.ag/v1/projects/<project-id>/plant_counts/<job-id>/publish
 ```
 
 > Example response:
@@ -1032,7 +1032,7 @@ After a plant count job has completed succesfully, its results can be published.
 curl
   -X GET
   -H "Authorization: Bearer <user-jwt-token>"
-  https://solvi.ag/api/v1/projects/<project-id>/plant_counts
+  https://api.solvi.ag/v1/projects/<project-id>/plant_counts
 ```
 
 > Example response:
@@ -1067,7 +1067,7 @@ Lists all created plant counts for a project with their id and status. Status is
 curl
   -X DELETE
   -H "Authorization: Bearer <user-jwt-token>"
-  https://solvi.ag/api/v1/projects/<project-id>/plant_counts/<job-id>
+  https://api.solvi.ag/v1/projects/<project-id>/plant_counts/<job-id>
 ```
 
 > Example response:
@@ -1132,7 +1132,7 @@ curl -X POST
       ]
     }
   }'
-  https://solvi.ag/api/v1/projects/<project-id>/zonal_statistics
+  https://api.solvi.ag/v1/projects/<project-id>/zonal_statistics
 ```
 
 > Example response:
@@ -1164,7 +1164,7 @@ The endpoint responds with a GeoJSON FeatureCollection with the same geometries 
 
 ### HTTP Request
 
-`POST https://solvi.ag/api/v1/projects/<project-id>/zonal_statistics`
+`POST https://api.solvi.ag/v1/projects/<project-id>/zonal_statistics`
 
 ### Parameters
 
@@ -1182,7 +1182,7 @@ The endpoint responds with a GeoJSON FeatureCollection with the same geometries 
 curl
   -X GET
   -H "Authorization: Bearer <user-jwt-token>"
-  https://solvi.ag/api/v1/projects/<project-id>/zonal_statistics
+  https://api.solvi.ag/v1/projects/<project-id>/zonal_statistics
 ```
 
 > Example response:
@@ -1218,7 +1218,7 @@ The Transactions API allows you to retrieve the user's credit and upload transac
 curl
   -X GET
   -H "Authorization: Bearer <user-jwt-token>"
-  https://solvi.ag/api/v1/transactions
+  https://api.solvi.ag/v1/transactions
 ```
 
 > Example response:
@@ -1265,7 +1265,7 @@ Usage transactions include details about the related project and, for PlantAI de
 
 ### HTTP Request
 
-`GET https://solvi.ag/api/v1/transactions`
+`GET https://api.solvi.ag/v1/transactions`
 
 ### Parameters
 
