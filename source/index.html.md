@@ -1156,6 +1156,8 @@ curl -X POST
 
 Sets the zones for a project and calculates the provided statistics, if one of the `indices` or `extra_data` parameters are included. The zones should be provided through the `geojson` parameter: it should contain a GeoJSON FeatureCollection with Polygon features. Other GeoJSON objects or invalid GeoJSON will result in a `400 Bad request` response.
 
+If `geojson` is omitted, the statistics are calculated for the zones already saved with the project. A `400 Bad request` is returned if the project has no saved zones, and a `409 Conflict` if the saved zones were created with an old version of Solvi's web site; opening the project on the web site updates them.
+
 In addition to the zone features, the `indices` parameter lists the vegetation indices that should be calculated for the zones. The indices should be listed as lowercase abbreviations, for example VARI index should be listed as `"vari"`. Note that the available indices vary depending on the project's bands: for example, NDVI is only available if the project's orthophoto has red and near-infrared (NIR) bands. Listing unknown indices or indices that can't be calculated will also result in a `400 Bad request` response. If `indices` are omitted, no indices will be calculated.
 
 For projects with published plant counts, plant count statistics can also be calculated by the optional parameter `extra_data`, which in this case should be set to `{"plant_counts": true}`.
@@ -1170,7 +1172,7 @@ The endpoint responds with a GeoJSON FeatureCollection with the same geometries 
 
 | Parameter  |          | Description                                                                                                                                                  |
 | ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| geojson    | required | GeoJSON FeatureCollection representing the zone features                                                                                                     |
+| geojson    | optional | GeoJSON FeatureCollection representing the zone features; defaults to the zones saved with the project                                                       |
 | indices    | optional | List in vegetation indices to calculate; index names should be lower case strings                                                                            |
 | extra_data | optional | Extra data layers to calculate statistics for, expressed as an object with string layer names as keys and boolean values to indicate if layer should be used |
 
@@ -1204,7 +1206,7 @@ curl
                 [...]
 ```
 
-Fetches any saved zonal statistics for a project. The zones are returned as a GeoJSON FeatureCollection with statistics in each feature's `properties`. If no zones are defined for this project, a `404 Not found` is returned.
+Fetches any saved zonal statistics for a project. The zones are returned as a GeoJSON FeatureCollection with statistics in each feature's `properties`. If no zones are defined for this project, a `404 Not found` is returned. If the zones were created with an old version of Solvi's web site, a `409 Conflict` is returned; opening the project on the web site updates them, after which this endpoint returns them.
 
 # Transactions
 
