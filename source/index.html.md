@@ -22,15 +22,64 @@ In Solvi, a Project represents a single upload of multiple images. Projects can 
 Like any REST API, Solvi's API indicates the result of a request through the HTTP status code in the response. After sending a request to an endpoint, the returned status must be checked to ensure the request succeeded.
 
 - _Successful_ results return a `2xx` status:
-  - `200` is used for `GET` requests
+  - `200` is used for `GET`, `PUT` and `DELETE` requests
   - `201` is returned after successfully creating a new entity from a `POST` request
 - An _invalid request_ is indictaed by a `4xx` status:
   - `400` is used to indicate the parameters were invalid
-  - `404` if the requested resource does not exist
+  - `404` if the requested resource does not exist, or the user does not have access to it
   - `402` if the account does not have enough quota
   - `403` if the authenticated user is not allowed to perform this request
+  - `409` if the request conflicts with the resource's current state, for example deleting a field that still has projects
 - `302` is used if the request was not properly authenticated (this will likely change in the future)
 - `5xx` means an internal error occurred: please contact support since this indicates a
+
+> Example error response:
+
+```json
+{
+  "status": "not found",
+  "message": "not found"
+}
+```
+
+Error responses have a JSON body with a `status` property and, in most cases, a `message` describing the error.
+
+## Lists and paging
+
+> Example request for the first page of 100 projects:
+
+```shell
+curl -i -X GET
+  -H "Authorization: Bearer <user-jwt-token>"
+  "https://api.solvi.ag/v1/projects?limit=100"
+```
+
+> Response headers when more projects follow:
+
+```
+Link: <https://api.solvi.ag/v1/projects?continuation_token=MTIzNA%3D%3D&limit=100>; rel="next"
+```
+
+Endpoints that list farms, fields, projects or users return the records ordered by id, oldest first, and return at most 1000 records per request. When more records follow, the response includes a `Link` header with `rel="next"`, containing the URL of the next page. Continue requesting the URL from the `Link` header until a response has no such header. The response body is always a JSON array of the records.
+
+All list endpoints accept these parameters, in addition to the ones listed for each endpoint:
+
+| Parameter          |          | Description                                                                                                                         |
+| ------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| limit              | optional | The maximum number of records to return, 1-1000; default is 1000                                                                   |
+| continuation_token | optional | Continue a list after the previous page; this is set in the `Link` header's URL and should not be constructed by the client         |
+| search             | optional | Only return records whose name contains this text, case insensitive; see each endpoint for which names are searched                 |
+| created_from       | optional | Only return records created on or after this date, formatted as YYYY-MM-DD                                                          |
+| created_to         | optional | Only return records created on or before this date, formatted as YYYY-MM-DD                                                         |
+
+The farm, field and project lists also accept:
+
+| Parameter |          | Description                                                                                                                                                                       |
+| --------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| scope     | optional | `all` (the default) returns everything the user has access to, including records of other members of the user's organisation and farms shared with the user; `own` returns only records the user owns |
+| user_id   | optional | Only return records owned by the user with this id                                                                                                                               |
+
+Dates that are not formatted as YYYY-MM-DD, and other invalid parameter values, give a `400` response.
 
 # Authentication
 
@@ -106,9 +155,123 @@ This endpoint registers a new user. If successful, the response will return `use
 | password   | required | Password    |
 | first_name | required | First name  |
 | last_name  | required | Last name   |
+| company    | optional | Company     |
 
 <aside>
 Parameters above must be wrapped into `user` attribute and sent as JSON payload in POST request, see the example.
+</aside>
+
+If a user with the email already exists, the response is `409`.
+
+## Get users
+
+> Example request:
+
+```shell
+curl -X GET
+  -H "X-Api-Key: <your-api-key>"
+  "https://api.solvi.ag/v1/users?search=doe"
+```
+
+> Example response:
+
+```json
+[
+  {
+    "id": 182,
+    "email": "john@example.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "company": "Doe Farming",
+    "created_at": "2024-03-12T08:41:19.112Z",
+    "locked": false
+  }
+]
+```
+
+Gets the users registered through your API key. The list is [paged](#lists-and-paging).
+
+### HTTP Request
+
+`GET https://api.solvi.ag/v1/users`
+
+### Parameters
+
+| Parameter |          | Description                                                                 |
+| --------- | -------- | --------------------------------------------------------------------------- |
+| search    | optional | Only return users whose name, email or company contains this text           |
+| email     | optional | Only return the user with this email; case insensitive                      |
+
+The list also accepts the parameters common to [all lists](#lists-and-paging).
+
+## Get user
+
+> Example request:
+
+```shell
+curl -X GET
+  -H "X-Api-Key: <your-api-key>"
+  "https://api.solvi.ag/v1/users/<user_id>"
+```
+
+> Example response:
+
+```json
+{
+  "id": 182,
+  "email": "john@example.com",
+  "first_name": "John",
+  "last_name": "Doe",
+  "company": "Doe Farming",
+  "created_at": "2024-03-12T08:41:19.112Z",
+  "locked": false
+}
+```
+
+Gets a single user registered through your API key.
+
+### HTTP Request
+
+`GET https://api.solvi.ag/v1/users/<user_id>`
+
+## Update user
+
+> Example request:
+
+```shell
+curl -X PUT
+  -H "X-Api-Key: <your-api-key>"
+  -H "Content-Type: application/json"
+  -d '{ "user": { "company": "Doe Farming AB" }}'
+  "https://api.solvi.ag/v1/users/<user_id>"
+```
+
+> Example response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+Updates a user registered through your API key. Only the parameters included in the request are changed.
+
+### HTTP Request
+
+`PUT https://api.solvi.ag/v1/users/<user_id>`
+
+### Parameters
+
+| Parameter  |          | Description |
+| ---------- | -------- | ----------- |
+| email      | optional | Email       |
+| password   | optional | Password    |
+| first_name | optional | First name  |
+| last_name  | optional | Last name   |
+| company    | optional | Company     |
+
+<aside>
+Parameters above must be wrapped into `user` attribute, as when registering a user.
 </aside>
 
 ## Generate user-specific token
@@ -206,7 +369,10 @@ curl -X GET
 ```json
 [
   {
+    "id": 656,
     "name": "My farm",
+    "user_id": 182,
+    "archived": false,
     "created_at": "2019-02-08T09:18:37.655Z",
     "fields": [
       {
@@ -221,11 +387,96 @@ curl -X GET
 ]
 ```
 
-Gets all user farms and a list of fields related to each farm.
+Gets the farms the user has access to and a list of fields related to each farm. This includes farms shared with the user and, for members of an organisation, the organisation's farms the user has access to. The list is [paged](#lists-and-paging).
 
 ### HTTP Request
 
 `GET https://api.solvi.ag/v1/farms`
+
+### Parameters
+
+| Parameter |          | Description                                                                              |
+| --------- | -------- | ---------------------------------------------------------------------------------------- |
+| search    | optional | Only return farms whose name contains this text                                          |
+| archived  | optional | `true` to return only archived farms, `false` to return only active farms; default both |
+
+The list also accepts the parameters common to [all lists](#lists-and-paging), including `scope` and `user_id`.
+
+## Get farm
+
+> Example request:
+
+```shell
+curl -X GET
+  -H "Authorization: Bearer <user-jwt-token>"
+  "https://api.solvi.ag/v1/farms/<farm_id>"
+```
+
+Gets a single farm, in the same format as an item of the [farms list](#get-farms).
+
+### HTTP Request
+
+`GET https://api.solvi.ag/v1/farms/<farm_id>`
+
+## Update farm
+
+> Example request:
+
+```shell
+curl -X PUT
+  -H "Authorization: Bearer <user-jwt-token>"
+  -H "Content-Type: application/json"
+  -d '{"farm": {"name": "Home farm", "archived": true}}'
+  "https://api.solvi.ag/v1/farms/<farm_id>"
+```
+
+> Example response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+Updates a farm. Only the parameters included in the request are changed. The user must be allowed to edit the farm, otherwise the response is `403`.
+
+### HTTP Request
+
+`PUT https://api.solvi.ag/v1/farms/<farm_id>`
+
+### Parameters
+
+| Parameter |          | Description                                           |
+| --------- | -------- | ----------------------------------------------------- |
+| name      | optional | Name of the farm                                      |
+| archived  | optional | `true` to archive the farm, `false` to make it active |
+| metadata  | optional | Optional arbitrary metadata                           |
+
+## Delete farm
+
+> Example request:
+
+```shell
+curl -X DELETE
+  -H "Authorization: Bearer <user-jwt-token>"
+  "https://api.solvi.ag/v1/farms/<farm_id>"
+```
+
+> Example response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+Deletes a farm and its fields. The user must be allowed to edit the farm, otherwise the response is `403`.
+
+A farm can only be deleted when all projects on its fields have been [deleted](#delete-project), and a user must always keep at least one farm. Otherwise, the response is `409`.
+
+### HTTP Request
+
+`DELETE https://api.solvi.ag/v1/farms/<farm_id>`
 
 # Fields
 
@@ -250,7 +501,7 @@ curl -X POST
 }
 ```
 
-Creates a new field. Field boundaries can be provided as Polygon or MultiPolygon in GeoJSON format. The farm to organize the field under can also be provided. The response contains `field_id` which can be later used to relate projects to the specific field.
+Creates a new field. Field boundaries can be provided as Polygon or MultiPolygon in GeoJSON format. The farm to organize the field under can also be provided; the user must be allowed to edit that farm, otherwise the response is `400`. The response contains `field_id` which can be later used to relate projects to the specific field.
 
 ### HTTP Request
 
@@ -262,7 +513,7 @@ Creates a new field. Field boundaries can be provided as Polygon or MultiPolygon
 | --------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | name      | required | Name of the the field                                                                                                                                                |
 | geom      | optional | Boundaries of the field as a Polygon or Multipolygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat) |
-| farm_id   | optional | The id of the farm to put the field under; if not specified, the user's last created farm is used                                                                    |
+| farm_id   | optional | The id of the farm to put the field under; if not specified, the farm the user created last is used                                                                  |
 | metadata  | optional | Optional arbitrary metadata                                                                                                                                          |
 
 ## Get fields
@@ -297,16 +548,109 @@ curl -X GET
         "metadata": null
       }
     ],
+    "farm": {
+      "id": 656,
+      "name": "My farm",
+      "metadata": null
+    },
+    "geom": {
+      "type": "Polygon",
+      "coordinates": [[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]]
+    },
     "metadata": null
   }
 ]
 ```
 
-Gets all user fields and a list of projects related to each field.
+Gets the fields on the farms the user has access to, and a list of the processed projects related to each field. The list is [paged](#lists-and-paging).
 
 ### HTTP Request
 
 `GET https://api.solvi.ag/v1/fields`
+
+### Parameters
+
+| Parameter |          | Description                                      |
+| --------- | -------- | ------------------------------------------------ |
+| farm_id   | optional | Only return fields on the farm with this id      |
+| search    | optional | Only return fields whose name contains this text |
+
+The list also accepts the parameters common to [all lists](#lists-and-paging), including `scope` and `user_id`; these refer to the owner of the field's farm.
+
+## Get field
+
+> Example request:
+
+```shell
+curl -X GET
+  -H "Authorization: Bearer <user-jwt-token>"
+  "https://api.solvi.ag/v1/fields/<field_id>"
+```
+
+Gets a single field, in the same format as an item of the [fields list](#get-fields).
+
+### HTTP Request
+
+`GET https://api.solvi.ag/v1/fields/<field_id>`
+
+## Update field
+
+> Example request:
+
+```shell
+curl -X PUT
+  -H "Authorization: Bearer <user-jwt-token>"
+  -H "Content-Type: application/json"
+  -d '{"field": {"name": "Spring Wheat"}}'
+  "https://api.solvi.ag/v1/fields/<field_id>"
+```
+
+> Example response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+Updates a field. Only the parameters included in the request are changed. The user must be allowed to edit the field's farm, otherwise the response is `403`. A field can be moved to another farm by setting `farm_id`; the user must be allowed to edit that farm too, otherwise the response is `400`.
+
+### HTTP Request
+
+`PUT https://api.solvi.ag/v1/fields/<field_id>`
+
+### Parameters
+
+| Parameter |          | Description                                                                                                                                                          |
+| --------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name      | optional | Name of the the field                                                                                                                                                |
+| geom      | optional | Boundaries of the field as a Polygon or Multipolygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat) |
+| farm_id   | optional | The id of the farm to move the field to                                                                                                                              |
+| metadata  | optional | Optional arbitrary metadata                                                                                                                                          |
+
+## Delete field
+
+> Example request:
+
+```shell
+curl -X DELETE
+  -H "Authorization: Bearer <user-jwt-token>"
+  "https://api.solvi.ag/v1/fields/<field_id>"
+```
+
+> Example response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+Deletes a field. The user must be allowed to edit the field's farm, otherwise the response is `403`. A field can only be deleted when all its projects have been [deleted](#delete-project), otherwise the response is `409`.
+
+### HTTP Request
+
+`DELETE https://api.solvi.ag/v1/fields/<field_id>`
 
 # Projects
 
@@ -351,8 +695,8 @@ Projects can be connected to a Field. When multiple projects are related to the 
 
 Fields can be either be:
 
-- [created beforehand](#create-field); for this case, set the `field_id` parameter to the previously created field's `id`
-- created on the fly by sending `field_name` and `field_geom` (optional), which will create a new field for the project; do not include `field_id`
+- [created beforehand](#create-field); for this case, set the `field_id` parameter to the previously created field's `id`; the user must be allowed to edit the field's farm, or the farm must be shared with the user, otherwise the response is `403`
+- created on the fly by sending `field_name` and `field_geom` (optional), which will create a new field for the project on the farm the user created last; do not include `field_id`
 
 Optionally, a project can be created with a so-called _webhook_ that will be called every time the status of the project changes. This makes it possible for integration to for example react when a project finishes processing, without having to use polling to check the project's status. To add a webhook, specify the URL to be called with the `status_webhook` parameter. See the section on [webhooks](#webhooks) for details.
 
@@ -388,6 +732,7 @@ curl -X PUT
   -d '{
     "survey_date": "2022-08-18"
   }'
+  "https://api.solvi.ag/v1/projects/<project_id>"
 ```
 
 > Example response:
@@ -411,7 +756,31 @@ curl -X PUT
 | altitude    | optional | Altitude the imagery was taken from in meters      |
 | metadata    | optional | Optional arbitrary metadata                        |
 
-This endpoint allows updating survey date, crop, altitude and metadata for a project.
+This endpoint allows updating survey date, crop, altitude and metadata for a project, whatever its status. Only the parameters included in the request are changed. If the user is not allowed to edit the project, the response is `404`.
+
+## Delete project
+
+> Example request:
+
+```shell
+curl -X DELETE
+  -H "Authorization: Bearer <user-jwt-token>"
+  "https://api.solvi.ag/v1/projects/<project_id>"
+```
+
+> Example response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+Deletes a project. The project is no longer returned by the API or shown in Solvi. If the user is not allowed to edit the project, the response is `404`; if the user's account does not allow editing projects at all, the response is `403`.
+
+### HTTP Request
+
+`DELETE https://api.solvi.ag/v1/projects/<project_id>`
 
 ## Upload local imagery
 
@@ -646,13 +1015,9 @@ If processing was successfully started, the HTTP response code will be `200`. In
 
 ### Parameters
 
-| Parameter        |          | Description                                        |
-| ---------------- | -------- | -------------------------------------------------- |
-| project_id       | required | Project ID given when project is created           |
-| created_from     | optional | Filter by project creation date, start of interval |
-| created_to       | optional | Filter by project creation date, end of interval   |
-| survey_date_from | optional | Filter by project survey date, start of interval   |
-| survey_date_to   | optional | Filter by project survey date, end of interval     |
+| Parameter  |          | Description                              |
+| ---------- | -------- | ---------------------------------------- |
+| project_id | required | Project ID given when project is created |
 
 ## Get projects
 
@@ -720,7 +1085,7 @@ curl -X GET
 ]
 ```
 
-This endpoint retrieves all projects created by the user or shared with user by others. If field boundaries are provided, only projects whose extent overlaps boundaries are returned.
+This endpoint retrieves the projects created by the user and the projects on farms the user has access to: farms shared with the user and, for members of an organisation, the organisation's farms the user has access to. Use `scope=own` to only retrieve the projects the user created. The list is [paged](#lists-and-paging).
 
 ### HTTP Request
 
@@ -728,9 +1093,21 @@ This endpoint retrieves all projects created by the user or shared with user by 
 
 ### Parameters
 
-| Parameter  |          | Description                                                                                                                                           |
-| ---------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| field_geom | optional | Boundaries of the field as a polygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat). |
+| Parameter        |          | Description                                                                                                                                                                       |
+| ---------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| field_geom       | optional | Boundaries of the field as a polygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat); only projects whose extent overlaps the boundaries are returned |
+| field_id         | optional | Only return projects on the field with this id                                                                                                                                    |
+| farm_id          | optional | Only return projects on the farm with this id                                                                                                                                     |
+| status           | optional | Only return projects with this status: `processed`, `not_processed` or `failed`                                                                                                   |
+| type             | optional | Only return projects of this type: `overlapping`, `stitched` or `scouting`                                                                                                        |
+| bands            | optional | Only return projects with these bands, for example `rgb`                                                                                                                          |
+| crop             | optional | Only return projects with this crop                                                                                                                                               |
+| plant_counts     | optional | Only return projects with plant counts in this state: `requested`, `review`, `bad_request` or `published`                                                                         |
+| search           | optional | Only return projects whose identifier, field name or farm name contains this text                                                                                                 |
+| survey_date_from | optional | Only return projects surveyed on or after this date, formatted as YYYY-MM-DD                                                                                                      |
+| survey_date_to   | optional | Only return projects surveyed on or before this date, formatted as YYYY-MM-DD                                                                                                     |
+
+The list also accepts the parameters common to [all lists](#lists-and-paging), including `scope` and `user_id`.
 
 ## Project outputs
 
