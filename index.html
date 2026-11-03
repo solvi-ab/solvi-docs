@@ -220,6 +220,9 @@
                   <li>
                     <a href="#http-response-codes" class="toc-h2 toc-link" data-title="Introduction">HTTP Response Codes</a>
                   </li>
+                  <li>
+                    <a href="#lists-and-paging" class="toc-h2 toc-link" data-title="Introduction">Lists and paging</a>
+                  </li>
               </ul>
           </li>
           <li>
@@ -230,6 +233,15 @@
               <ul class="toc-list-h2">
                   <li>
                     <a href="#register-new-user" class="toc-h2 toc-link" data-title="Users">Register new user</a>
+                  </li>
+                  <li>
+                    <a href="#get-users" class="toc-h2 toc-link" data-title="Users">Get users</a>
+                  </li>
+                  <li>
+                    <a href="#get-user" class="toc-h2 toc-link" data-title="Users">Get user</a>
+                  </li>
+                  <li>
+                    <a href="#update-user" class="toc-h2 toc-link" data-title="Users">Update user</a>
                   </li>
                   <li>
                     <a href="#generate-user-specific-token" class="toc-h2 toc-link" data-title="Users">Generate user-specific token</a>
@@ -248,6 +260,15 @@
                   <li>
                     <a href="#get-farms" class="toc-h2 toc-link" data-title="Farms">Get farms</a>
                   </li>
+                  <li>
+                    <a href="#get-farm" class="toc-h2 toc-link" data-title="Farms">Get farm</a>
+                  </li>
+                  <li>
+                    <a href="#update-farm" class="toc-h2 toc-link" data-title="Farms">Update farm</a>
+                  </li>
+                  <li>
+                    <a href="#delete-farm" class="toc-h2 toc-link" data-title="Farms">Delete farm</a>
+                  </li>
               </ul>
           </li>
           <li>
@@ -259,6 +280,15 @@
                   <li>
                     <a href="#get-fields" class="toc-h2 toc-link" data-title="Fields">Get fields</a>
                   </li>
+                  <li>
+                    <a href="#get-field" class="toc-h2 toc-link" data-title="Fields">Get field</a>
+                  </li>
+                  <li>
+                    <a href="#update-field" class="toc-h2 toc-link" data-title="Fields">Update field</a>
+                  </li>
+                  <li>
+                    <a href="#delete-field" class="toc-h2 toc-link" data-title="Fields">Delete field</a>
+                  </li>
               </ul>
           </li>
           <li>
@@ -269,6 +299,9 @@
                   </li>
                   <li>
                     <a href="#update-project-data" class="toc-h2 toc-link" data-title="Projects">Update project data</a>
+                  </li>
+                  <li>
+                    <a href="#delete-project" class="toc-h2 toc-link" data-title="Projects">Delete project</a>
                   </li>
                   <li>
                     <a href="#upload-local-imagery" class="toc-h2 toc-link" data-title="Projects">Upload local imagery</a>
@@ -351,20 +384,104 @@
 <li><em>Successful</em> results return a <code>2xx</code> status:
 
 <ul>
-<li><code>200</code> is used for <code>GET</code> requests</li>
+<li><code>200</code> is used for <code>GET</code>, <code>PUT</code> and <code>DELETE</code> requests</li>
 <li><code>201</code> is returned after successfully creating a new entity from a <code>POST</code> request</li>
 </ul></li>
 <li>An <em>invalid request</em> is indictaed by a <code>4xx</code> status:
 
 <ul>
 <li><code>400</code> is used to indicate the parameters were invalid</li>
-<li><code>404</code> if the requested resource does not exist</li>
+<li><code>404</code> if the requested resource does not exist, or the user does not have access to it</li>
 <li><code>402</code> if the account does not have enough quota</li>
 <li><code>403</code> if the authenticated user is not allowed to perform this request</li>
+<li><code>409</code> if the request conflicts with the resource&#39;s current state, for example deleting a field that still has projects</li>
 </ul></li>
 <li><code>302</code> is used if the request was not properly authenticated (this will likely change in the future)</li>
 <li><code>5xx</code> means an internal error occurred: please contact support since this indicates a</li>
 </ul>
+
+<blockquote>
+<p>Example error response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not found"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not found"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Error responses have a JSON body with a <code>status</code> property and, in most cases, a <code>message</code> describing the error.</p>
+<h2 id='lists-and-paging'>Lists and paging</h2>
+<blockquote>
+<p>Example request for the first page of 100 projects:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -i -X GET
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="s2">"https://api.solvi.ag/v1/projects?limit=100"</span>
+</code></pre>
+<blockquote>
+<p>Response headers when more projects follow:</p>
+</blockquote>
+<pre class="highlight plaintext"><code>Link: &lt;https://api.solvi.ag/v1/projects?continuation_token=MTIzNA%3D%3D&amp;limit=100&gt;; rel="next"
+</code></pre>
+<p>Endpoints that list farms, fields, projects or users return the records ordered by id, oldest first, and return at most 1000 records per request. When more records follow, the response includes a <code>Link</code> header with <code>rel=&quot;next&quot;</code>, containing the URL of the next page. Continue requesting the URL from the <code>Link</code> header until a response has no such header. The response body is always a JSON array of the records.</p>
+
+<p>All list endpoints accept these parameters, in addition to the ones listed for each endpoint:</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>limit</td>
+<td>optional</td>
+<td>The maximum number of records to return, 1-1000; default is 1000</td>
+</tr>
+<tr>
+<td>continuation_token</td>
+<td>optional</td>
+<td>Continue a list after the previous page; this is set in the <code>Link</code> header&#39;s URL and should not be constructed by the client</td>
+</tr>
+<tr>
+<td>search</td>
+<td>optional</td>
+<td>Only return records whose name contains this text, case insensitive; see each endpoint for which names are searched</td>
+</tr>
+<tr>
+<td>created_from</td>
+<td>optional</td>
+<td>Only return records created on or after this date, formatted as YYYY-MM-DD</td>
+</tr>
+<tr>
+<td>created_to</td>
+<td>optional</td>
+<td>Only return records created on or before this date, formatted as YYYY-MM-DD</td>
+</tr>
+</tbody></table>
+
+<p>The farm, field and project lists also accept:</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>scope</td>
+<td>optional</td>
+<td><code>all</code> (the default) returns everything the user has access to, including records of other members of the user&#39;s organisation and farms shared with the user; <code>own</code> returns only records the user owns</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>optional</td>
+<td>Only return records owned by the user with this id</td>
+</tr>
+</tbody></table>
+
+<p>Dates that are not formatted as YYYY-MM-DD, and other invalid parameter values, give a <code>400</code> response.</p>
 <h1 id='authentication'>Authentication</h1>
 <blockquote>
 <p>Example API key request:</p>
@@ -451,10 +568,146 @@ reason need to revoke a key, you can also contact us.</p>
 <td>required</td>
 <td>Last name</td>
 </tr>
+<tr>
+<td>company</td>
+<td>optional</td>
+<td>Company</td>
+</tr>
 </tbody></table>
 
 <aside>
 Parameters above must be wrapped into `user` attribute and sent as JSON payload in POST request, see the example.
+</aside>
+
+<p>If a user with the email already exists, the response is <code>409</code>.</p>
+<h2 id='get-users'>Get users</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X GET
+  -H <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
+  <span class="s2">"https://api.solvi.ag/v1/users?search=doe"</span>
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">182</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"john@example.com"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"first_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"last_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doe"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"company"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doe Farming"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-12T08:41:19.112Z"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"locked"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre>
+<p>Gets the users registered through your API key. The list is <a href="#lists-and-paging">paged</a>.</p>
+<h3 id='http-request-2'>HTTP Request</h3>
+<p><code>GET https://api.solvi.ag/v1/users</code></p>
+<h3 id='parameters-2'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>search</td>
+<td>optional</td>
+<td>Only return users whose name, email or company contains this text</td>
+</tr>
+<tr>
+<td>email</td>
+<td>optional</td>
+<td>Only return the user with this email; case insensitive</td>
+</tr>
+</tbody></table>
+
+<p>The list also accepts the parameters common to <a href="#lists-and-paging">all lists</a>.</p>
+<h2 id='get-user'>Get user</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X GET
+  -H <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
+  <span class="s2">"https://api.solvi.ag/v1/users/&lt;user_id&gt;"</span>
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">182</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"john@example.com"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"first_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"last_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doe"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"company"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doe Farming"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-12T08:41:19.112Z"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"locked"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Gets a single user registered through your API key.</p>
+<h3 id='http-request-3'>HTTP Request</h3>
+<p><code>GET https://api.solvi.ag/v1/users/&lt;user_id&gt;</code></p>
+<h2 id='update-user'>Update user</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X PUT
+  -H <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
+  -H <span class="s2">"Content-Type: application/json"</span>
+  -d <span class="s1">'{ "user": { "company": "Doe Farming AB" }}'</span>
+  <span class="s2">"https://api.solvi.ag/v1/users/&lt;user_id&gt;"</span>
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Updates a user registered through your API key. Only the parameters included in the request are changed.</p>
+<h3 id='http-request-4'>HTTP Request</h3>
+<p><code>PUT https://api.solvi.ag/v1/users/&lt;user_id&gt;</code></p>
+<h3 id='parameters-3'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>email</td>
+<td>optional</td>
+<td>Email</td>
+</tr>
+<tr>
+<td>password</td>
+<td>optional</td>
+<td>Password</td>
+</tr>
+<tr>
+<td>first_name</td>
+<td>optional</td>
+<td>First name</td>
+</tr>
+<tr>
+<td>last_name</td>
+<td>optional</td>
+<td>Last name</td>
+</tr>
+<tr>
+<td>company</td>
+<td>optional</td>
+<td>Company</td>
+</tr>
+</tbody></table>
+
+<aside>
+Parameters above must be wrapped into `user` attribute, as when registering a user.
 </aside>
 <h2 id='generate-user-specific-token'>Generate user-specific token</h2>
 <blockquote>
@@ -474,9 +727,9 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 <p>This endpoint gives a token for the specific user that should be used to create and retrieve user projects. Every request will generate na ew token. The token is valid for 24 hours.</p>
-<h3 id='http-request-2'>HTTP Request</h3>
+<h3 id='http-request-5'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/users/&lt;user_id&gt;/token</code></p>
-<h3 id='parameters-2'>Parameters</h3>
+<h3 id='parameters-4'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -518,9 +771,9 @@ and projects created through the API all support attaching arbitrary data to the
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 <p>Creates a new farm.</p>
-<h3 id='http-request-3'>HTTP Request</h3>
+<h3 id='http-request-6'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/farms</code></p>
-<h3 id='parameters-3'>Parameters</h3>
+<h3 id='parameters-5'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -553,7 +806,10 @@ and projects created through the API all support attaching arbitrary data to the
 </blockquote>
 <pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
   </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
     </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My farm"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">182</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"archived"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
     </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-02-08T09:18:37.655Z"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
@@ -567,9 +823,105 @@ and projects created through the API all support attaching arbitrary data to the
   </span><span class="p">}</span><span class="w">
 </span><span class="p">]</span><span class="w">
 </span></code></pre>
-<p>Gets all user farms and a list of fields related to each farm.</p>
-<h3 id='http-request-4'>HTTP Request</h3>
+<p>Gets the farms the user has access to and a list of fields related to each farm. This includes farms shared with the user and, for members of an organisation, the organisation&#39;s farms the user has access to. The list is <a href="#lists-and-paging">paged</a>.</p>
+<h3 id='http-request-7'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/farms</code></p>
+<h3 id='parameters-6'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>search</td>
+<td>optional</td>
+<td>Only return farms whose name contains this text</td>
+</tr>
+<tr>
+<td>archived</td>
+<td>optional</td>
+<td><code>true</code> to return only archived farms, <code>false</code> to return only active farms; default both</td>
+</tr>
+</tbody></table>
+
+<p>The list also accepts the parameters common to <a href="#lists-and-paging">all lists</a>, including <code>scope</code> and <code>user_id</code>.</p>
+<h2 id='get-farm'>Get farm</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X GET
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="s2">"https://api.solvi.ag/v1/farms/&lt;farm_id&gt;"</span>
+</code></pre>
+<p>Gets a single farm, in the same format as an item of the <a href="#get-farms">farms list</a>.</p>
+<h3 id='http-request-8'>HTTP Request</h3>
+<p><code>GET https://api.solvi.ag/v1/farms/&lt;farm_id&gt;</code></p>
+<h2 id='update-farm'>Update farm</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X PUT
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  -H <span class="s2">"Content-Type: application/json"</span>
+  -d <span class="s1">'{"farm": {"name": "Home farm", "archived": true}}'</span>
+  <span class="s2">"https://api.solvi.ag/v1/farms/&lt;farm_id&gt;"</span>
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Updates a farm. Only the parameters included in the request are changed. The user must be allowed to edit the farm, otherwise the response is <code>403</code>.</p>
+<h3 id='http-request-9'>HTTP Request</h3>
+<p><code>PUT https://api.solvi.ag/v1/farms/&lt;farm_id&gt;</code></p>
+<h3 id='parameters-7'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>optional</td>
+<td>Name of the farm</td>
+</tr>
+<tr>
+<td>archived</td>
+<td>optional</td>
+<td><code>true</code> to archive the farm, <code>false</code> to make it active</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>optional</td>
+<td>Optional arbitrary metadata</td>
+</tr>
+</tbody></table>
+<h2 id='delete-farm'>Delete farm</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X DELETE
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="s2">"https://api.solvi.ag/v1/farms/&lt;farm_id&gt;"</span>
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Deletes a farm and its fields. The user must be allowed to edit the farm, otherwise the response is <code>403</code>.</p>
+
+<p>A farm can only be deleted when all projects on its fields have been <a href="#delete-project">deleted</a>, and a user must always keep at least one farm. Otherwise, the response is <code>409</code>.</p>
+<h3 id='http-request-10'>HTTP Request</h3>
+<p><code>DELETE https://api.solvi.ag/v1/farms/&lt;farm_id&gt;</code></p>
 <h1 id='fields'>Fields</h1><h2 id='create-field'>Create field</h2>
 <blockquote>
 <p>Example request:</p>
@@ -588,10 +940,10 @@ and projects created through the API all support attaching arbitrary data to the
   </span><span class="s2">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">793</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>Creates a new field. Field boundaries can be provided as Polygon or MultiPolygon in GeoJSON format. The farm to organize the field under can also be provided. The response contains <code>field_id</code> which can be later used to relate projects to the specific field.</p>
-<h3 id='http-request-5'>HTTP Request</h3>
+<p>Creates a new field. Field boundaries can be provided as Polygon or MultiPolygon in GeoJSON format. The farm to organize the field under can also be provided; the user must be allowed to edit that farm, otherwise the response is <code>400</code>. The response contains <code>field_id</code> which can be later used to relate projects to the specific field.</p>
+<h3 id='http-request-11'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/fields</code></p>
-<h3 id='parameters-4'>Parameters</h3>
+<h3 id='parameters-8'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -612,7 +964,7 @@ and projects created through the API all support attaching arbitrary data to the
 <tr>
 <td>farm_id</td>
 <td>optional</td>
-<td>The id of the farm to put the field under; if not specified, the user&#39;s last created farm is used</td>
+<td>The id of the farm to put the field under; if not specified, the farm the user created last is used</td>
 </tr>
 <tr>
 <td>metadata</td>
@@ -650,13 +1002,121 @@ and projects created through the API all support attaching arbitrary data to the
         </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">],</span><span class="w">
+    </span><span class="s2">"farm"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My farm"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"geom"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Polygon"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"coordinates"</span><span class="p">:</span><span class="w"> </span><span class="p">[[[</span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">101.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">101.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">]]]</span><span class="w">
+    </span><span class="p">},</span><span class="w">
     </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">]</span><span class="w">
 </span></code></pre>
-<p>Gets all user fields and a list of projects related to each field.</p>
-<h3 id='http-request-6'>HTTP Request</h3>
+<p>Gets the fields on the farms the user has access to, and a list of the processed projects related to each field. The list is <a href="#lists-and-paging">paged</a>.</p>
+<h3 id='http-request-12'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/fields</code></p>
+<h3 id='parameters-9'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>farm_id</td>
+<td>optional</td>
+<td>Only return fields on the farm with this id</td>
+</tr>
+<tr>
+<td>search</td>
+<td>optional</td>
+<td>Only return fields whose name contains this text</td>
+</tr>
+</tbody></table>
+
+<p>The list also accepts the parameters common to <a href="#lists-and-paging">all lists</a>, including <code>scope</code> and <code>user_id</code>; these refer to the owner of the field&#39;s farm.</p>
+<h2 id='get-field'>Get field</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X GET
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="s2">"https://api.solvi.ag/v1/fields/&lt;field_id&gt;"</span>
+</code></pre>
+<p>Gets a single field, in the same format as an item of the <a href="#get-fields">fields list</a>.</p>
+<h3 id='http-request-13'>HTTP Request</h3>
+<p><code>GET https://api.solvi.ag/v1/fields/&lt;field_id&gt;</code></p>
+<h2 id='update-field'>Update field</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X PUT
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  -H <span class="s2">"Content-Type: application/json"</span>
+  -d <span class="s1">'{"field": {"name": "Spring Wheat"}}'</span>
+  <span class="s2">"https://api.solvi.ag/v1/fields/&lt;field_id&gt;"</span>
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Updates a field. Only the parameters included in the request are changed. The user must be allowed to edit the field&#39;s farm, otherwise the response is <code>403</code>. A field can be moved to another farm by setting <code>farm_id</code>; the user must be allowed to edit that farm too, otherwise the response is <code>400</code>.</p>
+<h3 id='http-request-14'>HTTP Request</h3>
+<p><code>PUT https://api.solvi.ag/v1/fields/&lt;field_id&gt;</code></p>
+<h3 id='parameters-10'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>optional</td>
+<td>Name of the the field</td>
+</tr>
+<tr>
+<td>geom</td>
+<td>optional</td>
+<td>Boundaries of the field as a Polygon or Multipolygon in <a href="https://geojson.org/geojson-spec.html#introduction">GeoJSON format</a> and EPSG:4326 coordinate system(lonlat)</td>
+</tr>
+<tr>
+<td>farm_id</td>
+<td>optional</td>
+<td>The id of the farm to move the field to</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>optional</td>
+<td>Optional arbitrary metadata</td>
+</tr>
+</tbody></table>
+<h2 id='delete-field'>Delete field</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X DELETE
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="s2">"https://api.solvi.ag/v1/fields/&lt;field_id&gt;"</span>
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Deletes a field. The user must be allowed to edit the field&#39;s farm, otherwise the response is <code>403</code>. A field can only be deleted when all its projects have been <a href="#delete-project">deleted</a>, otherwise the response is <code>409</code>.</p>
+<h3 id='http-request-15'>HTTP Request</h3>
+<p><code>DELETE https://api.solvi.ag/v1/fields/&lt;field_id&gt;</code></p>
 <h1 id='projects'>Projects</h1><h2 id='create-project'>Create project</h2>
 <blockquote>
 <p>Example request:</p>
@@ -698,16 +1158,16 @@ and projects created through the API all support attaching arbitrary data to the
 <p>Fields can be either be:</p>
 
 <ul>
-<li><a href="#create-field">created beforehand</a>; for this case, set the <code>field_id</code> parameter to the previously created field&#39;s <code>id</code></li>
-<li>created on the fly by sending <code>field_name</code> and <code>field_geom</code> (optional), which will create a new field for the project; do not include <code>field_id</code></li>
+<li><a href="#create-field">created beforehand</a>; for this case, set the <code>field_id</code> parameter to the previously created field&#39;s <code>id</code>; the user must be allowed to edit the field&#39;s farm, or the farm must be shared with the user, otherwise the response is <code>403</code></li>
+<li>created on the fly by sending <code>field_name</code> and <code>field_geom</code> (optional), which will create a new field for the project on the farm the user created last; do not include <code>field_id</code></li>
 </ul>
 
 <p>Optionally, a project can be created with a so-called <em>webhook</em> that will be called every time the status of the project changes. This makes it possible for integration to for example react when a project finishes processing, without having to use polling to check the project&#39;s status. To add a webhook, specify the URL to be called with the <code>status_webhook</code> parameter. See the section on <a href="#webhooks">webhooks</a> for details.</p>
 
 <p>The project&#39;s crop, survey date and altitude, data which will be displayed in Solvi&#39;s UI, can also be submitted.</p>
-<h3 id='http-request-7'>HTTP Request</h3>
+<h3 id='http-request-16'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/projects</code></p>
-<h3 id='parameters-5'>Parameters</h3>
+<h3 id='parameters-11'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -776,6 +1236,7 @@ and projects created through the API all support attaching arbitrary data to the
   -d <span class="s1">'{
     "survey_date": "2022-08-18"
   }'</span>
+  <span class="s2">"https://api.solvi.ag/v1/projects/&lt;project_id&gt;"</span>
 </code></pre>
 <blockquote>
 <p>Example response:</p>
@@ -783,9 +1244,9 @@ and projects created through the API all support attaching arbitrary data to the
 <pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
   </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre><h3 id='http-request-8'>HTTP Request</h3>
+</span></code></pre><h3 id='http-request-17'>HTTP Request</h3>
 <p><code>PUT https://api.solvi.ag/v1/projects/&lt;project_id&gt;</code></p>
-<h3 id='parameters-6'>Parameters</h3>
+<h3 id='parameters-12'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -815,7 +1276,25 @@ and projects created through the API all support attaching arbitrary data to the
 </tr>
 </tbody></table>
 
-<p>This endpoint allows updating survey date, crop, altitude and metadata for a project.</p>
+<p>This endpoint allows updating survey date, crop, altitude and metadata for a project, whatever its status. Only the parameters included in the request are changed. If the user is not allowed to edit the project, the response is <code>404</code>.</p>
+<h2 id='delete-project'>Delete project</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X DELETE
+  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="s2">"https://api.solvi.ag/v1/projects/&lt;project_id&gt;"</span>
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Deletes a project. The project is no longer returned by the API or shown in Solvi. If the user is not allowed to edit the project, the response is <code>404</code>; if the user&#39;s account does not allow editing projects at all, the response is <code>403</code>.</p>
+<h3 id='http-request-18'>HTTP Request</h3>
+<p><code>DELETE https://api.solvi.ag/v1/projects/&lt;project_id&gt;</code></p>
 <h2 id='upload-local-imagery'>Upload local imagery</h2>
 <blockquote>
 <p>Example request:</p>
@@ -959,9 +1438,9 @@ retrieved from the example above:</p>
 <p>The required parameters are included in the <code>imagery_upload_data</code> object: this object has a <code>url</code> property indicating the URL to POST imagery to, and a <code>fields</code> object, listing the HTTP form data fields required for the POST request. In addition to these fields, the form must also include a <code>key</code> field, this is the destination path for the uploaded file: the key must start with specified <code>key_prefix</code> and its value must be unique for each image, usually the key is set from the <code>key_prefix</code> and the uploaded file&#39;s filename. Note that subdirectories are not allowed and the filename can&#39;t contain special characters like <code>/</code>, <code>\</code> and <code>:</code>.</p>
 <h3 id='code-url_template-code-method'><code>url_template</code> method</h3>
 <p>The response includes a property called <code>url_template</code> which should be used to create URLs to <code>PUT</code> files to. The template includes that part <code>$filename</code> which should be replaced with the actual name of the file being uploaded. Note that subdirectories are not allowed and the filename can&#39;t contain special characters like <code>/</code>, <code>\</code> and <code>:</code>.</p>
-<h3 id='http-request-9'>HTTP Request</h3>
+<h3 id='http-request-19'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/projects/&lt;project_id&gt;/begin_upload</code></p>
-<h3 id='parameters-7'>Parameters</h3>
+<h3 id='parameters-13'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -999,9 +1478,9 @@ retrieved from the example above:</p>
 <p>You should <em>not</em> use the <code>complete_upload</code> endpoint in combination with this endpoint, processing will start immediately when using this endpoint.</p>
 
 <p>Note that this operation is only valid for projects of <code>prestitched</code> type.</p>
-<h3 id='http-request-10'>HTTP Request</h3>
+<h3 id='http-request-20'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/projects/&lt;project_id&gt;/process_external_ortho</code></p>
-<h3 id='parameters-8'>Parameters</h3>
+<h3 id='parameters-14'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -1039,9 +1518,9 @@ retrieved from the example above:</p>
 <p>When project imagery has been uploaded, the upload must be completed, which will start the processing of the imagery.</p>
 
 <p>If processing was successfully started, the HTTP response code will be <code>200</code>. In addition, a response of <code>402</code> (Payment required) can also be returned, if the upload or credit quota for the user is not sufficient for processing the upload.</p>
-<h3 id='http-request-11'>HTTP Request</h3>
+<h3 id='http-request-21'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/projects/&lt;project_id&gt;/complete_upload</code></p>
-<h3 id='parameters-9'>Parameters</h3>
+<h3 id='parameters-15'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -1053,26 +1532,6 @@ retrieved from the example above:</p>
 <td>project_id</td>
 <td>required</td>
 <td>Project ID given when project is created</td>
-</tr>
-<tr>
-<td>created_from</td>
-<td>optional</td>
-<td>Filter by project creation date, start of interval</td>
-</tr>
-<tr>
-<td>created_to</td>
-<td>optional</td>
-<td>Filter by project creation date, end of interval</td>
-</tr>
-<tr>
-<td>survey_date_from</td>
-<td>optional</td>
-<td>Filter by project survey date, start of interval</td>
-</tr>
-<tr>
-<td>survey_date_to</td>
-<td>optional</td>
-<td>Filter by project survey date, end of interval</td>
 </tr>
 </tbody></table>
 <h2 id='get-projects'>Get projects</h2>
@@ -1138,10 +1597,10 @@ retrieved from the example above:</p>
   </span><span class="p">}</span><span class="w">
 </span><span class="p">]</span><span class="w">
 </span></code></pre>
-<p>This endpoint retrieves all projects created by the user or shared with user by others. If field boundaries are provided, only projects whose extent overlaps boundaries are returned.</p>
-<h3 id='http-request-12'>HTTP Request</h3>
+<p>This endpoint retrieves the projects created by the user and the projects on farms the user has access to: farms shared with the user and, for members of an organisation, the organisation&#39;s farms the user has access to. Use <code>scope=own</code> to only retrieve the projects the user created. The list is <a href="#lists-and-paging">paged</a>.</p>
+<h3 id='http-request-22'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/projects</code></p>
-<h3 id='parameters-10'>Parameters</h3>
+<h3 id='parameters-16'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -1152,9 +1611,61 @@ retrieved from the example above:</p>
 <tr>
 <td>field_geom</td>
 <td>optional</td>
-<td>Boundaries of the field as a polygon in <a href="https://geojson.org/geojson-spec.html#introduction">GeoJSON format</a> and EPSG:4326 coordinate system(lonlat).</td>
+<td>Boundaries of the field as a polygon in <a href="https://geojson.org/geojson-spec.html#introduction">GeoJSON format</a> and EPSG:4326 coordinate system(lonlat); only projects whose extent overlaps the boundaries are returned</td>
+</tr>
+<tr>
+<td>field_id</td>
+<td>optional</td>
+<td>Only return projects on the field with this id</td>
+</tr>
+<tr>
+<td>farm_id</td>
+<td>optional</td>
+<td>Only return projects on the farm with this id</td>
+</tr>
+<tr>
+<td>status</td>
+<td>optional</td>
+<td>Only return projects with this status: <code>processed</code>, <code>not_processed</code> or <code>failed</code></td>
+</tr>
+<tr>
+<td>type</td>
+<td>optional</td>
+<td>Only return projects of this type: <code>overlapping</code>, <code>stitched</code> or <code>scouting</code></td>
+</tr>
+<tr>
+<td>bands</td>
+<td>optional</td>
+<td>Only return projects with these bands, for example <code>rgb</code></td>
+</tr>
+<tr>
+<td>crop</td>
+<td>optional</td>
+<td>Only return projects with this crop</td>
+</tr>
+<tr>
+<td>plant_counts</td>
+<td>optional</td>
+<td>Only return projects with plant counts in this state: <code>requested</code>, <code>review</code>, <code>bad_request</code> or <code>published</code></td>
+</tr>
+<tr>
+<td>search</td>
+<td>optional</td>
+<td>Only return projects whose identifier, field name or farm name contains this text</td>
+</tr>
+<tr>
+<td>survey_date_from</td>
+<td>optional</td>
+<td>Only return projects surveyed on or after this date, formatted as YYYY-MM-DD</td>
+</tr>
+<tr>
+<td>survey_date_to</td>
+<td>optional</td>
+<td>Only return projects surveyed on or before this date, formatted as YYYY-MM-DD</td>
 </tr>
 </tbody></table>
+
+<p>The list also accepts the parameters common to <a href="#lists-and-paging">all lists</a>, including <code>scope</code> and <code>user_id</code>.</p>
 <h2 id='project-outputs'>Project outputs</h2>
 <blockquote>
 <p>Example request:</p>
@@ -1195,9 +1706,9 @@ retrieved from the example above:</p>
 <p>This endpoint retrieves projects created by the user or shared with the user by others.</p>
 
 <p>The included <code>resources</code> are URLs that can be used to fetch the project outputs. These resource URLs are temporary, with a lifetime of 15 minutes before they expire.</p>
-<h3 id='http-request-13'>HTTP Request</h3>
+<h3 id='http-request-23'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/projects/&lt;project_id&gt;</code></p>
-<h3 id='parameters-11'>Parameters</h3>
+<h3 id='parameters-17'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -1242,9 +1753,9 @@ retrieved from the example above:</p>
 resolution (meters/pixel) is given by <code>resolution</code>.</p>
 
 <p>For <code>plant_counts</code> (when response <code>type</code> is <code>&quot;tileset/plant_counts</code>), <code>number_plants</code> and <code>number_missing</code> give totals for the detected plants.</p>
-<h3 id='http-request-14'>HTTP Request</h3>
+<h3 id='http-request-24'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/projects/&lt;project-id&gt;/tiles/&lt;type&gt;</code></p>
-<h3 id='parameters-12'>Parameters</h3>
+<h3 id='parameters-18'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -1355,9 +1866,9 @@ to 24 hours to complete.</p>
 </ul>
 
 <p>In addition, more models might be available on a per-user basis.</p>
-<h3 id='http-request-15'>HTTP Request</h3>
+<h3 id='http-request-25'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts</code></p>
-<h3 id='parameters-13'>Parameters</h3>
+<h3 id='parameters-19'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -1584,14 +2095,16 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 </span></code></pre>
 <p>Sets the zones for a project and calculates the provided statistics, if one of the <code>indices</code> or <code>extra_data</code> parameters are included. The zones should be provided through the <code>geojson</code> parameter: it should contain a GeoJSON FeatureCollection with Polygon features. Other GeoJSON objects or invalid GeoJSON will result in a <code>400 Bad request</code> response.</p>
 
+<p>If <code>geojson</code> is omitted, the statistics are calculated for the zones already saved with the project. A <code>400 Bad request</code> is returned if the project has no saved zones, and a <code>409 Conflict</code> if the saved zones were created with an old version of Solvi&#39;s web site; opening the project on the web site updates them.</p>
+
 <p>In addition to the zone features, the <code>indices</code> parameter lists the vegetation indices that should be calculated for the zones. The indices should be listed as lowercase abbreviations, for example VARI index should be listed as <code>&quot;vari&quot;</code>. Note that the available indices vary depending on the project&#39;s bands: for example, NDVI is only available if the project&#39;s orthophoto has red and near-infrared (NIR) bands. Listing unknown indices or indices that can&#39;t be calculated will also result in a <code>400 Bad request</code> response. If <code>indices</code> are omitted, no indices will be calculated.</p>
 
 <p>For projects with published plant counts, plant count statistics can also be calculated by the optional parameter <code>extra_data</code>, which in this case should be set to <code>{&quot;plant_counts&quot;: true}</code>.</p>
 
 <p>The endpoint responds with a GeoJSON FeatureCollection with the same geometries that were provided, but with properties added for the calculated statistics (if any). This response is also saved with the project, and can be viewed on Solvi&#39;s web site, and also later fetched with the GET endpoint below.</p>
-<h3 id='http-request-16'>HTTP Request</h3>
+<h3 id='http-request-26'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/projects/&lt;project-id&gt;/zonal_statistics</code></p>
-<h3 id='parameters-14'>Parameters</h3>
+<h3 id='parameters-20'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -1601,8 +2114,8 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 </thead><tbody>
 <tr>
 <td>geojson</td>
-<td>required</td>
-<td>GeoJSON FeatureCollection representing the zone features</td>
+<td>optional</td>
+<td>GeoJSON FeatureCollection representing the zone features; defaults to the zones saved with the project</td>
 </tr>
 <tr>
 <td>indices</td>
@@ -1642,7 +2155,7 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
                 </span><span class="s2">"vari_max"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1172839477658</span><span class="w">
                 </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
 </span></code></pre>
-<p>Fetches any saved zonal statistics for a project. The zones are returned as a GeoJSON FeatureCollection with statistics in each feature&#39;s <code>properties</code>. If no zones are defined for this project, a <code>404 Not found</code> is returned.</p>
+<p>Fetches any saved zonal statistics for a project. The zones are returned as a GeoJSON FeatureCollection with statistics in each feature&#39;s <code>properties</code>. If no zones are defined for this project, a <code>404 Not found</code> is returned. If the zones were created with an old version of Solvi&#39;s web site, a <code>409 Conflict</code> is returned; opening the project on the web site updates them, after which this endpoint returns them.</p>
 <h1 id='transactions'>Transactions</h1>
 <p>The Transactions API allows you to retrieve the user&#39;s credit and upload transaction history, including purchases and usage from project uploads and PlantAI detections.</p>
 <h2 id='get-transactions'>Get transactions</h2>
@@ -1694,9 +2207,9 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 <p>Retrieves the transaction history for the authenticated user, showing both usage (negative amounts) and purchases (positive amounts). By default, returns transactions from the last year. Transactions can be filtered by date range using the <code>from</code> and <code>to</code> parameters.</p>
 
 <p>Usage transactions include details about the related project and, for PlantAI detections, the analyzed area in hectares.</p>
-<h3 id='http-request-17'>HTTP Request</h3>
+<h3 id='http-request-27'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/transactions</code></p>
-<h3 id='parameters-15'>Parameters</h3>
+<h3 id='parameters-21'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
