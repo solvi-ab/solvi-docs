@@ -1260,6 +1260,93 @@ When a secret token has been specified, Solvi will include the HTTP header `X-So
 
 This follows the same pattern as [securing webhooks on GitHub](https://docs.github.com/en/developers/webhooks-and-events/securing-your-webhooks), except for using the header `X-Solvi-Signature` instead.
 
+# Plant Counts
+
+Plant counts are created in Solvi's web app, either automatically with Plant AI or done for you by Solvi personnel. The plant counts API lists a project's plant counts and fetches their results.
+
+## Listing a Project's Plant Counts
+
+> Example request:
+
+```shell
+curl
+  -X GET
+  -H "Authorization: Bearer <user-jwt-token>"
+  https://api.solvi.ag/v1/projects/<project-id>/plant_counts
+```
+
+> Example response:
+
+```json
+[
+  {
+    "id": "88a2af8601cf2b7c4e14979f8df73bca7352ccce",
+    "status": "completed",
+    "created_at": "2019-02-08T09:18:37.655Z"
+  },
+  {
+    "id": "34a2af8601cf2b7c4e14979f8df73bca7352aef43",
+    "status": "published",
+    "created_at": "2021-03-12T14:33:31.241Z"
+  }
+]
+```
+
+Lists all plant counts for a project with their id and status. Status is one of:
+
+- `processing`: the detection has not yet completed
+- `completed`: detection has finished and can be viewed
+- `published`: this detection is the one currently published for the project
+- `fail`: detection failed
+
+A project with a "done for you" plant count lists a single plant count, which is `processing` until Solvi has published it.
+
+### HTTP Request
+
+`GET https://api.solvi.ag/v1/projects/<project-id>/plant_counts`
+
+## Plant Count data
+
+> Example request:
+
+```shell
+curl
+  -X GET
+  -H "Authorization: Bearer <user-jwt-token>"
+  https://api.solvi.ag/v1/projects/<project-id>/plant_counts/<plant-count-id>
+```
+
+> Example response:
+
+```json
+{
+  "status": "completed",
+  "results": [
+    "https://solvi-projects.s3.eu-west-1.amazonaws.com/uploads/..."
+  ]
+}
+```
+
+Gets the status of a plant count, and the results of a completed one. The plant count id is the `id` given when listing a project's plant counts.
+
+Depending on status of the plant count, different HTTP status codes will be used for the response:
+
+- `200`: completed successfully and the body contains JSON information about the result
+- `202`: processing is not yet complete
+- `404`: unknown plant count id or the plant count's result has expired and been removed
+- `500`: an internal error occurred during processing
+
+When processing has completed, the response will contain a `results` property which lists URLs that can be used to get the detection results. These URLs are valid for at least 24 hours.
+
+The results of a plant count that is not published are kept in storage for one week. After this time, the results are removed from storage and requesting the results will return a 404 code. The results of a published plant count are kept in storage.
+
+Note that for "done for you" plant counts in legacy projects, processed before 2023-01-01, the returned result _may_
+be a single ZIP archive file containing a Shapefile. In newer projects, the returned data will always be uncompressed data in multiple files.
+
+### HTTP Request
+
+`GET https://api.solvi.ag/v1/projects/<project-id>/plant_counts/<plant-count-id>`
+
 # Zonal Statistics
 
 The Zonal Statistics API lets you create zones in a project and calculate various statistics for them: primarily various vegetation indices as well as plant count statistics for projects where plant counts have been published.
