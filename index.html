@@ -338,6 +338,17 @@
               </ul>
           </li>
           <li>
+            <a href="#plant-counts" class="toc-h1 toc-link" data-title="Plant Counts">Plant Counts</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#listing-a-project-39-s-plant-counts" class="toc-h2 toc-link" data-title="Plant Counts">Listing a Project's Plant Counts</a>
+                  </li>
+                  <li>
+                    <a href="#plant-count-data" class="toc-h2 toc-link" data-title="Plant Counts">Plant Count data</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
             <a href="#zonal-statistics" class="toc-h1 toc-link" data-title="Zonal Statistics">Zonal Statistics</a>
               <ul class="toc-list-h2">
                   <li>
@@ -1805,6 +1816,83 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 <p>When a secret token has been specified, Solvi will include the HTTP header <code>X-Solvi-Signature</code>, which will contain an HMAC-SHA1 signature of the body.</p>
 
 <p>This follows the same pattern as <a href="https://docs.github.com/en/developers/webhooks-and-events/securing-your-webhooks">securing webhooks on GitHub</a>, except for using the header <code>X-Solvi-Signature</code> instead.</p>
+<h1 id='plant-counts'>Plant Counts</h1>
+<p>Plant counts are created in Solvi&#39;s web app, either automatically with Plant AI or done for you by Solvi personnel. The plant counts API lists a project&#39;s plant counts and fetches their results.</p>
+<h2 id='listing-a-project-39-s-plant-counts'>Listing a Project&#39;s Plant Counts</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl
+  <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts
+</code></pre></div>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88a2af8601cf2b7c4e14979f8df73bca7352ccce"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"completed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-02-08T09:18:37.655Z"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"34a2af8601cf2b7c4e14979f8df73bca7352aef43"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-03-12T14:33:31.241Z"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre></div>
+<p>Lists all plant counts for a project with their id and status. Status is one of:</p>
+
+<ul>
+<li><code>processing</code>: the detection has not yet completed</li>
+<li><code>completed</code>: detection has finished and can be viewed</li>
+<li><code>published</code>: this detection is the one currently published for the project</li>
+<li><code>fail</code>: detection failed</li>
+</ul>
+
+<p>A project with a &quot;done for you&quot; plant count lists a single plant count, which is <code>processing</code> until Solvi has published it.</p>
+<h3 id='http-request-25'>HTTP Request</h3>
+<p><code>GET https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts</code></p>
+<h2 id='plant-count-data'>Plant Count data</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl
+  <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts/&lt;plant-count-id&gt;
+</code></pre></div>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"completed"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"https://solvi-projects.s3.eu-west-1.amazonaws.com/uploads/..."</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Gets the status of a plant count, and the results of a completed one. The plant count id is the <code>id</code> given when listing a project&#39;s plant counts.</p>
+
+<p>Depending on status of the plant count, different HTTP status codes will be used for the response:</p>
+
+<ul>
+<li><code>200</code>: completed successfully and the body contains JSON information about the result</li>
+<li><code>202</code>: processing is not yet complete</li>
+<li><code>404</code>: unknown plant count id or the plant count&#39;s result has expired and been removed</li>
+<li><code>500</code>: an internal error occurred during processing</li>
+</ul>
+
+<p>When processing has completed, the response will contain a <code>results</code> property which lists URLs that can be used to get the detection results. These URLs are valid for at least 24 hours.</p>
+
+<p>The results of a plant count that is not published are kept in storage for one week. After this time, the results are removed from storage and requesting the results will return a 404 code. The results of a published plant count are kept in storage.</p>
+
+<p>Note that for &quot;done for you&quot; plant counts in legacy projects, processed before 2023-01-01, the returned result <em>may</em>
+be a single ZIP archive file containing a Shapefile. In newer projects, the returned data will always be uncompressed data in multiple files.</p>
+<h3 id='http-request-26'>HTTP Request</h3>
+<p><code>GET https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts/&lt;plant-count-id&gt;</code></p>
 <h1 id='zonal-statistics'>Zonal Statistics</h1>
 <p>The Zonal Statistics API lets you create zones in a project and calculate various statistics for them: primarily various vegetation indices as well as plant count statistics for projects where plant counts have been published.</p>
 <h2 id='creating-and-calculating-statistics-for-zones'>Creating and calculating statistics for zones</h2>
@@ -1883,7 +1971,7 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 <p>For projects with published plant counts, plant count statistics can also be calculated by the optional parameter <code>extra_data</code>, which in this case should be set to <code>{&quot;plant_counts&quot;: true}</code>.</p>
 
 <p>The endpoint responds with a GeoJSON FeatureCollection with the same geometries that were provided, but with properties added for the calculated statistics (if any). This response is also saved with the project, and can be viewed on Solvi&#39;s web site, and also later fetched with the GET endpoint below.</p>
-<h3 id='http-request-25'>HTTP Request</h3>
+<h3 id='http-request-27'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/projects/&lt;project-id&gt;/zonal_statistics</code></p>
 <h3 id='parameters-19'>Parameters</h3>
 <table><thead>
@@ -1988,7 +2076,7 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 <p>Retrieves the transaction history for the authenticated user, showing both usage (negative amounts) and purchases (positive amounts). By default, returns transactions from the last year. Transactions can be filtered by date range using the <code>from</code> and <code>to</code> parameters.</p>
 
 <p>Usage transactions include details about the related project and, for PlantAI detections, the analyzed area in hectares.</p>
-<h3 id='http-request-26'>HTTP Request</h3>
+<h3 id='http-request-28'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/transactions</code></p>
 <h3 id='parameters-20'>Parameters</h3>
 <table><thead>
