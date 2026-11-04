@@ -42,7 +42,7 @@
 .highlight .cs {
   color: #75715e;
 }
-.highlight .c, .highlight .cd {
+.highlight .c, .highlight .ch, .highlight .cd, .highlight .cpf {
   color: #75715e;
 }
 .highlight .err {
@@ -126,7 +126,7 @@
 .highlight .s1 {
   color: #e6db74;
 }
-.highlight .s {
+.highlight .s, .highlight .sa, .highlight .dl {
   color: #e6db74;
 }
 .highlight .na {
@@ -141,41 +141,52 @@
 .highlight .ne {
   color: #a6e22e;
 }
-.highlight .nf {
+.highlight .nf, .highlight .fm {
   color: #a6e22e;
 }
 .highlight .vc {
   color: #ffffff;
+  background-color: #272822;
 }
 .highlight .nn {
   color: #ffffff;
+  background-color: #272822;
 }
 .highlight .nl {
   color: #ffffff;
+  background-color: #272822;
 }
 .highlight .ni {
   color: #ffffff;
+  background-color: #272822;
 }
 .highlight .bp {
   color: #ffffff;
+  background-color: #272822;
 }
 .highlight .vg {
   color: #ffffff;
+  background-color: #272822;
 }
 .highlight .vi {
   color: #ffffff;
+  background-color: #272822;
 }
-.highlight .nv {
+.highlight .nv, .highlight .vm {
   color: #ffffff;
+  background-color: #272822;
 }
 .highlight .w {
   color: #ffffff;
+  background-color: #272822;
 }
 .highlight {
   color: #ffffff;
+  background-color: #272822;
 }
 .highlight .n, .highlight .py, .highlight .nx {
   color: #ffffff;
+  background-color: #272822;
 }
 .highlight .ow {
   color: #f92672;
@@ -205,11 +216,11 @@
     <a href="#" id="nav-button">
       <span>
         NAV
-        <img src="images/navbar.png" alt="Navbar" />
+        <img src="images/navbar.png" alt="" />
       </span>
     </a>
     <div class="toc-wrapper">
-      <img src="images/logo.png" class="logo" alt="Logo" />
+      <img src="images/logo.png" class="logo" alt="" />
         <div class="lang-selector">
               <a href="#" data-language-name="shell">shell</a>
         </div>
@@ -327,29 +338,6 @@
               </ul>
           </li>
           <li>
-            <a href="#plant-counts" class="toc-h1 toc-link" data-title="Plant Counts">Plant Counts</a>
-              <ul class="toc-list-h2">
-                  <li>
-                    <a href="#create-plant-counts" class="toc-h2 toc-link" data-title="Plant Counts">Create Plant Counts</a>
-                  </li>
-                  <li>
-                    <a href="#plant-count-data" class="toc-h2 toc-link" data-title="Plant Counts">Plant Count data</a>
-                  </li>
-                  <li>
-                    <a href="#plant-count-webhook" class="toc-h2 toc-link" data-title="Plant Counts">Plant Count Webhook</a>
-                  </li>
-                  <li>
-                    <a href="#publishing-plant-counts" class="toc-h2 toc-link" data-title="Plant Counts">Publishing Plant Counts</a>
-                  </li>
-                  <li>
-                    <a href="#listing-a-project-39-s-plant-counts" class="toc-h2 toc-link" data-title="Plant Counts">Listing a Project's Plant Counts</a>
-                  </li>
-                  <li>
-                    <a href="#deleting-a-plant-count" class="toc-h2 toc-link" data-title="Plant Counts">Deleting a Plant Count</a>
-                  </li>
-              </ul>
-          </li>
-          <li>
             <a href="#zonal-statistics" class="toc-h1 toc-link" data-title="Zonal Statistics">Zonal Statistics</a>
               <ul class="toc-list-h2">
                   <li>
@@ -403,25 +391,25 @@
 <blockquote>
 <p>Example error response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not found"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not found"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not found"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not found"</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Error responses have a JSON body with a <code>status</code> property and, in most cases, a <code>message</code> describing the error.</p>
 <h2 id='lists-and-paging'>Lists and paging</h2>
 <blockquote>
 <p>Example request for the first page of 100 projects:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -i -X GET
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-i</span> <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
   <span class="s2">"https://api.solvi.ag/v1/projects?limit=100"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Response headers when more projects follow:</p>
 </blockquote>
-<pre class="highlight plaintext"><code>Link: &lt;https://api.solvi.ag/v1/projects?continuation_token=MTIzNA%3D%3D&amp;limit=100&gt;; rel="next"
-</code></pre>
+<div class="highlight"><pre class="highlight plaintext"><code>Link: &lt;https://api.solvi.ag/v1/projects?continuation_token=MTIzNA%3D%3D&amp;limit=100&gt;; rel="next"
+</code></pre></div>
 <p>Endpoints that list farms, fields, projects or users return the records ordered by id, oldest first, and return at most 1000 records per request. When more records follow, the response includes a <code>Link</code> header with <code>rel=&quot;next&quot;</code>, containing the URL of the next page. Continue requesting the URL from the <code>Link</code> header until a response has no such header. The response body is always a JSON array of the records.</p>
 
 <p>All list endpoints accept these parameters, in addition to the ones listed for each endpoint:</p>
@@ -486,9 +474,9 @@
 <blockquote>
 <p>Example API key request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl <span class="s2">"api_endpoint_here"</span>
-  -H <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
-</code></pre>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="s2">"api_endpoint_here"</span>
+  <span class="nt">-H</span> <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
+</code></pre></div>
 <blockquote>
 <p>Make sure to replace <code>&lt;your-api-key&gt;</code> with your API key.</p>
 </blockquote>
@@ -507,9 +495,9 @@ reason need to revoke a key, you can also contact us.</p>
 <blockquote>
 <p>Example user-specific request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl <span class="s2">"api_endpoint_here"</span>
-  -H <span class="s2">"Authorization: Bearer &lt;user-specific-token&gt;"</span>
-</code></pre>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="s2">"api_endpoint_here"</span>
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-specific-token&gt;"</span>
+</code></pre></div>
 <blockquote>
 <p>Make sure to replace <code>&lt;user-specific-token&gt;</code> with your token.</p>
 </blockquote>
@@ -523,20 +511,20 @@ reason need to revoke a key, you can also contact us.</p>
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X POST
-  -H <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
-  -d <span class="s1">'{ "user": { "email": "john@example.com", "password": "password", "first_name": "John", "last_name": "Doe"}}'</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST
+  <span class="nt">-H</span> <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{ "user": { "email": "john@example.com", "password": "password", "first_name": "John", "last_name": "Doe"}}'</span>
   <span class="s2">"https://api.solvi.ag/v1/users"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">182</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">182</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>This endpoint registers a new user. If successful, the response will return <code>user_id</code> that you would use later to generate user-specific tokens.</p>
 <h3 id='http-request'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/users</code></p>
@@ -584,25 +572,25 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X GET
-  -H <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
   <span class="s2">"https://api.solvi.ag/v1/users?search=doe"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
   </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">182</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"john@example.com"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"first_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"last_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doe"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"company"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doe Farming"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-12T08:41:19.112Z"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"locked"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">182</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"john@example.com"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"first_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"last_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doe"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"company"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doe Farming"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-12T08:41:19.112Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"locked"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">]</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Gets the users registered through your API key. The list is <a href="#lists-and-paging">paged</a>.</p>
 <h3 id='http-request-2'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/users</code></p>
@@ -631,23 +619,23 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X GET
-  -H <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
   <span class="s2">"https://api.solvi.ag/v1/users/&lt;user_id&gt;"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">182</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"john@example.com"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"first_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"last_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doe"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"company"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doe Farming"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-12T08:41:19.112Z"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"locked"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">182</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"john@example.com"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"first_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"last_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doe"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"company"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doe Farming"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-03-12T08:41:19.112Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"locked"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Gets a single user registered through your API key.</p>
 <h3 id='http-request-3'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/users/&lt;user_id&gt;</code></p>
@@ -655,19 +643,19 @@ Parameters above must be wrapped into `user` attribute and sent as JSON payload 
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X PUT
-  -H <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
-  -d <span class="s1">'{ "user": { "company": "Doe Farming AB" }}'</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> PUT
+  <span class="nt">-H</span> <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{ "user": { "company": "Doe Farming AB" }}'</span>
   <span class="s2">"https://api.solvi.ag/v1/users/&lt;user_id&gt;"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Updates a user registered through your API key. Only the parameters included in the request are changed.</p>
 <h3 id='http-request-4'>HTTP Request</h3>
 <p><code>PUT https://api.solvi.ag/v1/users/&lt;user_id&gt;</code></p>
@@ -713,19 +701,19 @@ Parameters above must be wrapped into `user` attribute, as when registering a us
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X GET
-  -H <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"X-Api-Key: &lt;your-api-key&gt;"</span>
   <span class="s2">"https://api.solvi.ag/v1/users/&lt;user_id&gt;/token"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">26</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyNiwiZXhwIjo0OCwiZXhwIjoxNTAxMjU2NzAyfQ.cu5zIye7ubBhv7YsFIxXkO0E_W0hG0VrlOTQx6L3b3c"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">26</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyNiwiZXhwIjo0OCwiZXhwIjoxNTAxMjU2NzAyfQ.cu5zIye7ubBhv7YsFIxXkO0E_W0hG0VrlOTQx6L3b3c"</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>This endpoint gives a token for the specific user that should be used to create and retrieve user projects. Every request will generate na ew token. The token is valid for 24 hours.</p>
 <h3 id='http-request-5'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/users/&lt;user_id&gt;/token</code></p>
@@ -756,20 +744,20 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X POST
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
-  -d <span class="s1">'{"farm": {"name": "My second farm"}}'</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{"farm": {"name": "My second farm"}}'</span>
   <span class="s2">"https://api.solvi.ag/v1/farms"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"farm_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">793</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"farm_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">793</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Creates a new farm.</p>
 <h3 id='http-request-6'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/farms</code></p>
@@ -796,33 +784,33 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X GET
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
   <span class="s2">"https://api.solvi.ag/v1/farms"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
   </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My farm"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">182</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"archived"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-02-08T09:18:37.655Z"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My farm"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">182</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"archived"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-02-08T09:18:37.655Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2657</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Veddige"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-03-08T04:05:38.628Z"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+        </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2657</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Veddige"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-03-08T04:05:38.628Z"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">],</span><span class="w">
-    </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+    </span><span class="nl">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">]</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Gets the farms the user has access to and a list of fields related to each farm. This includes farms shared with the user and, for members of an organisation, the organisation&#39;s farms the user has access to. The list is <a href="#lists-and-paging">paged</a>.</p>
 <h3 id='http-request-7'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/farms</code></p>
@@ -851,10 +839,10 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X GET
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
   <span class="s2">"https://api.solvi.ag/v1/farms/&lt;farm_id&gt;"</span>
-</code></pre>
+</code></pre></div>
 <p>Gets a single farm, in the same format as an item of the <a href="#get-farms">farms list</a>.</p>
 <h3 id='http-request-8'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/farms/&lt;farm_id&gt;</code></p>
@@ -862,19 +850,19 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X PUT
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
-  -d <span class="s1">'{"farm": {"name": "Home farm", "archived": true}}'</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> PUT
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{"farm": {"name": "Home farm", "archived": true}}'</span>
   <span class="s2">"https://api.solvi.ag/v1/farms/&lt;farm_id&gt;"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Updates a farm. Only the parameters included in the request are changed. The user must be allowed to edit the farm, otherwise the response is <code>403</code>.</p>
 <h3 id='http-request-9'>HTTP Request</h3>
 <p><code>PUT https://api.solvi.ag/v1/farms/&lt;farm_id&gt;</code></p>
@@ -906,17 +894,17 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X DELETE
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> DELETE
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
   <span class="s2">"https://api.solvi.ag/v1/farms/&lt;farm_id&gt;"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Deletes a farm and its fields. The user must be allowed to edit the farm, otherwise the response is <code>403</code>.</p>
 
 <p>A farm can only be deleted when all projects on its fields have been <a href="#delete-project">deleted</a>, and a user must always keep at least one farm. Otherwise, the response is <code>409</code>.</p>
@@ -926,20 +914,20 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X POST
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
-  -d <span class="s1">'{"field": { "name": "Winter Wheat", "geom": "{\"type\":\"Polygon\",\"coordinates\":[[[100.0, 0.0],[101.0, 0.0],[101.0, 1.0],[100.0, 1.0],[100.0, 0.0]]]}"}}'</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{"field": { "name": "Winter Wheat", "geom": "{\"type\":\"Polygon\",\"coordinates\":[[[100.0, 0.0],[101.0, 0.0],[101.0, 1.0],[100.0, 1.0],[100.0, 0.0]]]}"}}'</span>
   <span class="s2">"https://api.solvi.ag/v1/fields"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">793</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">793</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Creates a new field. Field boundaries can be provided as Polygon or MultiPolygon in GeoJSON format. The farm to organize the field under can also be provided; the user must be allowed to edit that farm, otherwise the response is <code>400</code>. The response contains <code>field_id</code> which can be later used to relate projects to the specific field.</p>
 <h3 id='http-request-11'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/fields</code></p>
@@ -976,45 +964,45 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X GET
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
   <span class="s2">"https://api.solvi.ag/v1/fields"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
   </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">199</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wheat field"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-27T12:45:05.550Z"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"projects"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">199</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wheat field"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-27T12:45:05.550Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"projects"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1291</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"27-FEB-2018"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"field_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Wheat field"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"survey_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-26T14:19:36.000Z"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"upload_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-27T12:45:05.556Z"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/1291"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"thumbnail_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/1291/thumbnail.png"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+        </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1291</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"27-FEB-2018"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"field_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Wheat field"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"survey_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-26T14:19:36.000Z"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"upload_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-02-27T12:45:05.556Z"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/1291"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"thumbnail_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/1291/thumbnail.png"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">],</span><span class="w">
-    </span><span class="s2">"farm"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My farm"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+    </span><span class="nl">"farm"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My farm"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="s2">"geom"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Polygon"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"coordinates"</span><span class="p">:</span><span class="w"> </span><span class="p">[[[</span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">101.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">101.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">]]]</span><span class="w">
+    </span><span class="nl">"geom"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Polygon"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"coordinates"</span><span class="p">:</span><span class="w"> </span><span class="p">[[[</span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">101.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">101.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">]]]</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+    </span><span class="nl">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">]</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Gets the fields on the farms the user has access to, and a list of the processed projects related to each field. The list is <a href="#lists-and-paging">paged</a>.</p>
 <h3 id='http-request-12'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/fields</code></p>
@@ -1043,10 +1031,10 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X GET
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
   <span class="s2">"https://api.solvi.ag/v1/fields/&lt;field_id&gt;"</span>
-</code></pre>
+</code></pre></div>
 <p>Gets a single field, in the same format as an item of the <a href="#get-fields">fields list</a>.</p>
 <h3 id='http-request-13'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/fields/&lt;field_id&gt;</code></p>
@@ -1054,19 +1042,19 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X PUT
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
-  -d <span class="s1">'{"field": {"name": "Spring Wheat"}}'</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> PUT
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{"field": {"name": "Spring Wheat"}}'</span>
   <span class="s2">"https://api.solvi.ag/v1/fields/&lt;field_id&gt;"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Updates a field. Only the parameters included in the request are changed. The user must be allowed to edit the field&#39;s farm, otherwise the response is <code>403</code>. A field can be moved to another farm by setting <code>farm_id</code>; the user must be allowed to edit that farm too, otherwise the response is <code>400</code>.</p>
 <h3 id='http-request-14'>HTTP Request</h3>
 <p><code>PUT https://api.solvi.ag/v1/fields/&lt;field_id&gt;</code></p>
@@ -1103,17 +1091,17 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X DELETE
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> DELETE
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
   <span class="s2">"https://api.solvi.ag/v1/fields/&lt;field_id&gt;"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Deletes a field. The user must be allowed to edit the field&#39;s farm, otherwise the response is <code>403</code>. A field can only be deleted when all its projects have been <a href="#delete-project">deleted</a>, otherwise the response is <code>409</code>.</p>
 <h3 id='http-request-15'>HTTP Request</h3>
 <p><code>DELETE https://api.solvi.ag/v1/fields/&lt;field_id&gt;</code></p>
@@ -1121,36 +1109,35 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X POST
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
-  -d <span class="s1">'{ "type": "overlapping", "field_id": "field_1", "field_name": "Wheat Field", "field_geom": "{\"type\":\"Polygon\",\"coordinates\":[[[100.0, 0.0],[101.0, 0.0],[101.0, 1.0],[100.0, 1.0],[100.0, 0.0]]]}" }'</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{ "type": "overlapping", "field_id": "field_1", "field_name": "Wheat Field", "field_geom": "{\"type\":\"Polygon\",\"coordinates\":[[[100.0, 0.0],[101.0, 0.0],[101.0, 1.0],[100.0, 1.0],[100.0, 0.0]]]}" }'</span>
   <span class="s2">"https://api.solvi.ag/v1/projects"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="w">  </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">142</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"project_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/142/photos/upload"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"imagery_upload_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"url"</span><span class="p">:</span><span class="s2">"https://solvi-projects-dev.s3.eu-west-1.amazonaws.com"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="w">  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">142</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"project_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/142/photos/upload"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"imagery_upload_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"url"</span><span class="p">:</span><span class="s2">"https://solvi-projects-dev.s3.eu-west-1.amazonaws.com"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
       </span><span class="p">},</span><span class="w">
-      </span><span class="s2">"key_prefix"</span><span class="p">:</span><span class="s2">"uploads/26c1ce11-c9bf-4825-821c-72e9f600a6cf/originals/"</span><span class="w">
+      </span><span class="nl">"key_prefix"</span><span class="p">:</span><span class="s2">"uploads/26c1ce11-c9bf-4825-821c-72e9f600a6cf/originals/"</span><span class="w">
     </span><span class="p">},</span><span class="w">
   </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>This endpoint creates a new project which is required before imagery upload. In response, you will receive URL to upload-page for the newly created project where the user can be redirected.</p>
 
-<p>There are multiple <em>types</em> of projects: <code>overlapping</code> (the default), <code>stitched</code> and <code>scouting</code>:</p>
+<p>There are two <em>types</em> of projects: <code>overlapping</code> (the default) and <code>stitched</code>:</p>
 
 <ul>
 <li><code>overlapping</code> should be used if you have a number of photos taken which should be stitched into a map by Solvi; this is the default and what you normally use</li>
 <li><code>stitched</code> can be used if you already have a single <a href="https://en.wikipedia.org/wiki/GeoTIFF">GeoTIFF</a> that have been stitched by another system</li>
-<li>In <code>scouting</code>, images will not be stitched and instead shown as separate, individual images without further processing</li>
 </ul>
 
 <p>Projects can be connected to a Field. When multiple projects are related to the same Field, they appear in the same map view when data is processed. This allows for easier navigation between imagery over the same Field and over the time data comparison.</p>
@@ -1178,7 +1165,7 @@ and projects created through the API all support attaching arbitrary data to the
 <tr>
 <td>type</td>
 <td>optional</td>
-<td>The type of imagery for this project: <code>overlapping</code>, <code>stitched</code> or <code>scouting</code>; default is <code>overlapping</code></td>
+<td>The type of imagery for this project: <code>overlapping</code> or <code>stitched</code>; default is <code>overlapping</code></td>
 </tr>
 <tr>
 <td>field_id</td>
@@ -1230,21 +1217,21 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X PUT
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
-  -d <span class="s1">'{
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> PUT
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{
     "survey_date": "2022-08-18"
   }'</span>
   <span class="s2">"https://api.solvi.ag/v1/projects/&lt;project_id&gt;"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre><h3 id='http-request-17'>HTTP Request</h3>
+</span></code></pre></div><h3 id='http-request-17'>HTTP Request</h3>
 <p><code>PUT https://api.solvi.ag/v1/projects/&lt;project_id&gt;</code></p>
 <h3 id='parameters-12'>Parameters</h3>
 <table><thead>
@@ -1281,17 +1268,17 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X DELETE
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> DELETE
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
   <span class="s2">"https://api.solvi.ag/v1/projects/&lt;project_id&gt;"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Deletes a project. The project is no longer returned by the API or shown in Solvi. If the user is not allowed to edit the project, the response is <code>404</code>; if the user&#39;s account does not allow editing projects at all, the response is <code>403</code>.</p>
 <h3 id='http-request-18'>HTTP Request</h3>
 <p><code>DELETE https://api.solvi.ag/v1/projects/&lt;project_id&gt;</code></p>
@@ -1299,73 +1286,73 @@ and projects created through the API all support attaching arbitrary data to the
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X POST
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
   <span class="s2">"https://api.solvi.ag/v1/projects/&lt;project_id&gt;/begin_upload"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"imagery_upload_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"post_form_data"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi-production.s3.eu-west-1.amazonaws.com"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"x-amz-storage-class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STANDARD_IA"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"policy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJleHBpcmF0aW9uIjoiMjAyNS0wNS0yMVQwNjowMjo1N1oiLCJjb25kaXRpb25zIjpbeyJidWNrZXQiOiJzb2x2aS1wcm9kdWN0aW9uIn0sWyJzdGFydHMtd2l0aCIsIiRrZXkiLCJ1cGxvYWRzLzgxMDQ0N2JkLWQ5MzEtNGJiNS05OTE0LTA2NGZlNDRiODUzZS9vcmlnaW5hbHMvIl0sWyJzdGFydHMtd2l0aCIsIiRDb250ZW50LVR5cGUiLCIiXSx7IngtYW16LXN0b3JhZ2UtY2xhc3MiOiJTVEFOREFSRF9JQSJ9LHsieC1gbXotY3JlZGVudGlhbCI6IkFLSUFVVk1IS0dUUUsyQVVBNExRLzIwMjUwNTE0L2V1LXdlc3QtMS9zMy9hd3M0X3JlcXVlc3QifSx7IngtYW16LWFsZ29yaXRobSI6IkFXUzQtSE1BQy1TSEEyNTYifSx7IngtYW16LWRhdGUiOiIyMDI1MDUxNFQwNjAyNTdaIn1dfQ=="</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"x-amz-credential"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AKIAUVMHKGTQK2AUA4LQ/20250514/eu-west-1/s3/aws4_request"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"x-amz-algorithm"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AWS4-HMAC-SHA256"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"x-amz-date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"20250514T060257Z"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"x-amz-signature"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5811e53afc5d1f2e94fc614a29b699d89529d112eb432d7c6d332fafbbf9c987"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"imagery_upload_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"post_form_data"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi-production.s3.eu-west-1.amazonaws.com"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"x-amz-storage-class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STANDARD_IA"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"policy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJleHBpcmF0aW9uIjoiMjAyNS0wNS0yMVQwNjowMjo1N1oiLCJjb25kaXRpb25zIjpbeyJidWNrZXQiOiJzb2x2aS1wcm9kdWN0aW9uIn0sWyJzdGFydHMtd2l0aCIsIiRrZXkiLCJ1cGxvYWRzLzgxMDQ0N2JkLWQ5MzEtNGJiNS05OTE0LTA2NGZlNDRiODUzZS9vcmlnaW5hbHMvIl0sWyJzdGFydHMtd2l0aCIsIiRDb250ZW50LVR5cGUiLCIiXSx7IngtYW16LXN0b3JhZ2UtY2xhc3MiOiJTVEFOREFSRF9JQSJ9LHsieC1gbXotY3JlZGVudGlhbCI6IkFLSUFVVk1IS0dUUUsyQVVBNExRLzIwMjUwNTE0L2V1LXdlc3QtMS9zMy9hd3M0X3JlcXVlc3QifSx7IngtYW16LWFsZ29yaXRobSI6IkFXUzQtSE1BQy1TSEEyNTYifSx7IngtYW16LWRhdGUiOiIyMDI1MDUxNFQwNjAyNTdaIn1dfQ=="</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"x-amz-credential"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AKIAUVMHKGTQK2AUA4LQ/20250514/eu-west-1/s3/aws4_request"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"x-amz-algorithm"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AWS4-HMAC-SHA256"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"x-amz-date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"20250514T060257Z"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"x-amz-signature"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5811e53afc5d1f2e94fc614a29b699d89529d112eb432d7c6d332fafbbf9c987"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="s2">"key_prefix"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uploads/26c1ce11-c9bf-4825-821c-72e9f600a6cf/originals/"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"number_parallel_hint"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w">
+    </span><span class="nl">"key_prefix"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uploads/26c1ce11-c9bf-4825-821c-72e9f600a6cf/originals/"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"number_parallel_hint"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <blockquote>
 <p>or</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"imagery_upload_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"url_template"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"template"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://uploads.solvi.ag/uploads/26c1ce11-c9bf-4825-821c-72e9f600a6cf/originals/$filename?token=eyJhbGciOiJIUzI1NiJ9.eyJrZXlQcmVmaXgiOiJ1cGxvYWRzLzVkM2UyZDIwLTIxYTMtNGMyOC1hZWYzLTIxYTU5Y2Y0MzhhZC9vcmlnaW5hbHMvIiwiZXhwIjoxNzQ3ODA3MjgwfQ.UQzDIM020OOrwsFwzEFCtIjLEJJiYYFsPZdwLqLZf58"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"number_parallel_hint"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"imagery_upload_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"url_template"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"template"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://uploads.solvi.ag/uploads/26c1ce11-c9bf-4825-821c-72e9f600a6cf/originals/$filename?token=eyJhbGciOiJIUzI1NiJ9.eyJrZXlQcmVmaXgiOiJ1cGxvYWRzLzVkM2UyZDIwLTIxYTMtNGMyOC1hZWYzLTIxYTU5Y2Y0MzhhZC9vcmlnaW5hbHMvIiwiZXhwIjoxNzQ3ODA3MjgwfQ.UQzDIM020OOrwsFwzEFCtIjLEJJiYYFsPZdwLqLZf58"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"number_parallel_hint"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>After a project has been created, imagery can be uploaded to it by sending the <code>begin_upload</code> request. The response includes information required to upload imagery for the project. The response can be of two different types depending on your project type and customer configuration: <code>post_form_data</code> and <code>url_template</code>.</p>
 
 <blockquote>
 <p>Example JavaScript function to upload an image using <code>imagery_upload_data</code>
 retrieved from the example above:</p>
 </blockquote>
-<pre class="highlight javascript"><code><span class="kd">function</span> <span class="nx">uploadFile</span><span class="p">(</span><span class="nx">imagery_upload_data</span><span class="p">,</span> <span class="nx">f</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre class="highlight javascript"><code><span class="kd">function</span> <span class="nx">uploadFile</span><span class="p">(</span><span class="nx">imagery_upload_data</span><span class="p">,</span> <span class="nx">f</span><span class="p">)</span> <span class="p">{</span>
   <span class="kd">let</span> <span class="nx">fetchPromise</span><span class="p">;</span>
   <span class="k">switch</span> <span class="p">(</span><span class="nx">imagery_upload_data</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">case</span> <span class="s2">"url_template"</span> <span class="p">{</span>
-      <span class="kr">const</span> <span class="nx">url</span> <span class="o">=</span> <span class="nx">imagery_upload_data</span><span class="p">.</span><span class="nx">template</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s2">"$filename"</span><span class="p">,</span> <span class="nx">f</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+    <span class="k">case</span> <span class="dl">"</span><span class="s2">url_template</span><span class="dl">"</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">url</span> <span class="o">=</span> <span class="nx">imagery_upload_data</span><span class="p">.</span><span class="nx">template</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="dl">"</span><span class="s2">$filename</span><span class="dl">"</span><span class="p">,</span> <span class="nx">f</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
       <span class="nx">fetchPromise</span> <span class="o">=</span> <span class="nx">fetch</span><span class="p">(</span><span class="nx">url</span><span class="p">,</span> <span class="p">{</span>
-        <span class="na">method</span><span class="p">:</span> <span class="s2">"PUT"</span><span class="p">,</span>
+        <span class="na">method</span><span class="p">:</span> <span class="dl">"</span><span class="s2">PUT</span><span class="dl">"</span><span class="p">,</span>
         <span class="na">body</span><span class="p">:</span> <span class="nx">f</span><span class="p">,</span>
-        <span class="na">headers</span><span class="p">:</span> <span class="p">{</span> <span class="s2">"Content-Type"</span><span class="p">:</span> <span class="nx">f</span><span class="p">.</span><span class="nx">type</span> <span class="p">},</span>
+        <span class="na">headers</span><span class="p">:</span> <span class="p">{</span> <span class="dl">"</span><span class="s2">Content-Type</span><span class="dl">"</span><span class="p">:</span> <span class="nx">f</span><span class="p">.</span><span class="nx">type</span> <span class="p">},</span>
       <span class="p">});</span>
       <span class="k">break</span>
     <span class="p">}</span>
-    <span class="k">case</span> <span class="s2">"post_form_data"</span> <span class="p">{</span>
-      <span class="kr">const</span> <span class="nx">form</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">FormData</span><span class="p">();</span>
-      <span class="k">for</span> <span class="p">(</span><span class="kr">const</span> <span class="nx">key</span> <span class="k">in</span> <span class="nx">imagery_upload_data</span><span class="p">.</span><span class="nx">fields</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="dl">"</span><span class="s2">post_form_data</span><span class="dl">"</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">form</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">FormData</span><span class="p">();</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">key</span> <span class="k">in</span> <span class="nx">imagery_upload_data</span><span class="p">.</span><span class="nx">fields</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">form</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">imagery_upload_data</span><span class="p">.</span><span class="nx">fields</span><span class="p">[</span><span class="nx">key</span><span class="p">]);</span>
       <span class="p">}</span>
-      <span class="nx">form</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s2">"key"</span><span class="p">,</span> <span class="nx">imagery_upload_data</span><span class="p">.</span><span class="nx">key_prefix</span> <span class="o">+</span> <span class="nx">f</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
-      <span class="nx">form</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s2">"Content-Type"</span><span class="p">,</span> <span class="nx">f</span><span class="p">.</span><span class="nx">type</span><span class="p">);</span>
-      <span class="nx">form</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s2">"file"</span><span class="p">,</span> <span class="nx">f</span><span class="p">);</span>
+      <span class="nx">form</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="dl">"</span><span class="s2">key</span><span class="dl">"</span><span class="p">,</span> <span class="nx">imagery_upload_data</span><span class="p">.</span><span class="nx">key_prefix</span> <span class="o">+</span> <span class="nx">f</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+      <span class="nx">form</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="dl">"</span><span class="s2">Content-Type</span><span class="dl">"</span><span class="p">,</span> <span class="nx">f</span><span class="p">.</span><span class="nx">type</span><span class="p">);</span>
+      <span class="nx">form</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="dl">"</span><span class="s2">file</span><span class="dl">"</span><span class="p">,</span> <span class="nx">f</span><span class="p">);</span>
 
       <span class="nx">fetchPromise</span> <span class="o">=</span> <span class="nx">fetch</span><span class="p">(</span><span class="nx">imagery_upload_data</span><span class="p">.</span><span class="nx">url</span><span class="p">,</span> <span class="p">{</span>
-        <span class="na">method</span><span class="p">:</span> <span class="s2">"POST"</span><span class="p">,</span>
+        <span class="na">method</span><span class="p">:</span> <span class="dl">"</span><span class="s2">POST</span><span class="dl">"</span><span class="p">,</span>
         <span class="na">body</span><span class="p">:</span> <span class="nx">form</span><span class="p">,</span>
       <span class="p">});</span>
       <span class="k">break</span>
@@ -1382,18 +1369,18 @@ retrieved from the example above:</p>
     <span class="p">}</span>
   <span class="p">});</span>
 <span class="p">}</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example JavaScript function to post an array of files using the <code>uploadFile</code>
 function above, using <code>imagery_upload_data</code>
 retrieved from the example above:</p>
 </blockquote>
-<pre class="highlight javascript"><code><span class="kd">function</span> <span class="nx">uploadFiles</span><span class="p">(</span><span class="nx">imagery_upload_data</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre class="highlight javascript"><code><span class="kd">function</span> <span class="nx">uploadFiles</span><span class="p">(</span><span class="nx">imagery_upload_data</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
   <span class="k">return</span> <span class="nx">uploadNext</span><span class="p">();</span>
 
   <span class="kd">function</span> <span class="nx">uploadNext</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
-      <span class="kr">const</span> <span class="nx">file</span> <span class="o">=</span> <span class="nx">files</span><span class="p">.</span><span class="nx">shift</span><span class="p">();</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">file</span> <span class="o">=</span> <span class="nx">files</span><span class="p">.</span><span class="nx">shift</span><span class="p">();</span>
       <span class="k">if</span> <span class="p">(</span><span class="nx">file</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">uploadFile</span><span class="p">(</span><span class="nx">imagery_upload_data</span><span class="p">,</span> <span class="nx">file</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">uploadNext</span><span class="p">).</span><span class="k">catch</span><span class="p">(</span><span class="nx">reject</span><span class="p">);</span>
       <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
@@ -1402,39 +1389,39 @@ retrieved from the example above:</p>
     <span class="p">});</span>
   <span class="p">}</span>
 <span class="p">}</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example Python implementation to upload a file using <code>imagery_upload_data</code> using the <a href="https://requests.readthedocs.io/en/latest/">requests</a> library:</p>
 </blockquote>
-<pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">requests</span>
 
 <span class="k">def</span> <span class="nf">upload_file</span><span class="p">(</span><span class="n">imagery_upload_data</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
   <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">imagery_upload_data</span><span class="p">[</span><span class="s">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="s">"post_form_data"</span><span class="p">:</span>
       <span class="n">form_data</span> <span class="o">=</span> <span class="n">imagery_upload_data</span><span class="p">[</span><span class="s">"fields"</span><span class="p">]</span>
-      <span class="n">key</span> <span class="o">=</span> <span class="n">imagery_upload_data</span><span class="p">[</span><span class="s">"key_prefix"</span><span class="p">]</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+      <span class="n">key</span> <span class="o">=</span> <span class="n">imagery_upload_data</span><span class="p">[</span><span class="s">"key_prefix"</span><span class="p">]</span> <span class="o">+</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
       <span class="n">form_data</span><span class="p">[</span><span class="s">"key"</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
       <span class="n">form_data</span><span class="p">[</span><span class="s">"Content-Type"</span><span class="p">]</span> <span class="o">=</span> <span class="s">"image/jpeg"</span>
 
-      <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+      <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span>
         <span class="n">imagery_upload_data</span><span class="p">[</span><span class="s">"url"</span><span class="p">],</span>
         <span class="n">data</span><span class="o">=</span><span class="n">form_data</span><span class="p">,</span>
         <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s">"file"</span><span class="p">:</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">f</span><span class="p">)},</span>
       <span class="p">)</span>
     <span class="k">elif</span> <span class="n">imagery_upload_data</span><span class="p">[</span><span class="s">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="s">"url_template"</span><span class="p">:</span>
-      <span class="n">url</span> <span class="o">=</span> <span class="n">imagery_upload_data</span><span class="p">[</span><span class="s">"template"</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-        <span class="s">"$filename"</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+      <span class="n">url</span> <span class="o">=</span> <span class="n">imagery_upload_data</span><span class="p">[</span><span class="s">"template"</span><span class="p">].</span><span class="n">replace</span><span class="p">(</span>
+        <span class="s">"$filename"</span><span class="p">,</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
       <span class="p">)</span>
-      <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+      <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="nb">Exception</span><span class="p">(</span><span class="n">f</span><span class="s">'Unknown type "{imagery_upload_data["type"]}"'</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="nb">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s">'Unknown type "</span><span class="si">{</span><span class="n">imagery_upload_data</span><span class="p">[</span><span class="s">"type"</span><span class="p">]</span><span class="si">}</span><span class="s">"'</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">201</span><span class="p">,</span> <span class="mi">204</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">response</span><span class="p">.</span><span class="n">status_code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">201</span><span class="p">,</span> <span class="mi">204</span><span class="p">]:</span>
       <span class="k">raise</span> <span class="nb">Exception</span><span class="p">(</span>
-        <span class="n">f</span><span class="s">"Error uploading image '{file_path}': HTTP {response.status_code} - {response.text}"</span>
+        <span class="sa">f</span><span class="s">"Error uploading image '</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s">': HTTP </span><span class="si">{</span><span class="n">response</span><span class="p">.</span><span class="n">status_code</span><span class="si">}</span><span class="s"> - </span><span class="si">{</span><span class="n">response</span><span class="p">.</span><span class="n">text</span><span class="si">}</span><span class="s">"</span>
       <span class="p">)</span>
-</code></pre><h3 id='code-post_form_data-code-method'><code>post_form_data</code> method</h3>
+</code></pre></div><h3 id='code-post_form_data-code-method'><code>post_form_data</code> method</h3>
 <p>The required parameters are included in the <code>imagery_upload_data</code> object: this object has a <code>url</code> property indicating the URL to POST imagery to, and a <code>fields</code> object, listing the HTTP form data fields required for the POST request. In addition to these fields, the form must also include a <code>key</code> field, this is the destination path for the uploaded file: the key must start with specified <code>key_prefix</code> and its value must be unique for each image, usually the key is set from the <code>key_prefix</code> and the uploaded file&#39;s filename. Note that subdirectories are not allowed and the filename can&#39;t contain special characters like <code>/</code>, <code>\</code> and <code>:</code>.</p>
 <h3 id='code-url_template-code-method'><code>url_template</code> method</h3>
 <p>The response includes a property called <code>url_template</code> which should be used to create URLs to <code>PUT</code> files to. The template includes that part <code>$filename</code> which should be replaced with the actual name of the file being uploaded. Note that subdirectories are not allowed and the filename can&#39;t contain special characters like <code>/</code>, <code>\</code> and <code>:</code>.</p>
@@ -1458,26 +1445,26 @@ retrieved from the example above:</p>
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X POST
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
   <span class="s2">"https://api.solvi.ag/v1/projects/&lt;project_id&gt;/process_external_ortho"</span>
-  -d <span class="s1">'{
+  <span class="nt">-d</span> <span class="s1">'{
     "ortho_url": "https://example.com/my_ortho.tiff"
   }'</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>This will start processing a prestitched ortho photo located at the URL provided in the <code>ortho_url</code> parameter. Note that the ortho must be possible to download through a simple HTTP GET request without any other authentication than is present in the URL itself. For example a presigned S3 URL is suitable.</p>
 
 <p>You should <em>not</em> use the <code>complete_upload</code> endpoint in combination with this endpoint, processing will start immediately when using this endpoint.</p>
 
-<p>Note that this operation is only valid for projects of <code>prestitched</code> type.</p>
+<p>Note that this operation is only valid for projects of <code>stitched</code> type.</p>
 <h3 id='http-request-20'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/projects/&lt;project_id&gt;/process_external_ortho</code></p>
 <h3 id='parameters-14'>Parameters</h3>
@@ -1503,18 +1490,18 @@ retrieved from the example above:</p>
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X POST
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
   <span class="s2">"https://api.solvi.ag/v1/projects/&lt;project_id&gt;/complete_upload"</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>When project imagery has been uploaded, the upload must be completed, which will start the processing of the imagery.</p>
 
 <p>If processing was successfully started, the HTTP response code will be <code>200</code>. In addition, a response of <code>402</code> (Payment required) can also be returned, if the upload or credit quota for the user is not sufficient for processing the upload.</p>
@@ -1538,46 +1525,46 @@ retrieved from the example above:</p>
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X GET
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
   <span class="s1">'https://api.solvi.ag/v1/projects?field_geom={"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[100.0, 0.0],[101.0, 0.0],[101.0, 1.0],[100.0, 1.0],[100.0, 0.0]]]}]}'</span>
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
   </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"25-JUN-2018"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"user"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Joe Smith"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"joe@example.com"</span><span class="w">
+    </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"25-JUN-2018"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"user"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Joe Smith"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"joe@example.com"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="s2">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"field"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Winter Wheat"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"identfier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WW-01"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"farm"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Borgeby Farm"</span><span class="w">
+    </span><span class="nl">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Winter Wheat"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"identfier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WW-01"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"farm"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Borgeby Farm"</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="s2">"survey_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T19:19:27.000Z"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"upload_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T20:50:14.870Z"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/9999"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"thumbnail_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/9999/thumbnail.png"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"number_images"</span><span class="p">:</span><span class="w"> </span><span class="mi">322</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"bands"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rgb"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"crop"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Wheat"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"relative_altitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">99.9</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"absolute_altitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">95.443</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"extent"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MultiPolygon"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"coordinates"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="nl">"survey_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T19:19:27.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"upload_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T20:50:14.870Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/9999"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"thumbnail_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/9999/thumbnail.png"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"number_images"</span><span class="p">:</span><span class="w"> </span><span class="mi">322</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"bands"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rgb"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"crop"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Wheat"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"relative_altitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">99.9</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"absolute_altitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">95.443</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"extent"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MultiPolygon"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"coordinates"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
         </span><span class="p">[</span><span class="w">
           </span><span class="p">[</span><span class="w">
             </span><span class="p">[</span><span class="mf">12.335404361111113</span><span class="p">,</span><span class="w"> </span><span class="mf">57.30721566666666</span><span class="p">],</span><span class="w">
@@ -1591,12 +1578,12 @@ retrieved from the example above:</p>
     </span><span class="p">}</span><span class="w">
   </span><span class="p">},</span><span class="w">
   </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"New project"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/new"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"New project"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/new"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">]</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>This endpoint retrieves the projects created by the user and the projects on farms the user has access to: farms shared with the user and, for members of an organisation, the organisation&#39;s farms the user has access to. Use <code>scope=own</code> to only retrieve the projects the user created. The list is <a href="#lists-and-paging">paged</a>.</p>
 <h3 id='http-request-22'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/projects</code></p>
@@ -1631,7 +1618,7 @@ retrieved from the example above:</p>
 <tr>
 <td>type</td>
 <td>optional</td>
-<td>Only return projects of this type: <code>overlapping</code>, <code>stitched</code> or <code>scouting</code></td>
+<td>Only return projects of this type: <code>overlapping</code> or <code>stitched</code></td>
 </tr>
 <tr>
 <td>bands</td>
@@ -1670,39 +1657,39 @@ retrieved from the example above:</p>
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X GET
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
   <span class="s1">'https://api.solvi.ag/v1/projects/&lt;project-id&gt;
-</span></code></pre>
+</span></code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="w">  </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"25-JUN-2018"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"field"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Winter Wheat"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"identfier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WW-01"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"farm"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Borgeby Farm"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="w">  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"25-JUN-2018"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"plant_counts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">9999</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Winter Wheat"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"identfier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"WW-01"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"farm"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">656</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Borgeby Farm"</span><span class="w">
         </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="s2">"survey_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T19:19:27.000Z"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"upload_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T20:50:14.870Z"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/9999"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"thumbnail_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/9999/thumbnail.png"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"resources"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"thumbnail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/9999/thumbnail.png"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"ortho"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi-projects.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/ortho.tiff?..."</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"dem"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi-projects-dev.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/dem.tiff?..."</span><span class="w">
+    </span><span class="nl">"survey_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T19:19:27.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"upload_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-06-25T20:50:14.870Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/9999"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"thumbnail_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/9999/thumbnail.png"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"resources"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"thumbnail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.solvi.ag/projects/9999/thumbnail.png"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"ortho"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi-projects.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/ortho.tiff?..."</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"dem"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://solvi-projects-dev.s3.eu-west-1.amazonaws.com/uploads/ed12e5f6-b6c9-4df8-9522-1dbc29be854b/results/dem.tiff?..."</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-</span></code></pre>
+    </span><span class="nl">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+  </span><span class="p">}</span><span class="err">,</span><span class="w">
+</span></code></pre></div>
 <p>This endpoint retrieves projects created by the user or shared with the user by others.</p>
 
 <p>The included <code>resources</code> are URLs that can be used to fetch the project outputs. These resource URLs are temporary, with a lifetime of 15 minutes before they expire.</p>
@@ -1726,25 +1713,25 @@ retrieved from the example above:</p>
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X GET
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
   <span class="s1">'https://api.solvi.ag/v1/projects/&lt;project-id&gt;/tiles/&lt;type&gt;
-</span></code></pre>
+</span></code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://ts2.solvi.nu/.../results/ortho.tiff/rgb/rgb/tile/{z}/{x}/{y}.png?token=..."</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tileset/orthomosaic"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"resolution"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.15961538646165616</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"bounds"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://ts2.solvi.nu/.../results/ortho.tiff/rgb/rgb/tile/{z}/{x}/{y}.png?token=..."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tileset/orthomosaic"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"resolution"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.15961538646165616</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"bounds"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
       </span><span class="mf">-115.407127627406</span><span class="p">,</span><span class="w"> </span><span class="mf">33.13991737241373</span><span class="p">,</span><span class="w"> </span><span class="mf">-115.39728408213948</span><span class="p">,</span><span class="w"> </span><span class="mf">33.144345906954</span><span class="w">
     </span><span class="p">],</span><span class="w">
-    </span><span class="s2">"crs"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EPSG:4326"</span><span class="w">
+    </span><span class="nl">"crs"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EPSG:4326"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>This endpoint retrieves a tile template URL, suitable for use with popular map clients like <a href="https://openlayers.org/">OpenLayers</a> or <a href="https://leafletjs.com/">Leaflet</a>. The URLs are temporary, with a lifetime of at least 48 hours.</p>
 
 <p>Note that all types are not necessarily available for all projects. Requesting a tile type that is not available will give a HTTP 404 response.</p>
@@ -1775,19 +1762,19 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 </tr>
 </tbody></table>
 <h2 id='webhooks'>Webhooks</h2>
-<p>Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook&#39;s configured URL. Currently, project status (event type <code>status_changed</code>) and plant counts published (event type <code>plant_counts_published</code>) are the three available events in Solvi.</p>
+<p>Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook&#39;s configured URL. Currently, project status (event type <code>status_changed</code>) and plant counts published (event type <code>plant_counts_published</code>) are the two available events in Solvi.</p>
 
 <blockquote>
 <p>Example webhook request payload</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">8993</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"event_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"status_changed"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"old_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not_processed"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"new_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">8993</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"event_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"status_changed"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"old_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not_processed"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"new_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-<p>The webhook is configured when <a href="#create-project">creating a project</a> or when <a href="#create-plant-counts">creating a plant count</a> by specifing the <code>webhook</code> parameter, which should contain the URL of the webhook.</p>
+</span></code></pre></div>
+<p>The webhook is configured when <a href="#create-project">creating a project</a> by specifing the <code>status_webhook</code> parameter, which should contain the URL of the webhook.</p>
 <h3 id='webhook-events'>Webhook events</h3>
 <p>The type of event that occured is determined by the <code>event_type</code> parameter of the request body. Currently, there are two supported event types:</p>
 
@@ -1813,227 +1800,21 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 <blockquote>
 <p>Example signature header</p>
 </blockquote>
-<pre class="highlight plaintext"><code>X-Solvi-Signature: sha1=494e5dbdd1afbe4d44091bf86872b5eb4b9133e5
-</code></pre>
+<div class="highlight"><pre class="highlight plaintext"><code>X-Solvi-Signature: sha1=494e5dbdd1afbe4d44091bf86872b5eb4b9133e5
+</code></pre></div>
 <p>When a secret token has been specified, Solvi will include the HTTP header <code>X-Solvi-Signature</code>, which will contain an HMAC-SHA1 signature of the body.</p>
 
 <p>This follows the same pattern as <a href="https://docs.github.com/en/developers/webhooks-and-events/securing-your-webhooks">securing webhooks on GitHub</a>, except for using the header <code>X-Solvi-Signature</code> instead.</p>
-<h1 id='plant-counts'>Plant Counts</h1>
-<p>The plant counts API is under development and currently only supports a limited number of use cases:</p>
-
-<ul>
-<li>Automatic plant counts in scouting projects</li>
-<li>Request plant counts done for you (by Solvi personel) in any type of project</li>
-</ul>
-<h2 id='create-plant-counts'>Create Plant Counts</h2>
-<blockquote>
-<p>Example request:</p>
-</blockquote>
-<pre class="highlight shell tab-shell"><code>curl
-  -X POST
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  -H <span class="s1">'Content-Type: application/json'</span>
-  -d <span class="s1">'{"model": "base-models/shape"}'</span>
-  https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts
-</code></pre>
-<blockquote>
-<p>Example response:</p>
-</blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Created"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"job_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88a2af8601cf2b7c4e14979f8df73bca7352ccce"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-<p>This initiates a plant count for the specified project. A plant count can either be:</p>
-
-<ul>
-<li>automatic, meaning Plant AI will run unsupervised</li>
-<li>detection done for you by Solvi personel, supervising the detection to ensure high quality.</li>
-</ul>
-
-<p>When using the API, automatic plant counts are currently only supported for scouting projects.</p>
-
-<p>To create a supervised &quot;done for you&quot; plant count, set the <code>request_done_for_you</code> parameter to <code>true</code>.</p>
-
-<p>Creating a plant count is an asynchronous process, after creation the plant count will be processing, and the results can not be accessed until it has completed. This asynchronous process is called a <em>job</em>. To check the job&#39;s status, it can either be polled (see below) or a webhook URL can be submitted when starting the plant count; this webhook will be called when the job&#39;s status changes. Plant count webhooks only work in automatic mode, &quot;done for you&quot; plant counts can either use polling, or add a project webhook and listen to when the project&#39;s plant count is published. See <a href="#webhooks">webhooks</a> for more details. Note that &quot;done for you&quot; type plant counts can take up
-to 24 hours to complete.</p>
-
-<p>The detection is performed using a detection model. By default, two different models are available:</p>
-
-<ul>
-<li><code>base-models/point</code> - used for basic counts and is applicable to crops like corn or vegetables in early growth-stages</li>
-<li><code>base-models/shape</code> - includes size estimates and health for individual plants, applicable for pre-harvest crops or trees</li>
-</ul>
-
-<p>In addition, more models might be available on a per-user basis.</p>
-<h3 id='http-request-25'>HTTP Request</h3>
-<p><code>POST https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts</code></p>
-<h3 id='parameters-19'>Parameters</h3>
-<table><thead>
-<tr>
-<th>Parameter</th>
-<th></th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>model</td>
-<td>required</td>
-<td>The detection model to be used</td>
-</tr>
-<tr>
-<td>detect_rows</td>
-<td>optional</td>
-<td><code>true</code> if row detection should be performed; only supported in automatic scouting plant counts</td>
-</tr>
-<tr>
-<td>request_done_for_you</td>
-<td>optional</td>
-<td><code>true</code> if detection should be done for you by Solvi personel</td>
-</tr>
-<tr>
-<td>webhook</td>
-<td>optional</td>
-<td>URL of the webhook to send status updates to</td>
-</tr>
-</tbody></table>
-<h2 id='plant-count-data'>Plant Count data</h2>
-<blockquote>
-<p>Example request:</p>
-</blockquote>
-<pre class="highlight shell tab-shell"><code>curl
-  -X GET
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts/&lt;job-id&gt;
-</code></pre>
-<blockquote>
-<p>Example response:</p>
-</blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"completed"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-    </span><span class="s2">"https://solvi-staging-production.s3.eu-west-1.amazonaws.com/uploads/..."</span><span class="w">
-  </span><span class="p">]</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-<p>Gets the status of a previously started plant count, or overview information about a processed plant count.</p>
-
-<p>Depending on status of the detection job, different HTTP status codes will be used for the response:</p>
-
-<ul>
-<li><code>200</code>: completed successfully and the body contains JSON information about the result</li>
-<li><code>202</code>: processing is not yet complete</li>
-<li><code>404</code>: unknown job id or the job&#39;s result has expired and been removed</li>
-<li><code>500</code>: an internal error occurred during processing</li>
-</ul>
-
-<p>When processing has completed, the response will contain a <code>results</code> property which lists URLs that can be used to get the detection results. These URLs are valid for at least 24 hours. For scouting projects, a detection results in a JSON file containing a summary of the detection, as well as one GeoJSON file per image in the project.</p>
-
-<p>The results of a detection are kept in storage for one week. After this time, the results are removed from storage and requesting the results will return a 404 code. If a detection is published, the results will be kept in storage.</p>
-
-<p>Note that &quot;done for you&quot; plant counts in legacy projects, processed before 2023-01-01, the returned result <em>may</em>
-be a single ZIP archive file containing a Shapefile. In newer projects, the returned data will always be uncompressed data in multiple files.</p>
-<h2 id='plant-count-webhook'>Plant Count Webhook</h2>
-<p>In addition to polling a plant count for data, you can also register a webhook that will be notified when the plant count has been processed. The webhook URL is specified when you <a href="#create-plant-counts">create the plant count</a>. The webhook will <a href="#securing-webhooks">sign requests using the project&#39;s webhook secret</a> if it is set.</p>
-
-<p>The webhook will currently only receive a single type of event: <code>job_status_changed</code>. This event triggers when the plant detection job&#39;s status changes. It contains:</p>
-
-<ul>
-<li><code>job_id</code> for the detection that changed</li>
-<li><code>project_id</code> of the project it refers to</li>
-<li><code>old_status</code> the status of the project before this change</li>
-<li><code>new_status</code> the job&#39;s updated status.</li>
-</ul>
-
-<p>There are three different statuses:</p>
-
-<ul>
-<li><code>processing</code> - the plant count is being processed</li>
-<li><code>completed</code> - the plant count has been processed succesfully and its results are available</li>
-<li><code>fail</code> - the detection failed</li>
-</ul>
-<h2 id='publishing-plant-counts'>Publishing Plant Counts</h2>
-<blockquote>
-<p>Example request:</p>
-</blockquote>
-<pre class="highlight shell tab-shell"><code>curl
-  -X POST
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts/&lt;job-id&gt;/publish
-</code></pre>
-<blockquote>
-<p>Example response:</p>
-</blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Success"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-<p>After a plant count job has completed succesfully, its results can be published. This will achieve two things:</p>
-
-<ul>
-<li>The results can be viewed from the Plant Counts tool in Solvi&#39;s web app</li>
-<li>Results will not be removed from storage after a week</li>
-</ul>
-<h2 id='listing-a-project-39-s-plant-counts'>Listing a Project&#39;s Plant Counts</h2>
-<blockquote>
-<p>Example request:</p>
-</blockquote>
-<pre class="highlight shell tab-shell"><code>curl
-  -X GET
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts
-</code></pre>
-<blockquote>
-<p>Example response:</p>
-</blockquote>
-<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88a2af8601cf2b7c4e14979f8df73bca7352ccce"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"completed"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-02-08T09:18:37.655Z"</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"34a2af8601cf2b7c4e14979f8df73bca7352aef43"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-03-12T14:33:31.241Z"</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">]</span><span class="w">
-</span></code></pre>
-<p>Lists all created plant counts for a project with their id and status. Status is one of:</p>
-
-<ul>
-<li><code>processing</code>: the detection has not yet completed</li>
-<li><code>completed</code>: detection has finished and can be viewed</li>
-<li><code>published</code>: this detection is the one currently published for the project</li>
-<li><code>fail</code>: detection failed</li>
-</ul>
-<h2 id='deleting-a-plant-count'>Deleting a Plant Count</h2>
-<blockquote>
-<p>Example request:</p>
-</blockquote>
-<pre class="highlight shell tab-shell"><code>curl
-  -X DELETE
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts/&lt;job-id&gt;
-</code></pre>
-<blockquote>
-<p>Example response:</p>
-</blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"deleted"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-<p>Removes the results of a plant count. Please note that &quot;done for you&quot; plant counts can&#39;t be deleted.</p>
 <h1 id='zonal-statistics'>Zonal Statistics</h1>
 <p>The Zonal Statistics API lets you create zones in a project and calculate various statistics for them: primarily various vegetation indices as well as plant count statistics for projects where plant counts have been published.</p>
 <h2 id='creating-and-calculating-statistics-for-zones'>Creating and calculating statistics for zones</h2>
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X POST
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
-  -H <span class="s2">"Content-Type: application/json"</span>
-  -d <span class="s1">'{
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{
     "indices": ["vari"],
     "extra_data": {"plant_counts": true},
     "geojson": {
@@ -2074,25 +1855,25 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
     }
   }'</span>
   https://api.solvi.ag/v1/projects/&lt;project-id&gt;/zonal_statistics
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FeatureCollection"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FeatureCollection"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
         </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                </span><span class="s2">"vari_p25"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.12272727489471436</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"vari_p75"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.051350148394703865</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"vari_mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.08275701161977407</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"vari_median"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.11009174585342407</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"vari_stdev"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05680577057554646</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"vari_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.1606217622756958</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"vari_max"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1172839477658</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"vari_p25"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.12272727489471436</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"vari_p75"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.051350148394703865</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"vari_mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.08275701161977407</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"vari_median"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.11009174585342407</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"vari_stdev"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05680577057554646</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"vari_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.1606217622756958</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"vari_max"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1172839477658</span><span class="w">
                 </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Sets the zones for a project and calculates the provided statistics, if one of the <code>indices</code> or <code>extra_data</code> parameters are included. The zones should be provided through the <code>geojson</code> parameter: it should contain a GeoJSON FeatureCollection with Polygon features. Other GeoJSON objects or invalid GeoJSON will result in a <code>400 Bad request</code> response.</p>
 
 <p>If <code>geojson</code> is omitted, the statistics are calculated for the zones already saved with the project. A <code>400 Bad request</code> is returned if the project has no saved zones, and a <code>409 Conflict</code> if the saved zones were created with an old version of Solvi&#39;s web site; opening the project on the web site updates them.</p>
@@ -2102,9 +1883,9 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 <p>For projects with published plant counts, plant count statistics can also be calculated by the optional parameter <code>extra_data</code>, which in this case should be set to <code>{&quot;plant_counts&quot;: true}</code>.</p>
 
 <p>The endpoint responds with a GeoJSON FeatureCollection with the same geometries that were provided, but with properties added for the calculated statistics (if any). This response is also saved with the project, and can be viewed on Solvi&#39;s web site, and also later fetched with the GET endpoint below.</p>
-<h3 id='http-request-26'>HTTP Request</h3>
+<h3 id='http-request-25'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/projects/&lt;project-id&gt;/zonal_statistics</code></p>
-<h3 id='parameters-20'>Parameters</h3>
+<h3 id='parameters-19'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -2132,29 +1913,29 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl
-  -X GET
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl
+  <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
   https://api.solvi.ag/v1/projects/&lt;project-id&gt;/zonal_statistics
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FeatureCollection"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FeatureCollection"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
         </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                </span><span class="s2">"vari_p25"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.12272727489471436</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"vari_p75"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.051350148394703865</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"vari_mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.08275701161977407</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"vari_median"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.11009174585342407</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"vari_stdev"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05680577057554646</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"vari_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.1606217622756958</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"vari_max"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1172839477658</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"vari_p25"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.12272727489471436</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"vari_p75"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.051350148394703865</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"vari_mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.08275701161977407</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"vari_median"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.11009174585342407</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"vari_stdev"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05680577057554646</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"vari_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.1606217622756958</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"vari_max"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1172839477658</span><span class="w">
                 </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Fetches any saved zonal statistics for a project. The zones are returned as a GeoJSON FeatureCollection with statistics in each feature&#39;s <code>properties</code>. If no zones are defined for this project, a <code>404 Not found</code> is returned. If the zones were created with an old version of Solvi&#39;s web site, a <code>409 Conflict</code> is returned; opening the project on the web site updates them, after which this endpoint returns them.</p>
 <h1 id='transactions'>Transactions</h1>
 <p>The Transactions API allows you to retrieve the user&#39;s credit and upload transaction history, including purchases and usage from project uploads and PlantAI detections.</p>
@@ -2162,54 +1943,54 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 <blockquote>
 <p>Example request:</p>
 </blockquote>
-<pre class="highlight shell tab-shell"><code>curl
-  -X GET
-  -H <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl
+  <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
   https://api.solvi.ag/v1/transactions
-</code></pre>
+</code></pre></div>
 <blockquote>
 <p>Example response:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
   </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"datetime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2023-03-01T09:00:00.000Z"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credits"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"purchase"</span><span class="w">
+    </span><span class="nl">"datetime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2023-03-01T09:00:00.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credits"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"purchase"</span><span class="w">
   </span><span class="p">},</span><span class="w">
   </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"datetime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2023-03-14T14:20:00.000Z"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uploads"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"upload"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"project"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1233</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Corn Field"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"datetime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2023-03-14T14:20:00.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uploads"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"upload"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"project"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1233</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Corn Field"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
       </span><span class="err">...</span><span class="w">
     </span><span class="p">}</span><span class="w">
   </span><span class="p">},</span><span class="w">
   </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"datetime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2023-03-15T10:30:00.000Z"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credits"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-25</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"plantai_detection"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"area_ha"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"project"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1234</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Wheat Field Survey"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"datetime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2023-03-15T10:30:00.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credits"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">-25</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"plantai_detection"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"area_ha"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"project"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1234</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Wheat Field Survey"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span><span class="p">,</span><span class="w">
       </span><span class="err">...</span><span class="w">
     </span><span class="p">}</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">]</span><span class="w">
-</span></code></pre>
+</span></code></pre></div>
 <p>Retrieves the transaction history for the authenticated user, showing both usage (negative amounts) and purchases (positive amounts). By default, returns transactions from the last year. Transactions can be filtered by date range using the <code>from</code> and <code>to</code> parameters.</p>
 
 <p>Usage transactions include details about the related project and, for PlantAI detections, the analyzed area in hectares.</p>
-<h3 id='http-request-27'>HTTP Request</h3>
+<h3 id='http-request-26'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/transactions</code></p>
-<h3 id='parameters-21'>Parameters</h3>
+<h3 id='parameters-20'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
