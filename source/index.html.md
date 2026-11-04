@@ -685,11 +685,10 @@ curl -X POST
 
 This endpoint creates a new project which is required before imagery upload. In response, you will receive URL to upload-page for the newly created project where the user can be redirected.
 
-There are multiple _types_ of projects: `overlapping` (the default), `stitched` and `scouting`:
+There are two _types_ of projects: `overlapping` (the default) and `stitched`:
 
 - `overlapping` should be used if you have a number of photos taken which should be stitched into a map by Solvi; this is the default and what you normally use
 - `stitched` can be used if you already have a single [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) that have been stitched by another system
-- In `scouting`, images will not be stitched and instead shown as separate, individual images without further processing
 
 Projects can be connected to a Field. When multiple projects are related to the same Field, they appear in the same map view when data is processed. This allows for easier navigation between imagery over the same Field and over the time data comparison.
 
@@ -710,7 +709,7 @@ The project's crop, survey date and altitude, data which will be displayed in So
 
 | Parameter      |          | Description                                                                                                                                          |
 | -------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| type           | optional | The type of imagery for this project: `overlapping`, `stitched` or `scouting`; default is `overlapping`                                              |
+| type           | optional | The type of imagery for this project: `overlapping` or `stitched`; default is `overlapping`                                                          |
 | field_id       |          | Solvi field id as returned from [Fields API](#fields)                                                                                                |
 | field_name     |          | Name of the the field                                                                                                                                |
 | field_geom     | optional | Boundaries of the field as a polygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat) |
@@ -973,7 +972,7 @@ This will start processing a prestitched ortho photo located at the URL provided
 
 You should _not_ use the `complete_upload` endpoint in combination with this endpoint, processing will start immediately when using this endpoint.
 
-Note that this operation is only valid for projects of `prestitched` type.
+Note that this operation is only valid for projects of `stitched` type.
 
 ### HTTP Request
 
@@ -1099,7 +1098,7 @@ This endpoint retrieves the projects created by the user and the projects on far
 | field_id         | optional | Only return projects on the field with this id                                                                                                                                    |
 | farm_id          | optional | Only return projects on the farm with this id                                                                                                                                     |
 | status           | optional | Only return projects with this status: `processed`, `not_processed` or `failed`                                                                                                   |
-| type             | optional | Only return projects of this type: `overlapping`, `stitched` or `scouting`                                                                                                        |
+| type             | optional | Only return projects of this type: `overlapping` or `stitched`                                                                                                                    |
 | bands            | optional | Only return projects with these bands, for example `rgb`                                                                                                                          |
 | crop             | optional | Only return projects with this crop                                                                                                                                               |
 | plant_counts     | optional | Only return projects with plant counts in this state: `requested`, `review`, `bad_request` or `published`                                                                         |
@@ -1211,7 +1210,7 @@ For `plant_counts` (when response `type` is `"tileset/plant_counts`), `number_pl
 
 ## Webhooks
 
-Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook's configured URL. Currently, project status (event type `status_changed`) and plant counts published (event type `plant_counts_published`) are the three available events in Solvi.
+Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook's configured URL. Currently, project status (event type `status_changed`) and plant counts published (event type `plant_counts_published`) are the two available events in Solvi.
 
 > Example webhook request payload
 
@@ -1224,7 +1223,7 @@ Webhooks allow setting up integrations that subscribe to certain events from Sol
 }
 ```
 
-The webhook is configured when [creating a project](#create-project) or when [creating a plant count](#create-plant-counts) by specifing the `webhook` parameter, which should contain the URL of the webhook.
+The webhook is configured when [creating a project](#create-project) by specifing the `status_webhook` parameter, which should contain the URL of the webhook.
 
 ### Webhook events
 
@@ -1260,202 +1259,6 @@ X-Solvi-Signature: sha1=494e5dbdd1afbe4d44091bf86872b5eb4b9133e5
 When a secret token has been specified, Solvi will include the HTTP header `X-Solvi-Signature`, which will contain an HMAC-SHA1 signature of the body.
 
 This follows the same pattern as [securing webhooks on GitHub](https://docs.github.com/en/developers/webhooks-and-events/securing-your-webhooks), except for using the header `X-Solvi-Signature` instead.
-
-# Plant Counts
-
-The plant counts API is under development and currently only supports a limited number of use cases:
-
-- Automatic plant counts in scouting projects
-- Request plant counts done for you (by Solvi personel) in any type of project
-
-## Create Plant Counts
-
-> Example request:
-
-```shell
-curl
-  -X POST
-  -H "Authorization: Bearer <user-jwt-token>"
-  -H 'Content-Type: application/json'
-  -d '{"model": "base-models/shape"}'
-  https://api.solvi.ag/v1/projects/<project-id>/plant_counts
-```
-
-> Example response:
-
-```json
-{
-  "status": "Created",
-  "job_id": "88a2af8601cf2b7c4e14979f8df73bca7352ccce"
-}
-```
-
-This initiates a plant count for the specified project. A plant count can either be:
-
-- automatic, meaning Plant AI will run unsupervised
-- detection done for you by Solvi personel, supervising the detection to ensure high quality.
-
-When using the API, automatic plant counts are currently only supported for scouting projects.
-
-To create a supervised "done for you" plant count, set the `request_done_for_you` parameter to `true`.
-
-Creating a plant count is an asynchronous process, after creation the plant count will be processing, and the results can not be accessed until it has completed. This asynchronous process is called a _job_. To check the job's status, it can either be polled (see below) or a webhook URL can be submitted when starting the plant count; this webhook will be called when the job's status changes. Plant count webhooks only work in automatic mode, "done for you" plant counts can either use polling, or add a project webhook and listen to when the project's plant count is published. See [webhooks](#webhooks) for more details. Note that "done for you" type plant counts can take up
-to 24 hours to complete.
-
-The detection is performed using a detection model. By default, two different models are available:
-
-- `base-models/point` - used for basic counts and is applicable to crops like corn or vegetables in early growth-stages
-- `base-models/shape` - includes size estimates and health for individual plants, applicable for pre-harvest crops or trees
-
-In addition, more models might be available on a per-user basis.
-
-### HTTP Request
-
-`POST https://api.solvi.ag/v1/projects/<project-id>/plant_counts`
-
-### Parameters
-
-| Parameter            |          | Description                                                                                    |
-| -------------------- | -------- | ---------------------------------------------------------------------------------------------- |
-| model                | required | The detection model to be used                                                                 |
-| detect_rows          | optional | `true` if row detection should be performed; only supported in automatic scouting plant counts |
-| request_done_for_you | optional | `true` if detection should be done for you by Solvi personel                                   |
-| webhook              | optional | URL of the webhook to send status updates to                                                   |
-
-## Plant Count data
-
-> Example request:
-
-```shell
-curl
-  -X GET
-  -H "Authorization: Bearer <user-jwt-token>"
-  https://api.solvi.ag/v1/projects/<project-id>/plant_counts/<job-id>
-```
-
-> Example response:
-
-```json
-{
-  "status": "completed",
-  "results": [
-    "https://solvi-staging-production.s3.eu-west-1.amazonaws.com/uploads/..."
-  ]
-}
-```
-
-Gets the status of a previously started plant count, or overview information about a processed plant count.
-
-Depending on status of the detection job, different HTTP status codes will be used for the response:
-
-- `200`: completed successfully and the body contains JSON information about the result
-- `202`: processing is not yet complete
-- `404`: unknown job id or the job's result has expired and been removed
-- `500`: an internal error occurred during processing
-
-When processing has completed, the response will contain a `results` property which lists URLs that can be used to get the detection results. These URLs are valid for at least 24 hours. For scouting projects, a detection results in a JSON file containing a summary of the detection, as well as one GeoJSON file per image in the project.
-
-The results of a detection are kept in storage for one week. After this time, the results are removed from storage and requesting the results will return a 404 code. If a detection is published, the results will be kept in storage.
-
-Note that "done for you" plant counts in legacy projects, processed before 2023-01-01, the returned result _may_
-be a single ZIP archive file containing a Shapefile. In newer projects, the returned data will always be uncompressed data in multiple files.
-
-## Plant Count Webhook
-
-In addition to polling a plant count for data, you can also register a webhook that will be notified when the plant count has been processed. The webhook URL is specified when you [create the plant count](#create-plant-counts). The webhook will [sign requests using the project's webhook secret](#securing-webhooks) if it is set.
-
-The webhook will currently only receive a single type of event: `job_status_changed`. This event triggers when the plant detection job's status changes. It contains:
-
-- `job_id` for the detection that changed
-- `project_id` of the project it refers to
-- `old_status` the status of the project before this change
-- `new_status` the job's updated status.
-
-There are three different statuses:
-
-- `processing` - the plant count is being processed
-- `completed` - the plant count has been processed succesfully and its results are available
-- `fail` - the detection failed
-
-## Publishing Plant Counts
-
-> Example request:
-
-```shell
-curl
-  -X POST
-  -H "Authorization: Bearer <user-jwt-token>"
-  https://api.solvi.ag/v1/projects/<project-id>/plant_counts/<job-id>/publish
-```
-
-> Example response:
-
-```json
-{
-  "status": "Success"
-}
-```
-
-After a plant count job has completed succesfully, its results can be published. This will achieve two things:
-
-- The results can be viewed from the Plant Counts tool in Solvi's web app
-- Results will not be removed from storage after a week
-
-## Listing a Project's Plant Counts
-
-> Example request:
-
-```shell
-curl
-  -X GET
-  -H "Authorization: Bearer <user-jwt-token>"
-  https://api.solvi.ag/v1/projects/<project-id>/plant_counts
-```
-
-> Example response:
-
-```json
-[
-  {
-    "id": "88a2af8601cf2b7c4e14979f8df73bca7352ccce",
-    "status": "completed",
-    "created_at": "2019-02-08T09:18:37.655Z"
-  },
-  {
-    "id": "34a2af8601cf2b7c4e14979f8df73bca7352aef43",
-    "status": "published",
-    "created_at": "2021-03-12T14:33:31.241Z"
-  }
-]
-```
-
-Lists all created plant counts for a project with their id and status. Status is one of:
-
-- `processing`: the detection has not yet completed
-- `completed`: detection has finished and can be viewed
-- `published`: this detection is the one currently published for the project
-- `fail`: detection failed
-
-## Deleting a Plant Count
-
-> Example request:
-
-```shell
-curl
-  -X DELETE
-  -H "Authorization: Bearer <user-jwt-token>"
-  https://api.solvi.ag/v1/projects/<project-id>/plant_counts/<job-id>
-```
-
-> Example response:
-
-```json
-{
-  "status": "deleted"
-}
-```
-
-Removes the results of a plant count. Please note that "done for you" plant counts can't be deleted.
 
 # Zonal Statistics
 
