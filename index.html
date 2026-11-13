@@ -341,6 +341,15 @@
             <a href="#plant-counts" class="toc-h1 toc-link" data-title="Plant Counts">Plant Counts</a>
               <ul class="toc-list-h2">
                   <li>
+                    <a href="#listing-the-plant-ai-crops" class="toc-h2 toc-link" data-title="Plant Counts">Listing the Plant AI Crops</a>
+                  </li>
+                  <li>
+                    <a href="#quoting-a-plant-count" class="toc-h2 toc-link" data-title="Plant Counts">Quoting a Plant Count</a>
+                  </li>
+                  <li>
+                    <a href="#accepting-a-plant-count-quote" class="toc-h2 toc-link" data-title="Plant Counts">Accepting a Plant Count Quote</a>
+                  </li>
+                  <li>
                     <a href="#listing-a-project-39-s-plant-counts" class="toc-h2 toc-link" data-title="Plant Counts">Listing a Project's Plant Counts</a>
                   </li>
                   <li>
@@ -1817,7 +1826,203 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 
 <p>This follows the same pattern as <a href="https://docs.github.com/en/developers/webhooks-and-events/securing-your-webhooks">securing webhooks on GitHub</a>, except for using the header <code>X-Solvi-Signature</code> instead.</p>
 <h1 id='plant-counts'>Plant Counts</h1>
-<p>Plant counts are created in Solvi&#39;s web app, either automatically with Plant AI or done for you by Solvi personnel. The plant counts API lists a project&#39;s plant counts and fetches their results.</p>
+<p>Plant counts are created either automatically with Plant AI in Solvi&#39;s web app, or done for you by Solvi personnel. The plant counts API orders a &quot;done for you&quot; plant count for a project, lists the project&#39;s plant counts and fetches their results.</p>
+
+<p>Ordering a &quot;done for you&quot; plant count is a two step flow: first quote the plant count, which calculates its cost without charging anything, then accept the quote, which charges the cost and places the order. Solvi personnel then perform the count and publish the results, which can take up to a few business days; poll the status with the endpoints below, or use a <a href="#webhooks">webhook</a> with the <code>plant_counts_published</code> event to get notified.</p>
+
+<p>A project can have at most one plant count.</p>
+<h2 id='listing-the-plant-ai-crops'>Listing the Plant AI Crops</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl
+  <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  https://api.solvi.ag/v1/plantai_crops
+</code></pre></div>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"crops"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"corn"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Corn"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sunflower"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Sunflower"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"other"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Other"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"freeform"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Lists the crop choices a plant count can be requested for. A crop&#39;s <code>id</code> is the value the quote endpoint&#39;s <code>crop</code> parameter takes.</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>id</td>
+<td>The choice&#39;s id, passed as the quote&#39;s <code>crop</code> parameter</td>
+</tr>
+<tr>
+<td>name</td>
+<td>The crop&#39;s display name</td>
+</tr>
+<tr>
+<td>freeform</td>
+<td>When <code>true</code>, choosing this crop requires naming the crop with the quote&#39;s <code>crop_name</code> parameter; absent on the other choices</td>
+</tr>
+</tbody></table>
+<h3 id='http-request-25'>HTTP Request</h3>
+<p><code>GET https://api.solvi.ag/v1/plantai_crops</code></p>
+<h2 id='quoting-a-plant-count'>Quoting a Plant Count</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{
+    "detection_type": "dfy",
+    "mode": "basic",
+    "crop": "corn"
+  }'</span>
+  https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts
+</code></pre></div>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"quoted"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"transaction_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJ..."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expires_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-11-14T09:18:37.655Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"detection_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dfy"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"basic"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"crop"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"corn"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Corn"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"area"</span><span class="p">:</span><span class="w"> </span><span class="mi">248300</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"billed_hectares"</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"cost"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"credit"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">125</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"sufficient"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Quotes a &quot;done for you&quot; plant count for a project: calculates the cost of the detection and returns a <code>transaction_id</code> for accepting the quote. Nothing is charged and no plant count is created until the quote is <a href="#accepting-a-plant-count-quote">accepted</a>.</p>
+
+<p>The crop to count is chosen from <a href="#listing-the-plant-ai-crops">the crop listing</a>. A crop that is not on the list is ordered with the freeform choice <code>&quot;crop&quot;: &quot;other&quot;</code>, naming the crop in the <code>crop_name</code> parameter; <code>crop_name</code> is only accepted together with <code>&quot;other&quot;</code>, and is trimmed and lowercased by the server. Weed detection has no crop: with the <code>weed</code> mode, <code>crop</code> and <code>crop_name</code> must be omitted. The response&#39;s <code>crop</code> echoes the choice, with the normalized <code>crop_name</code> as the <code>name</code> of a freeform crop; a weed quote has no <code>crop</code> field.</p>
+
+<p>The detection area can be given with the optional <code>geojson</code> parameter. When it is omitted, the area defaults to the boundaries of the project&#39;s field or, if the field has no saved boundaries, the extent of the project&#39;s imagery. The response&#39;s <code>area</code> is the detection area in square meters, and the cost is calculated from <code>billed_hectares</code>, the area rounded up to whole hectares.</p>
+
+<p>The quote is valid until <code>expires_at</code>, 24 hours after it was made; after that, a new quote has to be requested. Accepting the quote charges exactly the quoted cost, and the <code>sufficient</code> property tells whether the account&#39;s current balance covers it.</p>
+
+<p>Quoting requires the project to be successfully processed, to belong to a field, and to not already have a plant count. Error responses:</p>
+
+<ul>
+<li><code>400</code>: invalid parameters: a <code>detection_type</code> other than <code>dfy</code>, an unknown <code>mode</code> or <code>crop</code>, a missing or blank <code>crop_name</code> when <code>crop</code> is <code>other</code>, a <code>crop_name</code> together with a listed crop, a <code>crop</code> or <code>crop_name</code> with the <code>weed</code> mode, invalid <code>geojson</code> or coordinates outside WGS84, a project that does not belong to a field, or an empty detection area</li>
+<li><code>409</code>: the project has not been successfully processed, or already has a plant count</li>
+</ul>
+<h3 id='http-request-26'>HTTP Request</h3>
+<p><code>POST https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts</code></p>
+<h3 id='parameters-19'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>detection_type</td>
+<td>required</td>
+<td>Type of plant count to order; only <code>dfy</code> (&quot;done for you&quot;) can be ordered through the API</td>
+</tr>
+<tr>
+<td>mode</td>
+<td>required</td>
+<td>Detection mode: one of <code>plant-level-data</code>, <code>basic</code> or <code>weed</code></td>
+</tr>
+<tr>
+<td>crop</td>
+<td>required</td>
+<td>The crop to count: a crop id from <a href="#listing-the-plant-ai-crops">the crop listing</a>, or <code>other</code> for a crop that is not listed. Required, except with the <code>weed</code> mode, where it must be omitted</td>
+</tr>
+<tr>
+<td>crop_name</td>
+<td>optional</td>
+<td>Name of the crop to count; required (and only accepted) when <code>crop</code> is <code>other</code></td>
+</tr>
+<tr>
+<td>geojson</td>
+<td>optional</td>
+<td>Detection area as GeoJSON: a FeatureCollection, a Feature or a bare geometry, with Polygon or MultiPolygon geometries in WGS84 (EPSG:4326) coordinates. Defaults to the boundaries of the project&#39;s field, or the extent of its imagery</td>
+</tr>
+</tbody></table>
+<h2 id='accepting-a-plant-count-quote'>Accepting a Plant Count Quote</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{
+    "transaction_id": "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJ..."
+  }'</span>
+  https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts/accept
+</code></pre></div>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"created"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"88a2af8601cf2b7c4e14979f8df73bca7352ccce"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Accepts a quote: charges the quoted cost from the project owner&#39;s credits and orders the plant count. Solvi personnel are notified and will perform the count. The returned <code>id</code> is the plant count&#39;s id, which works with the listing and data endpoints below: the plant count&#39;s status is <code>processing</code> until the results have been published.</p>
+
+<p>A quote made with a <code>geojson</code> parameter must be accepted with the same <code>geojson</code> document; a quote made from the project&#39;s field boundaries or imagery extent is accepted without one, since those are read again when accepting. Either way, the detection area must still match the quoted area: if it doesn&#39;t, for example because the field&#39;s boundaries changed after the quote, the request is refused with a <code>400</code> response, and the plant count has to be quoted again.</p>
+
+<p>A <code>transaction_id</code> charges at most once: accepting the same quote again returns a <code>409</code> response without charging. Error responses:</p>
+
+<ul>
+<li><code>400</code>: a missing, invalid or expired <code>transaction_id</code>, a quote made for another project or user, a quoted crop that is no longer available, a project that does not belong to a field, or a detection area that does not match the quote</li>
+<li><code>402</code>: the account does not have enough credits to pay the quoted cost; the response body gives the required amount</li>
+<li><code>409</code>: the quote has already been accepted, or the project already has a plant count</li>
+</ul>
+<h3 id='http-request-27'>HTTP Request</h3>
+<p><code>POST https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts/accept</code></p>
+<h3 id='parameters-20'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>transaction_id</td>
+<td>required</td>
+<td>The <code>transaction_id</code> returned by the quote</td>
+</tr>
+<tr>
+<td>geojson</td>
+<td>optional</td>
+<td>The same <code>geojson</code> document the quote was made with; required when the quote had one, and omitted when it had none</td>
+</tr>
+</tbody></table>
 <h2 id='listing-a-project-39-s-plant-counts'>Listing a Project&#39;s Plant Counts</h2>
 <blockquote>
 <p>Example request:</p>
@@ -1853,7 +2058,7 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 </ul>
 
 <p>A project with a &quot;done for you&quot; plant count lists a single plant count, which is <code>processing</code> until Solvi has published it.</p>
-<h3 id='http-request-25'>HTTP Request</h3>
+<h3 id='http-request-28'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts</code></p>
 <h2 id='plant-count-data'>Plant Count data</h2>
 <blockquote>
@@ -1891,7 +2096,7 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 
 <p>Note that for &quot;done for you&quot; plant counts in legacy projects, processed before 2023-01-01, the returned result <em>may</em>
 be a single ZIP archive file containing a Shapefile. In newer projects, the returned data will always be uncompressed data in multiple files.</p>
-<h3 id='http-request-26'>HTTP Request</h3>
+<h3 id='http-request-29'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts/&lt;plant-count-id&gt;</code></p>
 <h1 id='zonal-statistics'>Zonal Statistics</h1>
 <p>The Zonal Statistics API lets you create zones in a project and calculate various statistics for them: primarily various vegetation indices as well as plant count statistics for projects where plant counts have been published.</p>
@@ -1971,9 +2176,9 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 <p>For projects with published plant counts, plant count statistics can also be calculated by the optional parameter <code>extra_data</code>, which in this case should be set to <code>{&quot;plant_counts&quot;: true}</code>.</p>
 
 <p>The endpoint responds with a GeoJSON FeatureCollection with the same geometries that were provided, but with properties added for the calculated statistics (if any). This response is also saved with the project, and can be viewed on Solvi&#39;s web site, and also later fetched with the GET endpoint below.</p>
-<h3 id='http-request-27'>HTTP Request</h3>
+<h3 id='http-request-30'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/projects/&lt;project-id&gt;/zonal_statistics</code></p>
-<h3 id='parameters-19'>Parameters</h3>
+<h3 id='parameters-21'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -2076,9 +2281,9 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 <p>Retrieves the transaction history for the authenticated user, showing both usage (negative amounts) and purchases (positive amounts). By default, returns transactions from the last year. Transactions can be filtered by date range using the <code>from</code> and <code>to</code> parameters.</p>
 
 <p>Usage transactions include details about the related project and, for PlantAI detections, the analyzed area in hectares.</p>
-<h3 id='http-request-28'>HTTP Request</h3>
+<h3 id='http-request-31'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/transactions</code></p>
-<h3 id='parameters-20'>Parameters</h3>
+<h3 id='parameters-22'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
