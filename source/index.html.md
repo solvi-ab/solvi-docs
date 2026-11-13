@@ -1285,22 +1285,29 @@ curl
 {
   "crops": [
     {
-      "id": 1,
-      "name": "Apple",
-      "category": "fruits",
-      "subcategory": "pome_fruits"
+      "id": "corn",
+      "name": "Corn"
     },
     {
-      "id": 2,
-      "name": "Barley",
-      "category": "row_crops",
-      "subcategory": "cereals"
+      "id": "sunflower",
+      "name": "Sunflower"
+    },
+    {
+      "id": "other",
+      "name": "Other",
+      "freeform": true
     }
   ]
 }
 ```
 
-Lists the Plant AI crops a plant count can be requested for, ordered by category, subcategory and name. A crop's `id` is the value the quote endpoint's `crop` parameter takes. `category` and `subcategory` group related crops and can be `null`.
+Lists the crop choices a plant count can be requested for. A crop's `id` is the value the quote endpoint's `crop` parameter takes.
+
+| Field    | Description                                                                                                                 |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| id       | The choice's id, passed as the quote's `crop` parameter                                                                     |
+| name     | The crop's display name                                                                                                     |
+| freeform | When `true`, choosing this crop requires naming the crop with the quote's `crop_name` parameter; absent on the other choices |
 
 ### HTTP Request
 
@@ -1317,7 +1324,7 @@ curl -X POST
   -d '{
     "detection_type": "dfy",
     "mode": "basic",
-    "crop": 1
+    "crop": "corn"
   }'
   https://api.solvi.ag/v1/projects/<project-id>/plant_counts
 ```
@@ -1332,7 +1339,7 @@ curl -X POST
   "detection_type": "dfy",
   "mode": "basic",
   "crop": {
-    "id": 1,
+    "id": "corn",
     "name": "Corn"
   },
   "area": 248300,
@@ -1349,13 +1356,15 @@ curl -X POST
 
 Quotes a "done for you" plant count for a project: calculates the cost of the detection and returns a `transaction_id` for accepting the quote. Nothing is charged and no plant count is created until the quote is [accepted](#accepting-a-plant-count-quote).
 
+The crop to count is chosen from [the crop listing](#listing-the-plant-ai-crops). A crop that is not on the list is ordered with the freeform choice `"crop": "other"`, naming the crop in the `crop_name` parameter; `crop_name` is only accepted together with `"other"`. The response's `crop` echoes the choice, with the given `crop_name` as the `name` of a freeform crop.
+
 The detection area can be given with the optional `geojson` parameter. When it is omitted, the area defaults to the boundaries of the project's field or, if the field has no saved boundaries, the extent of the project's imagery. The response's `area` is the detection area in square meters, and the cost is calculated from `billed_hectares`, the area rounded up to whole hectares. `upload_deduction` is an amount already paid for uploading the project, which has been subtracted from the quoted `cost`.
 
 The quote is valid until `expires_at`, 24 hours after it was made; after that, a new quote has to be requested. Accepting the quote charges exactly the quoted cost, and the `sufficient` property tells whether the account's current balance covers it.
 
 Quoting requires the project to be successfully processed, to belong to a field, and to not already have a plant count. Error responses:
 
-- `400`: invalid parameters: a `detection_type` other than `dfy`, an unknown `mode` or `crop`, invalid `geojson` or coordinates outside WGS84, a project that does not belong to a field, or an empty detection area
+- `400`: invalid parameters: a `detection_type` other than `dfy`, an unknown `mode` or `crop`, a missing `crop_name` when `crop` is `other`, a `crop_name` together with a listed crop, invalid `geojson` or coordinates outside WGS84, a project that does not belong to a field, or an empty detection area
 - `409`: the project has not been successfully processed, or already has a plant count
 
 ### HTTP Request
@@ -1368,7 +1377,8 @@ Quoting requires the project to be successfully processed, to belong to a field,
 | -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | detection_type | required | Type of plant count to order; only `dfy` ("done for you") can be ordered through the API                                                                                                                                                 |
 | mode           | required | Detection mode: one of `plant-level-data`, `basic` or `weed`                                                                                                                                                                             |
-| crop           | required | Id of the crop to count, from [the crop listing](#listing-the-plant-ai-crops)                                                                                                                                                             |
+| crop           | required | The crop to count: a crop id from [the crop listing](#listing-the-plant-ai-crops), or `other` for a crop that is not listed                                                                                                               |
+| crop_name      | optional | Name of the crop to count; required (and only accepted) when `crop` is `other`                                                                                                                                                           |
 | geojson        | optional | Detection area as GeoJSON: a FeatureCollection, a Feature or a bare geometry, with Polygon or MultiPolygon geometries in WGS84 (EPSG:4326) coordinates. Defaults to the boundaries of the project's field, or the extent of its imagery |
 
 ## Accepting a Plant Count Quote
