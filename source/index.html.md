@@ -1262,7 +1262,120 @@ This follows the same pattern as [securing webhooks on GitHub](https://docs.gith
 
 # Plant Counts
 
-Plant counts are created in Solvi's web app, either automatically with Plant AI or done for you by Solvi personnel. The plant counts API lists a project's plant counts and fetches their results.
+Plant counts are created either automatically with Plant AI in Solvi's web app, or done for you by Solvi personnel. The plant counts API orders a "done for you" plant count for a project, lists the project's plant counts and fetches their results.
+
+Ordering a "done for you" plant count is a two step flow: first quote the plant count, which calculates its cost without charging anything, then accept the quote, which charges the cost and places the order. Solvi personnel then perform the count and publish the results, which can take up to a few business days; poll the status with the endpoints below, or use a [webhook](#webhooks) with the `plant_counts_published` event to get notified.
+
+A project can have at most one plant count.
+
+## Quoting a Plant Count
+
+> Example request:
+
+```shell
+curl -X POST
+  -H "Authorization: Bearer <user-jwt-token>"
+  -H "Content-Type: application/json"
+  -d '{
+    "detection_type": "dfy",
+    "mode": "basic",
+    "crop": 1
+  }'
+  https://api.solvi.ag/v1/projects/<project-id>/plant_counts
+```
+
+> Example response:
+
+```json
+{
+  "status": "quoted",
+  "transaction_id": "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJ...",
+  "expires_at": "2026-11-14T09:18:37.655Z",
+  "detection_type": "dfy",
+  "mode": "basic",
+  "crop": {
+    "id": 1,
+    "name": "Corn"
+  },
+  "area": 248300,
+  "billed_hectares": 25,
+  "cost": {
+    "credit": {
+      "amount": 125,
+      "sufficient": true
+    }
+  },
+  "upload_deduction": 0
+}
+```
+
+Quotes a "done for you" plant count for a project: calculates the cost of the detection and returns a `transaction_id` for accepting the quote. Nothing is charged and no plant count is created until the quote is [accepted](#accepting-a-plant-count-quote).
+
+The detection area can be given with the optional `geojson` parameter. When it is omitted, the area defaults to the boundaries of the project's field or, if the field has no saved boundaries, the extent of the project's imagery. The response's `area` is the detection area in square meters, and the cost is calculated from `billed_hectares`, the area rounded up to whole hectares. `upload_deduction` is an amount already paid for uploading the project, which has been subtracted from the quoted `cost`.
+
+The quote is valid until `expires_at`, 24 hours after it was made; after that, a new quote has to be requested. Accepting the quote charges exactly the quoted cost, and the `sufficient` property tells whether the account's current balance covers it.
+
+Quoting requires the project to be successfully processed, to belong to a field, and to not already have a plant count. Error responses:
+
+- `400`: invalid parameters: a `detection_type` other than `dfy`, an unknown `mode` or `crop`, invalid `geojson` or coordinates outside WGS84, a project that does not belong to a field, or an empty detection area
+- `409`: the project has not been successfully processed, or already has a plant count
+
+### HTTP Request
+
+`POST https://api.solvi.ag/v1/projects/<project-id>/plant_counts`
+
+### Parameters
+
+| Parameter      |          | Description                                                                                                                                                                                                                              |
+| -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| detection_type | required | Type of plant count to order; only `dfy` ("done for you") can be ordered through the API                                                                                                                                                 |
+| mode           | required | Detection mode: one of `plant-level-data`, `basic` or `weed`                                                                                                                                                                             |
+| crop           | required | Id of the crop to count, one of Solvi's supported Plant AI crops. The API does not yet list the available crops; contact Solvi support for the crop ids                                                                                  |
+| geojson        | optional | Detection area as GeoJSON: a FeatureCollection, a Feature or a bare geometry, with Polygon or MultiPolygon geometries in WGS84 (EPSG:4326) coordinates. Defaults to the boundaries of the project's field, or the extent of its imagery |
+
+## Accepting a Plant Count Quote
+
+> Example request:
+
+```shell
+curl -X POST
+  -H "Authorization: Bearer <user-jwt-token>"
+  -H "Content-Type: application/json"
+  -d '{
+    "transaction_id": "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJ..."
+  }'
+  https://api.solvi.ag/v1/projects/<project-id>/plant_counts/accept
+```
+
+> Example response:
+
+```json
+{
+  "status": "created",
+  "id": "88a2af8601cf2b7c4e14979f8df73bca7352ccce"
+}
+```
+
+Accepts a quote: charges the quoted cost from the project owner's credits and orders the plant count. Solvi personnel are notified and will perform the count. The returned `id` is the plant count's id, which works with the listing and data endpoints below: the plant count's status is `processing` until the results have been published.
+
+A quote made with a `geojson` parameter must be accepted with the same `geojson` document; a quote made from the project's field boundaries or imagery extent is accepted without one, since those are read again when accepting. Either way, the detection area must still match the quoted area: if it doesn't, for example because the field's boundaries changed after the quote, the request is refused with a `400` response, and the plant count has to be quoted again.
+
+A `transaction_id` charges at most once: accepting the same quote again returns a `409` response without charging. Error responses:
+
+- `400`: a missing, invalid or expired `transaction_id`, a quote made for another project or user, a quoted crop that is no longer available, a project that does not belong to a field, or a detection area that does not match the quote
+- `402`: the account does not have enough credits to pay the quoted cost; the response body gives the required amount
+- `409`: the quote has already been accepted, or the project already has a plant count
+
+### HTTP Request
+
+`POST https://api.solvi.ag/v1/projects/<project-id>/plant_counts/accept`
+
+### Parameters
+
+| Parameter      |          | Description                                                                                                       |
+| -------------- | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| transaction_id | required | The `transaction_id` returned by the quote                                                                        |
+| geojson        | optional | The same `geojson` document the quote was made with; required when the quote had one, and omitted when it had none |
 
 ## Listing a Project's Plant Counts
 
