@@ -1268,6 +1268,44 @@ Ordering a "done for you" plant count is a two step flow: first quote the plant 
 
 A project can have at most one plant count.
 
+## Listing the Plant AI Crops
+
+> Example request:
+
+```shell
+curl
+  -X GET
+  -H "Authorization: Bearer <user-jwt-token>"
+  https://api.solvi.ag/v1/plantai_crops
+```
+
+> Example response:
+
+```json
+{
+  "crops": [
+    {
+      "id": 1,
+      "name": "Apple",
+      "category": "fruits",
+      "subcategory": "pome_fruits"
+    },
+    {
+      "id": 2,
+      "name": "Barley",
+      "category": "row_crops",
+      "subcategory": "cereals"
+    }
+  ]
+}
+```
+
+Lists the Plant AI crops a plant count can be requested for, ordered by category, subcategory and name. A crop's `id` is the value the quote endpoint's `crop` parameter takes. `category` and `subcategory` group related crops and can be `null`.
+
+### HTTP Request
+
+`GET https://api.solvi.ag/v1/plantai_crops`
+
 ## Quoting a Plant Count
 
 > Example request:
@@ -1330,7 +1368,7 @@ Quoting requires the project to be successfully processed, to belong to a field,
 | -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | detection_type | required | Type of plant count to order; only `dfy` ("done for you") can be ordered through the API                                                                                                                                                 |
 | mode           | required | Detection mode: one of `plant-level-data`, `basic` or `weed`                                                                                                                                                                             |
-| crop           | required | Id of the crop to count, one of Solvi's supported Plant AI crops. The API does not yet list the available crops; contact Solvi support for the crop ids                                                                                  |
+| crop           | required | Id of the crop to count, from [the crop listing](#listing-the-plant-ai-crops)                                                                                                                                                             |
 | geojson        | optional | Detection area as GeoJSON: a FeatureCollection, a Feature or a bare geometry, with Polygon or MultiPolygon geometries in WGS84 (EPSG:4326) coordinates. Defaults to the boundaries of the project's field, or the extent of its imagery |
 
 ## Accepting a Plant Count Quote
