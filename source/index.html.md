@@ -1361,9 +1361,9 @@ The detection area can be given with the optional `geojson` parameter. When it i
 
 The quote is valid until `expires_at`, 24 hours after it was made; after that, a new quote has to be requested. Accepting the quote charges exactly the quoted cost, and the `sufficient` property tells whether the account's current balance covers it.
 
-Quoting requires the project to be successfully processed, to belong to a field, and to not already have a plant count. Error responses:
+Quoting requires the project to be successfully processed and to not already have a plant count. Error responses:
 
-- `400`: invalid parameters: a `detection_type` other than `dfy`, an unknown `mode` or `crop`, a missing or blank `crop_name` when `crop` is `other`, a `crop_name` together with a listed crop, a `crop` or `crop_name` with the `weed` mode, invalid `geojson` or coordinates outside WGS84, a project that does not belong to a field, or an empty detection area
+- `400`: invalid parameters: a `detection_type` other than `dfy`, an unknown `mode` or `crop`, a missing or blank `crop_name` when `crop` is `other`, a `crop_name` together with a listed crop, a `crop` or `crop_name` with the `weed` mode, invalid `geojson` or coordinates outside WGS84, a project without a field, or an empty detection area
 - `409`: the project has not been successfully processed, or already has a plant count
 
 ### HTTP Request
@@ -1409,7 +1409,7 @@ A quote made with a `geojson` parameter must be accepted with the same `geojson`
 
 A `transaction_id` charges at most once: accepting the same quote again returns a `409` response without charging. Error responses:
 
-- `400`: a missing, invalid or expired `transaction_id`, a quote made for another project or user, a quoted crop that is no longer available, a project that does not belong to a field, or a detection area that does not match the quote
+- `400`: a missing, invalid or expired `transaction_id`, a quote made for another project or user, a quoted crop that is no longer available, a project without a field, or a detection area that does not match the quote
 - `402`: the account does not have enough credits to pay the quoted cost; the response body gives the required amount
 - `409`: the quote has already been accepted, or the project already has a plant count
 
