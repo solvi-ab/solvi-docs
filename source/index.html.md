@@ -1594,7 +1594,7 @@ A task's `status` is one of:
 
 - `queued` - the task is waiting to start
 - `running` - the task is running
-- `succeeded` - the task finished, and its result can be fetched from `result.url` with the same authentication as other requests
+- `succeeded` - the task finished, and its result can be fetched from `result.url` with the same authentication as other requests. The URL returns what is currently saved with the project, so a later request that changes the zones or recalculates the statistics changes what it returns; fetch the result before starting another request if you need it as it was.
 - `failed` - the task did not finish; `error` says why
 
 A failed task's `error.code` is one of:
@@ -1782,6 +1782,8 @@ A `404 Not found` is returned if the project does not exist, or the user is not 
 | extra_data | optional | Extra data layers to calculate statistics for, expressed as an object with string layer names as keys and boolean values to indicate if layer should be used |
 
 At least one of the parameters must be given.
+
+<a id="creating-and-calculating-statistics-for-zones"></a>
 
 ## Creating and calculating statistics for zones (deprecated)
 
