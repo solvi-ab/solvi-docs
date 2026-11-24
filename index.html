@@ -358,10 +358,27 @@
               </ul>
           </li>
           <li>
+            <a href="#tasks" class="toc-h1 toc-link" data-title="Tasks">Tasks</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#the-task-object" class="toc-h2 toc-link" data-title="Tasks">The task object</a>
+                  </li>
+                  <li>
+                    <a href="#get-a-task" class="toc-h2 toc-link" data-title="Tasks">Get a task</a>
+                  </li>
+                  <li>
+                    <a href="#list-tasks" class="toc-h2 toc-link" data-title="Tasks">List tasks</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
             <a href="#zonal-statistics" class="toc-h1 toc-link" data-title="Zonal Statistics">Zonal Statistics</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#creating-and-calculating-statistics-for-zones" class="toc-h2 toc-link" data-title="Zonal Statistics">Creating and calculating statistics for zones</a>
+                    <a href="#calculating-statistics-for-zones" class="toc-h2 toc-link" data-title="Zonal Statistics">Calculating statistics for zones</a>
+                  </li>
+                  <li>
+                    <a href="#creating-and-calculating-statistics-for-zones-deprecated" class="toc-h2 toc-link" data-title="Zonal Statistics">Creating and calculating statistics for zones (deprecated)</a>
                   </li>
                   <li>
                     <a href="#getting-zonal-statistics-for-a-project" class="toc-h2 toc-link" data-title="Zonal Statistics">Getting Zonal Statistics for a project</a>
@@ -394,6 +411,7 @@
 <ul>
 <li><code>200</code> is used for <code>GET</code>, <code>PUT</code> and <code>DELETE</code> requests</li>
 <li><code>201</code> is returned after successfully creating a new entity from a <code>POST</code> request</li>
+<li><code>202</code> is returned when a <code>POST</code> request has started an asynchronous <a href="#tasks">task</a>; the response&#39;s <code>Location</code> header is the URL of the task</li>
 </ul></li>
 <li>An <em>invalid request</em> is indictaed by a <code>4xx</code> status:
 
@@ -403,6 +421,7 @@
 <li><code>402</code> if the account does not have enough quota</li>
 <li><code>403</code> if the authenticated user is not allowed to perform this request</li>
 <li><code>409</code> if the request conflicts with the resource&#39;s current state, for example deleting a field that still has projects</li>
+<li><code>429</code> if the user has too many requests or tasks running at the same time; the <code>Retry-After</code> header gives the number of seconds to wait before trying again</li>
 </ul></li>
 <li><code>302</code> is used if the request was not properly authenticated (this will likely change in the future)</li>
 <li><code>5xx</code> means an internal error occurred: please contact support since this indicates a</li>
@@ -1782,7 +1801,7 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 </tr>
 </tbody></table>
 <h2 id='webhooks'>Webhooks</h2>
-<p>Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook&#39;s configured URL. Currently, project status (event type <code>status_changed</code>) and plant counts published (event type <code>plant_counts_published</code>) are the two available events in Solvi.</p>
+<p>Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook&#39;s configured URL. The available events are project status changes (event type <code>status_changed</code>), plant counts published (event type <code>plant_counts_published</code>) and task status changes (event type <code>task_status_changed</code>).</p>
 
 <blockquote>
 <p>Example webhook request payload</p>
@@ -1796,11 +1815,12 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 </span></code></pre></div>
 <p>The webhook is configured when <a href="#create-project">creating a project</a> by specifing the <code>status_webhook</code> parameter, which should contain the URL of the webhook.</p>
 <h3 id='webhook-events'>Webhook events</h3>
-<p>The type of event that occured is determined by the <code>event_type</code> parameter of the request body. Currently, there are two supported event types:</p>
+<p>The type of event that occured is determined by the <code>event_type</code> parameter of the request body. These event types are sent:</p>
 
 <ul>
 <li><code>status_changed</code>, indicates that the project&#39;s status has changed</li>
 <li><code>plant_counts_published</code>, triggered when plant counts have been published for the project</li>
+<li><code>task_status_changed</code>, indicates that the status of a <a href="#tasks">task</a> for the project has changed</li>
 </ul>
 <h4 id='status-changes'>Status changes</h4>
 <p>The status change messages contains <code>old_status</code>, the status of the project before this change, as well as <code>new_status</code>, the project&#39;s updated status.</p>
@@ -1814,6 +1834,31 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 </ul>
 <h4 id='plant-counts-published'>Plant Counts Published</h4>
 <p>Notifies that plant counts data has been published for this project. The results can be fetched using the tiles endpoint with <code>plant_counts</code> as type.</p>
+<h4 id='task-status-changes'>Task status changes</h4>
+<blockquote>
+<p>Example task status change payload</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">8993</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"event_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"task_status_changed"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"task"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zonal_statistics"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">8993</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"succeeded"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-12-01T09:00:00.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-12-01T09:03:12.000Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://api.solvi.ag/v1/projects/8993/zonal_statistics"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"old_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"running"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"new_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"succeeded"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Sent when a <a href="#tasks">task</a> for the project changes status, for example from <code>queued</code> to <code>running</code>, from <code>running</code> to <code>succeeded</code>, or from <code>succeeded</code> back to <code>queued</code> when a finished task <a href="#running-the-same-task-again">runs again</a>. The message contains <code>old_status</code> and <code>new_status</code>, the task&#39;s status before and after the change, and <code>task</code>, the task as returned by the <a href="#get-a-task">get task</a> endpoint. No message is sent when a task is created.</p>
+
+<p>A task that runs out of time is reported as <code>failed</code> by the get task endpoint as soon as its time is up, but the webhook for it can arrive later.</p>
 <h3 id='securing-webhooks'>Securing webhooks</h3>
 <p>To ensure that Solvi is the sender of the webhook requests, you can optionally also specify a secret token when registering the webhook, by using the <code>webhook_secret</code> parameter: the secret can be any string of your choosing.</p>
 
@@ -1929,10 +1974,10 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 
 <p>The quote is valid until <code>expires_at</code>, 24 hours after it was made; after that, a new quote has to be requested. Accepting the quote charges exactly the quoted cost, and the <code>sufficient</code> property tells whether the account&#39;s current balance covers it.</p>
 
-<p>Quoting requires the project to be successfully processed, to belong to a field, and to not already have a plant count. Error responses:</p>
+<p>Quoting requires the project to be successfully processed and to not already have a plant count. Error responses:</p>
 
 <ul>
-<li><code>400</code>: invalid parameters: a <code>detection_type</code> other than <code>dfy</code>, an unknown <code>mode</code> or <code>crop</code>, a missing or blank <code>crop_name</code> when <code>crop</code> is <code>other</code>, a <code>crop_name</code> together with a listed crop, a <code>crop</code> or <code>crop_name</code> with the <code>weed</code> mode, invalid <code>geojson</code> or coordinates outside WGS84, a project that does not belong to a field, or an empty detection area</li>
+<li><code>400</code>: invalid parameters: a <code>detection_type</code> other than <code>dfy</code>, an unknown <code>mode</code> or <code>crop</code>, a missing or blank <code>crop_name</code> when <code>crop</code> is <code>other</code>, a <code>crop_name</code> together with a listed crop, a <code>crop</code> or <code>crop_name</code> with the <code>weed</code> mode, invalid <code>geojson</code> or coordinates outside WGS84, a project without a field, or an empty detection area</li>
 <li><code>409</code>: the project has not been successfully processed, or already has a plant count</li>
 </ul>
 <h3 id='http-request-26'>HTTP Request</h3>
@@ -1998,7 +2043,7 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 <p>A <code>transaction_id</code> charges at most once: accepting the same quote again returns a <code>409</code> response without charging. Error responses:</p>
 
 <ul>
-<li><code>400</code>: a missing, invalid or expired <code>transaction_id</code>, a quote made for another project or user, a quoted crop that is no longer available, a project that does not belong to a field, or a detection area that does not match the quote</li>
+<li><code>400</code>: a missing, invalid or expired <code>transaction_id</code>, a quote made for another project or user, a quoted crop that is no longer available, a project without a field, or a detection area that does not match the quote</li>
 <li><code>402</code>: the account does not have enough credits to pay the quoted cost; the response body gives the required amount</li>
 <li><code>409</code>: the quote has already been accepted, or the project already has a plant count</li>
 </ul>
@@ -2098,9 +2143,296 @@ resolution (meters/pixel) is given by <code>resolution</code>.</p>
 be a single ZIP archive file containing a Shapefile. In newer projects, the returned data will always be uncompressed data in multiple files.</p>
 <h3 id='http-request-29'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/projects/&lt;project-id&gt;/plant_counts/&lt;plant-count-id&gt;</code></p>
+<h1 id='tasks'>Tasks</h1>
+<p>Some operations take too long to answer in a single request. Instead, the request starts a <em>task</em> that runs in the background, and responds with <code>202 Accepted</code> and the task, with a <code>Location</code> header holding the task&#39;s URL. The task is then followed until it finishes, either by fetching it with the <a href="#get-a-task">get task</a> endpoint, or by receiving <code>task_status_changed</code> messages on the project&#39;s <a href="#webhooks">webhook</a>.</p>
+
+<p><a href="#calculating-statistics-for-zones">Calculating zonal statistics</a> is currently the only operation that runs as a task.</p>
+<h2 id='the-task-object'>The task object</h2>
+<blockquote>
+<p>Example task:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zonal_statistics"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">8993</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"succeeded"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-12-01T09:00:00.000Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-12-01T09:03:12.000Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://api.solvi.ag/v1/projects/8993/zonal_statistics"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<blockquote>
+<p>Example failed task:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zonal_statistics"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">8993</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"failed"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-12-01T09:00:00.000Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-12-01T09:00:41.000Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid_request"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The statistics could not be calculated for these zones"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<table><thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>id</td>
+<td>The task&#39;s id, a string</td>
+</tr>
+<tr>
+<td>type</td>
+<td>The kind of work the task does; currently always <code>zonal_statistics</code></td>
+</tr>
+<tr>
+<td>project_id</td>
+<td>The project the task works on</td>
+</tr>
+<tr>
+<td>status</td>
+<td>One of <code>queued</code>, <code>running</code>, <code>succeeded</code> and <code>failed</code>, see below</td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>When the task was created</td>
+</tr>
+<tr>
+<td>updated_at</td>
+<td>When the task last changed</td>
+</tr>
+<tr>
+<td>result</td>
+<td>Only for a <code>succeeded</code> task: an object whose <code>url</code> is the endpoint to fetch the result from</td>
+</tr>
+<tr>
+<td>error</td>
+<td>Only for a <code>failed</code> task: an object with a <code>code</code> and a <code>message</code> describing why the task failed</td>
+</tr>
+</tbody></table>
+
+<p>A task&#39;s <code>status</code> is one of:</p>
+
+<ul>
+<li><code>queued</code> - the task is waiting to start</li>
+<li><code>running</code> - the task is running</li>
+<li><code>succeeded</code> - the task finished, and its result can be fetched from <code>result.url</code> with the same authentication as other requests. The URL returns what is currently saved with the project, so a later request that changes the zones or recalculates the statistics changes what it returns; fetch the result before starting another request if you need it as it was.</li>
+<li><code>failed</code> - the task did not finish; <code>error</code> says why</li>
+</ul>
+
+<p>A failed task&#39;s <code>error.code</code> is one of:</p>
+
+<ul>
+<li><code>invalid_request</code> - the task&#39;s input could not be used, for example zones the statistics can&#39;t be calculated for; <code>message</code> says what was wrong</li>
+<li><code>conflict</code> - the project&#39;s data changed while the task was running, so its result was not saved; start the task again</li>
+<li><code>timeout</code> - the task did not finish within two hours of being started</li>
+<li><code>internal_error</code> - an error occurred in Solvi; please contact support if it persists</li>
+</ul>
+<h3 id='running-the-same-task-again'>Running the same task again</h3>
+<p>A task&#39;s id is derived from the project and the request that started it. Repeating a request while its task is <code>queued</code> or <code>running</code> does not start another task: the response is <code>202 Accepted</code> with the task already running. Repeating it after the task has finished runs the task again, under the same id.</p>
+<h3 id='limits'>Limits</h3>
+<p>A user can have at most three tasks <code>queued</code> or <code>running</code> at the same time. A request that would start a fourth gets a <code>429 Too Many Requests</code> response with a <code>Retry-After</code> header, giving the number of seconds to wait before trying again.</p>
+<h2 id='get-a-task'>Get a task</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl
+  <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  https://api.solvi.ag/v2/tasks/&lt;task-id&gt;
+</code></pre></div>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zonal_statistics"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">8993</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"running"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-12-01T09:00:00.000Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-12-01T09:00:02.000Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Fetches a <a href="#the-task-object">task</a>. Any user with access to the task&#39;s project can fetch it. A <code>404 Not found</code> is returned if the task does not exist, or the user doesn&#39;t have access to its project.</p>
+
+<p>When polling a task until it finishes, wait a few seconds between requests.</p>
+<h3 id='http-request-30'>HTTP Request</h3>
+<p><code>GET https://api.solvi.ag/v2/tasks/&lt;task-id&gt;</code></p>
+<h2 id='list-tasks'>List tasks</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl
+  <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="s2">"https://api.solvi.ag/v2/tasks?project_id=8993&amp;status=running"</span>
+</code></pre></div>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"tasks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zonal_statistics"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">8993</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"running"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-12-01T09:00:00.000Z"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-12-01T09:00:02.000Z"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"continuation_token"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Lists the tasks started by the user, oldest first. Tasks for projects the user no longer has access to are left out.</p>
+
+<p>The response is an object with the tasks in <code>tasks</code>. Unlike the <a href="#lists-and-paging">lists of the v1 API</a>, the next page is given by <code>continuation_token</code> in the response body: when it is not <code>null</code>, more tasks may follow, and are fetched by repeating the request with the <code>continuation_token</code> parameter set to its value. A page can hold fewer tasks than <code>limit</code>, even none, while more follow; continue until <code>continuation_token</code> is <code>null</code>.</p>
+<h3 id='http-request-31'>HTTP Request</h3>
+<p><code>GET https://api.solvi.ag/v2/tasks</code></p>
+<h3 id='parameters-21'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>project_id</td>
+<td>optional</td>
+<td>Only return tasks for this project</td>
+</tr>
+<tr>
+<td>type</td>
+<td>optional</td>
+<td>Only return tasks of this type, for example <code>zonal_statistics</code></td>
+</tr>
+<tr>
+<td>status</td>
+<td>optional</td>
+<td>Only return tasks with this status: <code>queued</code>, <code>running</code>, <code>succeeded</code> or <code>failed</code></td>
+</tr>
+<tr>
+<td>limit</td>
+<td>optional</td>
+<td>The maximum number of tasks to return, 1-1000; default is 1000</td>
+</tr>
+<tr>
+<td>continuation_token</td>
+<td>optional</td>
+<td>Continue the list after the previous page, with the <code>continuation_token</code> of the previous response</td>
+</tr>
+</tbody></table>
+
+<p>An unknown <code>type</code> or <code>status</code>, or an invalid <code>limit</code> or <code>continuation_token</code>, gives a <code>400 Bad request</code> response.</p>
 <h1 id='zonal-statistics'>Zonal Statistics</h1>
 <p>The Zonal Statistics API lets you create zones in a project and calculate various statistics for them: primarily various vegetation indices as well as plant count statistics for projects where plant counts have been published.</p>
-<h2 id='creating-and-calculating-statistics-for-zones'>Creating and calculating statistics for zones</h2>
+
+<p>Statistics are calculated in a <a href="#tasks">task</a>: the request that asks for them responds right away, and the statistics are saved with the project&#39;s zones when the task has finished.</p>
+<h2 id='calculating-statistics-for-zones'>Calculating statistics for zones</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-i</span> <span class="nt">-X</span> POST
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{
+    "indices": ["vari"],
+    "extra_data": {"plant_counts": true},
+    "geojson": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": {},
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [-115.40068410376747, 33.14301501895726],
+                [-115.40068410376747, 33.142561119287876],
+                [-115.4001781509446, 33.142561119287876],
+                [-115.4001781509446, 33.14301501895726],
+                [-115.40068410376747, 33.14301501895726]
+              ]
+            ]
+          }
+        }
+      ]
+    }
+  }'</span>
+  https://api.solvi.ag/v2/projects/&lt;project-id&gt;/zonal_statistics
+</code></pre></div>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight plaintext"><code>HTTP/1.1 202 Accepted
+Location: https://api.solvi.ag/v2/tasks/3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d
+</code></pre></div><div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zonal_statistics"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">8993</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"queued"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-12-01T09:00:00.000Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-12-01T09:00:00.000Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Sets the zones for a project, calculates statistics for them, or both.</p>
+
+<p>The zones are given by the <code>geojson</code> parameter: a GeoJSON FeatureCollection with Polygon features, at most 10000 of them. Other GeoJSON objects or invalid GeoJSON result in a <code>400 Bad request</code> response. The zones replace the zones saved with the project. If <code>geojson</code> is the only parameter, no statistics are calculated: the zones are saved, and the response is <code>200 OK</code> with the zones as a GeoJSON FeatureCollection.</p>
+
+<p>Statistics are asked for with the <code>indices</code> and <code>extra_data</code> parameters. The <code>indices</code> parameter lists the vegetation indices to calculate for the zones, as lowercase abbreviations: for example, the VARI index should be listed as <code>&quot;vari&quot;</code>. The available indices vary depending on the project&#39;s bands: for example, NDVI is only available if the project&#39;s orthophoto has red and near-infrared (NIR) bands. For projects with published plant counts, plant count statistics can be calculated by setting <code>extra_data</code> to <code>{&quot;plant_counts&quot;: true}</code>.</p>
+
+<p>When statistics are asked for, the request is checked and any posted zones are saved right away, and a <a href="#tasks">task</a> is started to calculate the statistics. The response is <code>202 Accepted</code> with the task, and a <code>Location</code> header with the task&#39;s URL. When the task has succeeded, the zones with their statistics are saved with the project; they can be viewed on Solvi&#39;s web site, and fetched with the <a href="#getting-zonal-statistics-for-a-project">GET endpoint</a>, which is also the task&#39;s <code>result.url</code>.</p>
+
+<p>If <code>geojson</code> is omitted, the statistics are calculated for the zones already saved with the project. A <code>400 Bad request</code> is returned if the project has no saved zones, and a <code>409 Conflict</code> if the saved zones were created with an old version of Solvi&#39;s web site; opening the project on the web site updates them.</p>
+
+<p>Unknown indices, indices that can&#39;t be calculated for the project, and plant count statistics for a project without published plant counts result in a <code>400 Bad request</code> response, and nothing is saved. A request without any of the three parameters is also answered with <code>400 Bad request</code>.</p>
+
+<p>If the project&#39;s zones are changed, for example on Solvi&#39;s web site, while the task is running, the task fails with the error code <code>conflict</code> and its statistics are not saved.</p>
+
+<p>A <code>404 Not found</code> is returned if the project does not exist, or the user is not allowed to edit it.</p>
+<h3 id='http-request-32'>HTTP Request</h3>
+<p><code>POST https://api.solvi.ag/v2/projects/&lt;project-id&gt;/zonal_statistics</code></p>
+<h3 id='parameters-22'>Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>geojson</td>
+<td>optional</td>
+<td>GeoJSON FeatureCollection representing the zone features; defaults to the zones saved with the project</td>
+</tr>
+<tr>
+<td>indices</td>
+<td>optional</td>
+<td>List of vegetation indices to calculate; index names should be lower case strings</td>
+</tr>
+<tr>
+<td>extra_data</td>
+<td>optional</td>
+<td>Extra data layers to calculate statistics for, expressed as an object with string layer names as keys and boolean values to indicate if layer should be used</td>
+</tr>
+</tbody></table>
+
+<p>At least one of the parameters must be given.</p>
+
+<p><a id="creating-and-calculating-statistics-for-zones"></a></p>
+<h2 id='creating-and-calculating-statistics-for-zones-deprecated'>Creating and calculating statistics for zones (deprecated)</h2>
+<aside class="warning">This endpoint is deprecated and stops working on 1 June 2027. Use <a href="#calculating-statistics-for-zones">POST /v2/projects/&lt;project-id&gt;/zonal_statistics</a> instead, which calculates the statistics in a task rather than keeping the request open. Responses from this endpoint carry the <code>Deprecation</code> and <code>Sunset</code> headers (RFC 9745 and RFC 8594).</aside>
+
 <blockquote>
 <p>Example request:</p>
 </blockquote>
@@ -2176,9 +2508,11 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 <p>For projects with published plant counts, plant count statistics can also be calculated by the optional parameter <code>extra_data</code>, which in this case should be set to <code>{&quot;plant_counts&quot;: true}</code>.</p>
 
 <p>The endpoint responds with a GeoJSON FeatureCollection with the same geometries that were provided, but with properties added for the calculated statistics (if any). This response is also saved with the project, and can be viewed on Solvi&#39;s web site, and also later fetched with the GET endpoint below.</p>
-<h3 id='http-request-30'>HTTP Request</h3>
+
+<p>At most 10000 zones can be posted in one request. The request is answered when the statistics have been calculated, which for large projects or many zones can take a long time: if the calculation does not finish within 55 minutes, a <code>504 Gateway Timeout</code> is returned. A user can have at most two requests to this endpoint running at the same time; a third gets a <code>429 Too Many Requests</code> response with a <code>Retry-After</code> header, giving the number of seconds to wait before trying again.</p>
+<h3 id='http-request-33'>HTTP Request</h3>
 <p><code>POST https://api.solvi.ag/v1/projects/&lt;project-id&gt;/zonal_statistics</code></p>
-<h3 id='parameters-21'>Parameters</h3>
+<h3 id='parameters-23'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
@@ -2281,9 +2615,9 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 <p>Retrieves the transaction history for the authenticated user, showing both usage (negative amounts) and purchases (positive amounts). By default, returns transactions from the last year. Transactions can be filtered by date range using the <code>from</code> and <code>to</code> parameters.</p>
 
 <p>Usage transactions include details about the related project and, for PlantAI detections, the analyzed area in hectares.</p>
-<h3 id='http-request-31'>HTTP Request</h3>
+<h3 id='http-request-34'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/transactions</code></p>
-<h3 id='parameters-22'>Parameters</h3>
+<h3 id='parameters-24'>Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
