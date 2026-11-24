@@ -24,12 +24,14 @@ Like any REST API, Solvi's API indicates the result of a request through the HTT
 - _Successful_ results return a `2xx` status:
   - `200` is used for `GET`, `PUT` and `DELETE` requests
   - `201` is returned after successfully creating a new entity from a `POST` request
+  - `202` is returned when a `POST` request has started an asynchronous [task](#tasks); the response's `Location` header is the URL of the task
 - An _invalid request_ is indictaed by a `4xx` status:
   - `400` is used to indicate the parameters were invalid
   - `404` if the requested resource does not exist, or the user does not have access to it
   - `402` if the account does not have enough quota
   - `403` if the authenticated user is not allowed to perform this request
   - `409` if the request conflicts with the resource's current state, for example deleting a field that still has projects
+  - `429` if the user has too many requests or tasks running at the same time; the `Retry-After` header gives the number of seconds to wait before trying again
 - `302` is used if the request was not properly authenticated (this will likely change in the future)
 - `5xx` means an internal error occurred: please contact support since this indicates a
 
@@ -1210,7 +1212,7 @@ For `plant_counts` (when response `type` is `"tileset/plant_counts`), `number_pl
 
 ## Webhooks
 
-Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook's configured URL. Currently, project status (event type `status_changed`) and plant counts published (event type `plant_counts_published`) are the two available events in Solvi.
+Webhooks allow setting up integrations that subscribe to certain events from Solvi. When one of those events is triggered, an HTTP POST payload is sent to the webhook's configured URL. The available events are project status changes (event type `status_changed`), plant counts published (event type `plant_counts_published`) and task status changes (event type `task_status_changed`).
 
 > Example webhook request payload
 
@@ -1227,10 +1229,11 @@ The webhook is configured when [creating a project](#create-project) by specifin
 
 ### Webhook events
 
-The type of event that occured is determined by the `event_type` parameter of the request body. Currently, there are two supported event types:
+The type of event that occured is determined by the `event_type` parameter of the request body. These event types are sent:
 
 - `status_changed`, indicates that the project's status has changed
 - `plant_counts_published`, triggered when plant counts have been published for the project
+- `task_status_changed`, indicates that the status of a [task](#tasks) for the project has changed
 
 #### Status changes
 
@@ -1245,6 +1248,34 @@ There are three different project statuses:
 #### Plant Counts Published
 
 Notifies that plant counts data has been published for this project. The results can be fetched using the tiles endpoint with `plant_counts` as type.
+
+#### Task status changes
+
+> Example task status change payload
+
+```json
+{
+  "project_id": 8993,
+  "event_type": "task_status_changed",
+  "task": {
+    "id": "3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d",
+    "type": "zonal_statistics",
+    "project_id": 8993,
+    "status": "succeeded",
+    "created_at": "2026-12-01T09:00:00.000Z",
+    "updated_at": "2026-12-01T09:03:12.000Z",
+    "result": {
+      "url": "https://api.solvi.ag/v1/projects/8993/zonal_statistics"
+    }
+  },
+  "old_status": "running",
+  "new_status": "succeeded"
+}
+```
+
+Sent when a [task](#tasks) for the project changes status, for example from `queued` to `running`, from `running` to `succeeded`, or from `succeeded` back to `queued` when a finished task [runs again](#running-the-same-task-again). The message contains `old_status` and `new_status`, the task's status before and after the change, and `task`, the task as returned by the [get task](#get-a-task) endpoint. No message is sent when a task is created.
+
+A task that runs out of time is reported as `failed` by the get task endpoint as soon as its time is up, but the webhook for it can arrive later.
 
 ### Securing webhooks
 
@@ -1507,11 +1538,256 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 
 `GET https://api.solvi.ag/v1/projects/<project-id>/plant_counts/<plant-count-id>`
 
+# Tasks
+
+Some operations take too long to answer in a single request. Instead, the request starts a _task_ that runs in the background, and responds with `202 Accepted` and the task, with a `Location` header holding the task's URL. The task is then followed until it finishes, either by fetching it with the [get task](#get-a-task) endpoint, or by receiving `task_status_changed` messages on the project's [webhook](#webhooks).
+
+[Calculating zonal statistics](#calculating-statistics-for-zones) is currently the only operation that runs as a task.
+
+## The task object
+
+> Example task:
+
+```json
+{
+  "id": "3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d",
+  "type": "zonal_statistics",
+  "project_id": 8993,
+  "status": "succeeded",
+  "created_at": "2026-12-01T09:00:00.000Z",
+  "updated_at": "2026-12-01T09:03:12.000Z",
+  "result": {
+    "url": "https://api.solvi.ag/v1/projects/8993/zonal_statistics"
+  }
+}
+```
+
+> Example failed task:
+
+```json
+{
+  "id": "3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d",
+  "type": "zonal_statistics",
+  "project_id": 8993,
+  "status": "failed",
+  "created_at": "2026-12-01T09:00:00.000Z",
+  "updated_at": "2026-12-01T09:00:41.000Z",
+  "error": {
+    "code": "invalid_request",
+    "message": "The statistics could not be calculated for these zones"
+  }
+}
+```
+
+| Property   | Description                                                                                                         |
+| ---------- | ------------------------------------------------------------------------------------------------------------------- |
+| id         | The task's id, a string                                                                                             |
+| type       | The kind of work the task does; currently always `zonal_statistics`                                                 |
+| project_id | The project the task works on                                                                                       |
+| status     | One of `queued`, `running`, `succeeded` and `failed`, see below                                                      |
+| created_at | When the task was created                                                                                           |
+| updated_at | When the task last changed                                                                                          |
+| result     | Only for a `succeeded` task: an object whose `url` is the endpoint to fetch the result from                          |
+| error      | Only for a `failed` task: an object with a `code` and a `message` describing why the task failed                     |
+
+A task's `status` is one of:
+
+- `queued` - the task is waiting to start
+- `running` - the task is running
+- `succeeded` - the task finished, and its result can be fetched from `result.url` with the same authentication as other requests. The URL returns what is currently saved with the project, so a later request that changes the zones or recalculates the statistics changes what it returns; fetch the result before starting another request if you need it as it was.
+- `failed` - the task did not finish; `error` says why
+
+A failed task's `error.code` is one of:
+
+- `invalid_request` - the task's input could not be used, for example zones the statistics can't be calculated for; `message` says what was wrong
+- `conflict` - the project's data changed while the task was running, so its result was not saved; start the task again
+- `timeout` - the task did not finish within two hours of being started
+- `internal_error` - an error occurred in Solvi; please contact support if it persists
+
+### Running the same task again
+
+A task's id is derived from the project and the request that started it. Repeating a request while its task is `queued` or `running` does not start another task: the response is `202 Accepted` with the task already running. Repeating it after the task has finished runs the task again, under the same id.
+
+### Limits
+
+A user can have at most three tasks `queued` or `running` at the same time. A request that would start a fourth gets a `429 Too Many Requests` response with a `Retry-After` header, giving the number of seconds to wait before trying again.
+
+## Get a task
+
+> Example request:
+
+```shell
+curl
+  -X GET
+  -H "Authorization: Bearer <user-jwt-token>"
+  https://api.solvi.ag/v2/tasks/<task-id>
+```
+
+> Example response:
+
+```json
+{
+  "id": "3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d",
+  "type": "zonal_statistics",
+  "project_id": 8993,
+  "status": "running",
+  "created_at": "2026-12-01T09:00:00.000Z",
+  "updated_at": "2026-12-01T09:00:02.000Z"
+}
+```
+
+Fetches a [task](#the-task-object). Any user with access to the task's project can fetch it. A `404 Not found` is returned if the task does not exist, or the user doesn't have access to its project.
+
+When polling a task until it finishes, wait a few seconds between requests.
+
+### HTTP Request
+
+`GET https://api.solvi.ag/v2/tasks/<task-id>`
+
+## List tasks
+
+> Example request:
+
+```shell
+curl
+  -X GET
+  -H "Authorization: Bearer <user-jwt-token>"
+  "https://api.solvi.ag/v2/tasks?project_id=8993&status=running"
+```
+
+> Example response:
+
+```json
+{
+  "tasks": [
+    {
+      "id": "3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d",
+      "type": "zonal_statistics",
+      "project_id": 8993,
+      "status": "running",
+      "created_at": "2026-12-01T09:00:00.000Z",
+      "updated_at": "2026-12-01T09:00:02.000Z"
+    }
+  ],
+  "continuation_token": null
+}
+```
+
+Lists the tasks started by the user, oldest first. Tasks for projects the user no longer has access to are left out.
+
+The response is an object with the tasks in `tasks`. Unlike the [lists of the v1 API](#lists-and-paging), the next page is given by `continuation_token` in the response body: when it is not `null`, more tasks may follow, and are fetched by repeating the request with the `continuation_token` parameter set to its value. A page can hold fewer tasks than `limit`, even none, while more follow; continue until `continuation_token` is `null`.
+
+### HTTP Request
+
+`GET https://api.solvi.ag/v2/tasks`
+
+### Parameters
+
+| Parameter          |          | Description                                                                                                       |
+| ------------------ | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| project_id         | optional | Only return tasks for this project                                                                                |
+| type               | optional | Only return tasks of this type, for example `zonal_statistics`                                                    |
+| status             | optional | Only return tasks with this status: `queued`, `running`, `succeeded` or `failed`                                  |
+| limit              | optional | The maximum number of tasks to return, 1-1000; default is 1000                                                    |
+| continuation_token | optional | Continue the list after the previous page, with the `continuation_token` of the previous response                 |
+
+An unknown `type` or `status`, or an invalid `limit` or `continuation_token`, gives a `400 Bad request` response.
+
 # Zonal Statistics
 
 The Zonal Statistics API lets you create zones in a project and calculate various statistics for them: primarily various vegetation indices as well as plant count statistics for projects where plant counts have been published.
 
-## Creating and calculating statistics for zones
+Statistics are calculated in a [task](#tasks): the request that asks for them responds right away, and the statistics are saved with the project's zones when the task has finished.
+
+## Calculating statistics for zones
+
+> Example request:
+
+```shell
+curl -i -X POST
+  -H "Authorization: Bearer <user-jwt-token>"
+  -H "Content-Type: application/json"
+  -d '{
+    "indices": ["vari"],
+    "extra_data": {"plant_counts": true},
+    "geojson": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": {},
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [-115.40068410376747, 33.14301501895726],
+                [-115.40068410376747, 33.142561119287876],
+                [-115.4001781509446, 33.142561119287876],
+                [-115.4001781509446, 33.14301501895726],
+                [-115.40068410376747, 33.14301501895726]
+              ]
+            ]
+          }
+        }
+      ]
+    }
+  }'
+  https://api.solvi.ag/v2/projects/<project-id>/zonal_statistics
+```
+
+> Example response:
+
+```
+HTTP/1.1 202 Accepted
+Location: https://api.solvi.ag/v2/tasks/3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d
+```
+
+```json
+{
+  "id": "3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d",
+  "type": "zonal_statistics",
+  "project_id": 8993,
+  "status": "queued",
+  "created_at": "2026-12-01T09:00:00.000Z",
+  "updated_at": "2026-12-01T09:00:00.000Z"
+}
+```
+
+Sets the zones for a project, calculates statistics for them, or both.
+
+The zones are given by the `geojson` parameter: a GeoJSON FeatureCollection with Polygon features, at most 10000 of them. Other GeoJSON objects or invalid GeoJSON result in a `400 Bad request` response. The zones replace the zones saved with the project. If `geojson` is the only parameter, no statistics are calculated: the zones are saved, and the response is `200 OK` with the zones as a GeoJSON FeatureCollection.
+
+Statistics are asked for with the `indices` and `extra_data` parameters. The `indices` parameter lists the vegetation indices to calculate for the zones, as lowercase abbreviations: for example, the VARI index should be listed as `"vari"`. The available indices vary depending on the project's bands: for example, NDVI is only available if the project's orthophoto has red and near-infrared (NIR) bands. For projects with published plant counts, plant count statistics can be calculated by setting `extra_data` to `{"plant_counts": true}`.
+
+When statistics are asked for, the request is checked and any posted zones are saved right away, and a [task](#tasks) is started to calculate the statistics. The response is `202 Accepted` with the task, and a `Location` header with the task's URL. When the task has succeeded, the zones with their statistics are saved with the project; they can be viewed on Solvi's web site, and fetched with the [GET endpoint](#getting-zonal-statistics-for-a-project), which is also the task's `result.url`.
+
+If `geojson` is omitted, the statistics are calculated for the zones already saved with the project. A `400 Bad request` is returned if the project has no saved zones, and a `409 Conflict` if the saved zones were created with an old version of Solvi's web site; opening the project on the web site updates them.
+
+Unknown indices, indices that can't be calculated for the project, and plant count statistics for a project without published plant counts result in a `400 Bad request` response, and nothing is saved. A request without any of the three parameters is also answered with `400 Bad request`.
+
+If the project's zones are changed, for example on Solvi's web site, while the task is running, the task fails with the error code `conflict` and its statistics are not saved.
+
+A `404 Not found` is returned if the project does not exist, or the user is not allowed to edit it.
+
+### HTTP Request
+
+`POST https://api.solvi.ag/v2/projects/<project-id>/zonal_statistics`
+
+### Parameters
+
+| Parameter  |          | Description                                                                                                                                                  |
+| ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| geojson    | optional | GeoJSON FeatureCollection representing the zone features; defaults to the zones saved with the project                                                       |
+| indices    | optional | List of vegetation indices to calculate; index names should be lower case strings                                                                            |
+| extra_data | optional | Extra data layers to calculate statistics for, expressed as an object with string layer names as keys and boolean values to indicate if layer should be used |
+
+At least one of the parameters must be given.
+
+<a id="creating-and-calculating-statistics-for-zones"></a>
+
+## Creating and calculating statistics for zones (deprecated)
+
+<aside class="warning">This endpoint is deprecated and stops working on 1 June 2027. Use <a href="#calculating-statistics-for-zones">POST /v2/projects/&lt;project-id&gt;/zonal_statistics</a> instead, which calculates the statistics in a task rather than keeping the request open. Responses from this endpoint carry the <code>Deprecation</code> and <code>Sunset</code> headers (RFC 9745 and RFC 8594).</aside>
 
 > Example request:
 
@@ -1590,6 +1866,8 @@ In addition to the zone features, the `indices` parameter lists the vegetation i
 For projects with published plant counts, plant count statistics can also be calculated by the optional parameter `extra_data`, which in this case should be set to `{"plant_counts": true}`.
 
 The endpoint responds with a GeoJSON FeatureCollection with the same geometries that were provided, but with properties added for the calculated statistics (if any). This response is also saved with the project, and can be viewed on Solvi's web site, and also later fetched with the GET endpoint below.
+
+At most 10000 zones can be posted in one request. The request is answered when the statistics have been calculated, which for large projects or many zones can take a long time: if the calculation does not finish within 55 minutes, a `504 Gateway Timeout` is returned. A user can have at most two requests to this endpoint running at the same time; a third gets a `429 Too Many Requests` response with a `Retry-After` header, giving the number of seconds to wait before trying again.
 
 ### HTTP Request
 
