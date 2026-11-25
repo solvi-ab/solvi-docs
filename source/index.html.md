@@ -1542,7 +1542,7 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 
 Some operations take too long to answer in a single request. Instead, the request starts a _task_ that runs in the background, and responds with `202 Accepted` and the task, with a `Location` header holding the task's URL. The task is then followed until it finishes, either by fetching it with the [get task](#get-a-task) endpoint, or by receiving `task_status_changed` messages on the project's [webhook](#webhooks).
 
-[Calculating zonal statistics](#calculating-statistics-for-zones) is currently the only operation that runs as a task.
+[Calculating zonal statistics](#calculating-statistics-for-zones) and the [raster exports](#raster-exports) run as tasks.
 
 ## The task object
 
@@ -1582,7 +1582,7 @@ Some operations take too long to answer in a single request. Instead, the reques
 | Property   | Description                                                                                                         |
 | ---------- | ------------------------------------------------------------------------------------------------------------------- |
 | id         | The task's id, a string                                                                                             |
-| type       | The kind of work the task does; currently always `zonal_statistics`                                                 |
+| type       | The kind of work the task does: `zonal_statistics`, `ortho_export`, `elevation_export` or `plant_health_export`     |
 | project_id | The project the task works on                                                                                       |
 | status     | One of `queued`, `running`, `succeeded` and `failed`, see below                                                      |
 | created_at | When the task was created                                                                                           |
@@ -1594,7 +1594,7 @@ A task's `status` is one of:
 
 - `queued` - the task is waiting to start
 - `running` - the task is running
-- `succeeded` - the task finished, and its result can be fetched from `result.url` with the same authentication as other requests. The URL returns what is currently saved with the project, so a later request that changes the zones or recalculates the statistics changes what it returns; fetch the result before starting another request if you need it as it was.
+- `succeeded` - the task finished, and its result can be fetched from `result.url` with the same authentication as other requests. For a zonal statistics task, the URL returns what is currently saved with the project, so a later request that changes the zones or recalculates the statistics changes what it returns; fetch the result before starting another request if you need it as it was. For an export task, the URL redirects to the exported file, see [downloading an export](#downloading-an-export).
 - `failed` - the task did not finish; `error` says why
 
 A failed task's `error.code` is one of:
@@ -1912,6 +1912,161 @@ curl
 ```
 
 Fetches any saved zonal statistics for a project. The zones are returned as a GeoJSON FeatureCollection with statistics in each feature's `properties`. If no zones are defined for this project, a `404 Not found` is returned. If the zones were created with an old version of Solvi's web site, a `409 Conflict` is returned; opening the project on the web site updates them, after which this endpoint returns them.
+
+# Raster Exports
+
+The exports API downloads a project's rasters as files: the orthomosaic, an elevation model (DSM, DTM or CHM) or a vegetation index. The exported file holds raw values — image bands, elevation in meters, plain index values — without color palettes or classifications, ready for further processing in GIS software. There are three export types, each with its own pair of endpoints:
+
+| Export type  | Task type             | Exports                                                             |
+| ------------ | --------------------- | ------------------------------------------------------------------- |
+| ortho        | `ortho_export`        | The project's orthomosaic                                           |
+| elevation    | `elevation_export`    | An elevation model: the DSM (default), DTM or CHM, as raw elevation |
+| plant_health | `plant_health_export` | A vegetation index of the orthomosaic, as raw index values          |
+
+Exporting is a two step flow, like ordering a plant count: first [quote the export](#quoting-an-export), which validates the request and calculates its cost without charging or starting anything, then [accept the quote](#accepting-an-export-quote), which charges the quoted cost and starts the export as a [task](#tasks). When the task has succeeded, its `result.url` is the [download endpoint](#downloading-an-export), which redirects to the exported file.
+
+Exports are available to every user who can read the project. The quoted cost is charged from the accepting user's account.
+
+## Export parameters
+
+The quote and the accept endpoints take the same parameters; the accept must repeat the parameters the quote was made with, and adds the quote's `transaction_id`. All exports take these common parameters, each optional:
+
+| Parameter   |          | Description                                                                                                                                                 |
+| ----------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| scale       | optional | Factor to reduce the raster's resolution by: `1`, `2`, `4` or `8`; default `1`, the full resolution                                                         |
+| crs         | optional | Coordinate reference system of the exported file: an EPSG code as an integer, or `"auto"` (the default), the WGS 84 UTM zone of the exported area           |
+| bounds      | optional | Area to crop the export to: a GeoJSON Polygon or MultiPolygon in WGS 84 (EPSG:4326) coordinates; without it, the project's full extent is exported          |
+| file_format | optional | `geotiff` (the default): a cloud-optimized GeoTIFF. The ortho can also be exported as `jpeg`: a ZIP archive holding a JPEG and its world file               |
+| filename    | optional | Name the exported file downloads as, 1–200 characters without slashes; the default is built from the project's name and the exported content, for example `my-field_dsm.tiff` |
+
+With `"crs": "auto"`, the UTM zone is picked from the first position of `bounds` or, without bounds, of the project's extent (its cropped extent, its field's boundaries or its imagery's extent), as the export dialogs on Solvi's web site pick it. Note that an EPSG code the export can't reproject to, or `bounds` outside the project's imagery, are not caught when quoting: the task fails with `internal_error`.
+
+Each export type adds its own parameters:
+
+**ortho** has no further parameters. A GeoTIFF export has all the project's bands. A JPEG export has the project's display bands, the bands shown on Solvi's web site; display bands that are not 1 or 3 bands can't go into a JPEG and are refused with `400`.
+
+**elevation** takes `dem_type`: `dsm` (the default) for the digital surface model, `dtm` for the digital terrain model or `chm` for the canopy height model. The values are raw elevation in meters, so the file format is always `geotiff`. A project only has a CHM when it has both a DSM and a DTM.
+
+**plant_health** requires `index`: a vegetation index to calculate, as a lowercase abbreviation, for example `"vari"` — the same index names as [zonal statistics](#calculating-statistics-for-zones) takes. The available indices depend on the project's bands, and an index that lets the user choose wavelengths can't be exported. The values are raw index values, so the file format is always `geotiff`.
+
+## Quoting an export
+
+> Example request:
+
+```shell
+curl -X POST
+  -H "Authorization: Bearer <user-jwt-token>"
+  -H "Content-Type: application/json"
+  -d '{
+    "dem_type": "dsm",
+    "scale": 2
+  }'
+  https://api.solvi.ag/v2/projects/<project-id>/exports/elevation/quote
+```
+
+> Example response:
+
+```json
+{
+  "status": "quoted",
+  "transaction_id": "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJ...",
+  "expires_at": "2026-11-26T09:18:37.655Z",
+  "cost": {
+    "credit": {
+      "amount": 0,
+      "sufficient": true
+    }
+  }
+}
+```
+
+Quotes an export: validates the [parameters](#export-parameters), calculates the export's cost and returns a `transaction_id` for accepting the quote. Nothing is charged and no export is started until the quote is [accepted](#accepting-an-export-quote).
+
+The quote is valid until `expires_at`, 24 hours after it was made; after that, a new quote has to be requested. Accepting the quote charges exactly the quoted cost, and the `sufficient` property tells whether the account's current balance covers it.
+
+Quoting requires the project to be successfully processed and to have the raster the export reads. Error responses:
+
+- `400`: invalid parameters, or a `plant_health` index that is unknown or can't be calculated for the project
+- `409`: the project has not been successfully processed, or does not have the exported raster, for example an elevation export of a `dem_type` the project doesn't have
+
+### HTTP Request
+
+`POST https://api.solvi.ag/v2/projects/<project-id>/exports/<export-type>/quote`
+
+where `<export-type>` is `ortho`, `elevation` or `plant_health`.
+
+## Accepting an export quote
+
+> Example request:
+
+```shell
+curl -i -X POST
+  -H "Authorization: Bearer <user-jwt-token>"
+  -H "Content-Type: application/json"
+  -d '{
+    "dem_type": "dsm",
+    "scale": 2,
+    "transaction_id": "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJ..."
+  }'
+  https://api.solvi.ag/v2/projects/<project-id>/exports/elevation
+```
+
+> Example response:
+
+```
+HTTP/1.1 202 Accepted
+Location: https://api.solvi.ag/v2/tasks/3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d
+```
+
+```json
+{
+  "id": "3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d",
+  "type": "elevation_export",
+  "project_id": 8993,
+  "status": "queued",
+  "created_at": "2026-11-25T09:00:00.000Z",
+  "updated_at": "2026-11-25T09:00:00.000Z"
+}
+```
+
+Accepts a quote: charges the quoted cost and starts the export as a [task](#tasks). The request takes the same parameters the quote was made with, plus the quote's `transaction_id`; parameters that don't match the quote are refused with `400`. The response is `202 Accepted` with the task, and a `Location` header with the task's URL.
+
+Accepting a quote while the identical export is queued or running returns that task: nothing is charged, nothing is started and the quote is not consumed. A quote that charged credits is consumed by the charge, and accepting it again is refused with `409`; a free quote can be accepted again, for example to run the same export again after it finished.
+
+Error responses:
+
+- `400`: a missing, invalid or expired `transaction_id`, one quoted for another user, project or export type, parameters that don't match the quote, or invalid parameters
+- `402`: the quoted cost is positive and the account does not have enough credits to pay it; the response body gives the required amount
+- `409`: the quote has already been accepted, or the project has not been successfully processed or does not have the exported raster
+- `429`: the user is at the [task limit](#limits); the `Retry-After` header gives the number of seconds to wait
+
+### HTTP Request
+
+`POST https://api.solvi.ag/v2/projects/<project-id>/exports/<export-type>`
+
+where `<export-type>` is `ortho`, `elevation` or `plant_health`.
+
+## Downloading an export
+
+> Example request:
+
+```shell
+curl -L
+  -X GET
+  -H "Authorization: Bearer <user-jwt-token>"
+  https://api.solvi.ag/v2/tasks/<task-id>/download
+```
+
+Downloads the file a succeeded export task produced: the response is a `302 Found` redirect to a freshly signed URL of the file, valid for 24 hours. A succeeded export task's `result.url` is this endpoint.
+
+Error responses:
+
+- `404`: the task does not exist, is not an export, has not succeeded, or the user doesn't have access to its project
+- `410`: the exported file is no longer stored; start the export again
+
+### HTTP Request
+
+`GET https://api.solvi.ag/v2/tasks/<task-id>/download`
 
 # Transactions
 
