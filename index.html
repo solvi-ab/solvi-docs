@@ -386,6 +386,23 @@
               </ul>
           </li>
           <li>
+            <a href="#raster-exports" class="toc-h1 toc-link" data-title="Raster Exports">Raster Exports</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#export-parameters" class="toc-h2 toc-link" data-title="Raster Exports">Export parameters</a>
+                  </li>
+                  <li>
+                    <a href="#quoting-an-export" class="toc-h2 toc-link" data-title="Raster Exports">Quoting an export</a>
+                  </li>
+                  <li>
+                    <a href="#accepting-an-export-quote" class="toc-h2 toc-link" data-title="Raster Exports">Accepting an export quote</a>
+                  </li>
+                  <li>
+                    <a href="#downloading-an-export" class="toc-h2 toc-link" data-title="Raster Exports">Downloading an export</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
             <a href="#transactions" class="toc-h1 toc-link" data-title="Transactions">Transactions</a>
               <ul class="toc-list-h2">
                   <li>
@@ -2146,7 +2163,7 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 <h1 id='tasks'>Tasks</h1>
 <p>Some operations take too long to answer in a single request. Instead, the request starts a <em>task</em> that runs in the background, and responds with <code>202 Accepted</code> and the task, with a <code>Location</code> header holding the task&#39;s URL. The task is then followed until it finishes, either by fetching it with the <a href="#get-a-task">get task</a> endpoint, or by receiving <code>task_status_changed</code> messages on the project&#39;s <a href="#webhooks">webhook</a>.</p>
 
-<p><a href="#calculating-statistics-for-zones">Calculating zonal statistics</a> is currently the only operation that runs as a task.</p>
+<p><a href="#calculating-statistics-for-zones">Calculating zonal statistics</a> and the <a href="#raster-exports">raster exports</a> run as tasks.</p>
 <h2 id='the-task-object'>The task object</h2>
 <blockquote>
 <p>Example task:</p>
@@ -2191,7 +2208,7 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 </tr>
 <tr>
 <td>type</td>
-<td>The kind of work the task does; currently always <code>zonal_statistics</code></td>
+<td>The kind of work the task does: <code>zonal_statistics</code>, <code>ortho_export</code>, <code>elevation_export</code> or <code>plant_health_export</code></td>
 </tr>
 <tr>
 <td>project_id</td>
@@ -2224,7 +2241,7 @@ be a single ZIP archive file containing a Shapefile. In newer projects, the retu
 <ul>
 <li><code>queued</code> - the task is waiting to start</li>
 <li><code>running</code> - the task is running</li>
-<li><code>succeeded</code> - the task finished, and its result can be fetched from <code>result.url</code> with the same authentication as other requests. The URL returns what is currently saved with the project, so a later request that changes the zones or recalculates the statistics changes what it returns; fetch the result before starting another request if you need it as it was.</li>
+<li><code>succeeded</code> - the task finished, and its result can be fetched from <code>result.url</code> with the same authentication as other requests. For a zonal statistics task, the URL returns what is currently saved with the project, so a later request that changes the zones or recalculates the statistics changes what it returns; fetch the result before starting another request if you need it as it was. For an export task, the URL redirects to the exported file, see <a href="#downloading-an-export">downloading an export</a>.</li>
 <li><code>failed</code> - the task did not finish; <code>error</code> says why</li>
 </ul>
 
@@ -2564,6 +2581,187 @@ Location: https://api.solvi.ag/v2/tasks/3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d
                 </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
 </span></code></pre></div>
 <p>Fetches any saved zonal statistics for a project. The zones are returned as a GeoJSON FeatureCollection with statistics in each feature&#39;s <code>properties</code>. If no zones are defined for this project, a <code>404 Not found</code> is returned. If the zones were created with an old version of Solvi&#39;s web site, a <code>409 Conflict</code> is returned; opening the project on the web site updates them, after which this endpoint returns them.</p>
+<h1 id='raster-exports'>Raster Exports</h1>
+<p>The exports API downloads a project&#39;s rasters as files: the orthomosaic, an elevation model (DSM, DTM or CHM) or a vegetation index. The exported file holds raw values — image bands, elevation in meters, plain index values — without color palettes or classifications, ready for further processing in GIS software. There are three export types, each with its own pair of endpoints:</p>
+
+<table><thead>
+<tr>
+<th>Export type</th>
+<th>Task type</th>
+<th>Exports</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>ortho</td>
+<td><code>ortho_export</code></td>
+<td>The project&#39;s orthomosaic</td>
+</tr>
+<tr>
+<td>elevation</td>
+<td><code>elevation_export</code></td>
+<td>An elevation model: the DSM (default), DTM or CHM, as raw elevation</td>
+</tr>
+<tr>
+<td>plant_health</td>
+<td><code>plant_health_export</code></td>
+<td>A vegetation index of the orthomosaic, as raw index values</td>
+</tr>
+</tbody></table>
+
+<p>Exporting is a two step flow, like ordering a plant count: first <a href="#quoting-an-export">quote the export</a>, which validates the request and calculates its cost without charging or starting anything, then <a href="#accepting-an-export-quote">accept the quote</a>, which charges the quoted cost and starts the export as a <a href="#tasks">task</a>. When the task has succeeded, its <code>result.url</code> is the <a href="#downloading-an-export">download endpoint</a>, which redirects to the exported file.</p>
+
+<p>Exports are available to every user who can read the project. The quoted cost is charged from the accepting user&#39;s account.</p>
+<h2 id='export-parameters'>Export parameters</h2>
+<p>The quote and the accept endpoints take the same parameters; the accept must repeat the parameters the quote was made with, and adds the quote&#39;s <code>transaction_id</code>. All exports take these common parameters, each optional:</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>scale</td>
+<td>optional</td>
+<td>Factor to reduce the raster&#39;s resolution by: <code>1</code>, <code>2</code>, <code>4</code> or <code>8</code>; default <code>1</code>, the full resolution</td>
+</tr>
+<tr>
+<td>crs</td>
+<td>optional</td>
+<td>Coordinate reference system of the exported file: an EPSG code as an integer, or <code>&quot;auto&quot;</code> (the default), the WGS 84 UTM zone of the exported area</td>
+</tr>
+<tr>
+<td>bounds</td>
+<td>optional</td>
+<td>Area to crop the export to: a GeoJSON Polygon or MultiPolygon in WGS 84 (EPSG:4326) coordinates; without it, the project&#39;s full extent is exported</td>
+</tr>
+<tr>
+<td>file_format</td>
+<td>optional</td>
+<td><code>geotiff</code> (the default): a cloud-optimized GeoTIFF. The ortho can also be exported as <code>jpeg</code>: a ZIP archive holding a JPEG and its world file</td>
+</tr>
+<tr>
+<td>filename</td>
+<td>optional</td>
+<td>Name the exported file downloads as, 1–200 characters without slashes; the default is built from the project&#39;s name and the exported content, for example <code>my-field_dsm.tiff</code></td>
+</tr>
+</tbody></table>
+
+<p>With <code>&quot;crs&quot;: &quot;auto&quot;</code>, the UTM zone is picked from the first position of <code>bounds</code> or, without bounds, of the project&#39;s extent (its cropped extent, its field&#39;s boundaries or its imagery&#39;s extent), as the export dialogs on Solvi&#39;s web site pick it. Note that an EPSG code the export can&#39;t reproject to, or <code>bounds</code> outside the project&#39;s imagery, are not caught when quoting: the task fails with <code>internal_error</code>.</p>
+
+<p>Each export type adds its own parameters:</p>
+
+<p><strong>ortho</strong> has no further parameters. A GeoTIFF export has all the project&#39;s bands. A JPEG export has the project&#39;s display bands, the bands shown on Solvi&#39;s web site; display bands that are not 1 or 3 bands can&#39;t go into a JPEG and are refused with <code>400</code>.</p>
+
+<p><strong>elevation</strong> takes <code>dem_type</code>: <code>dsm</code> (the default) for the digital surface model, <code>dtm</code> for the digital terrain model or <code>chm</code> for the canopy height model. The values are raw elevation in meters, so the file format is always <code>geotiff</code>. A project only has a CHM when it has both a DSM and a DTM.</p>
+
+<p><strong>plant_health</strong> requires <code>index</code>: a vegetation index to calculate, as a lowercase abbreviation, for example <code>&quot;vari&quot;</code> — the same index names as <a href="#calculating-statistics-for-zones">zonal statistics</a> takes. The available indices depend on the project&#39;s bands, and an index that lets the user choose wavelengths can&#39;t be exported. The values are raw index values, so the file format is always <code>geotiff</code>.</p>
+<h2 id='quoting-an-export'>Quoting an export</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-X</span> POST
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{
+    "dem_type": "dsm",
+    "scale": 2
+  }'</span>
+  https://api.solvi.ag/v2/projects/&lt;project-id&gt;/exports/elevation/quote
+</code></pre></div>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"quoted"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"transaction_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJ..."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"expires_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-11-26T09:18:37.655Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"cost"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"credit"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"sufficient"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Quotes an export: validates the <a href="#export-parameters">parameters</a>, calculates the export&#39;s cost and returns a <code>transaction_id</code> for accepting the quote. Nothing is charged and no export is started until the quote is <a href="#accepting-an-export-quote">accepted</a>.</p>
+
+<p>The quote is valid until <code>expires_at</code>, 24 hours after it was made; after that, a new quote has to be requested. Accepting the quote charges exactly the quoted cost, and the <code>sufficient</code> property tells whether the account&#39;s current balance covers it.</p>
+
+<p>Quoting requires the project to be successfully processed and to have the raster the export reads. Error responses:</p>
+
+<ul>
+<li><code>400</code>: invalid parameters, or a <code>plant_health</code> index that is unknown or can&#39;t be calculated for the project</li>
+<li><code>409</code>: the project has not been successfully processed, or does not have the exported raster, for example an elevation export of a <code>dem_type</code> the project doesn&#39;t have</li>
+</ul>
+<h3 id='http-request-34'>HTTP Request</h3>
+<p><code>POST https://api.solvi.ag/v2/projects/&lt;project-id&gt;/exports/&lt;export-type&gt;/quote</code></p>
+
+<p>where <code>&lt;export-type&gt;</code> is <code>ortho</code>, <code>elevation</code> or <code>plant_health</code>.</p>
+<h2 id='accepting-an-export-quote'>Accepting an export quote</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-i</span> <span class="nt">-X</span> POST
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span>
+  <span class="nt">-d</span> <span class="s1">'{
+    "dem_type": "dsm",
+    "scale": 2,
+    "transaction_id": "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJ..."
+  }'</span>
+  https://api.solvi.ag/v2/projects/&lt;project-id&gt;/exports/elevation
+</code></pre></div>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight plaintext"><code>HTTP/1.1 202 Accepted
+Location: https://api.solvi.ag/v2/tasks/3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d
+</code></pre></div><div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"elevation_export"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"project_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">8993</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"queued"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-11-25T09:00:00.000Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-11-25T09:00:00.000Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>Accepts a quote: charges the quoted cost and starts the export as a <a href="#tasks">task</a>. The request takes the same parameters the quote was made with, plus the quote&#39;s <code>transaction_id</code>; parameters that don&#39;t match the quote are refused with <code>400</code>. The response is <code>202 Accepted</code> with the task, and a <code>Location</code> header with the task&#39;s URL.</p>
+
+<p>Accepting a quote while the identical export is queued or running returns that task: nothing is charged, nothing is started and the quote is not consumed. A quote that charged credits is consumed by the charge, and accepting it again is refused with <code>409</code>; a free quote can be accepted again, for example to run the same export again after it finished.</p>
+
+<p>Error responses:</p>
+
+<ul>
+<li><code>400</code>: a missing, invalid or expired <code>transaction_id</code>, one quoted for another user, project or export type, parameters that don&#39;t match the quote, or invalid parameters</li>
+<li><code>402</code>: the quoted cost is positive and the account does not have enough credits to pay it; the response body gives the required amount</li>
+<li><code>409</code>: the quote has already been accepted, or the project has not been successfully processed or does not have the exported raster</li>
+<li><code>429</code>: the user is at the <a href="#limits">task limit</a>; the <code>Retry-After</code> header gives the number of seconds to wait</li>
+</ul>
+<h3 id='http-request-35'>HTTP Request</h3>
+<p><code>POST https://api.solvi.ag/v2/projects/&lt;project-id&gt;/exports/&lt;export-type&gt;</code></p>
+
+<p>where <code>&lt;export-type&gt;</code> is <code>ortho</code>, <code>elevation</code> or <code>plant_health</code>.</p>
+<h2 id='downloading-an-export'>Downloading an export</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="nt">-L</span>
+  <span class="nt">-X</span> GET
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer &lt;user-jwt-token&gt;"</span>
+  https://api.solvi.ag/v2/tasks/&lt;task-id&gt;/download
+</code></pre></div>
+<p>Downloads the file a succeeded export task produced: the response is a <code>302 Found</code> redirect to a freshly signed URL of the file, valid for 24 hours. A succeeded export task&#39;s <code>result.url</code> is this endpoint.</p>
+
+<p>Error responses:</p>
+
+<ul>
+<li><code>404</code>: the task does not exist, is not an export, has not succeeded, or the user doesn&#39;t have access to its project</li>
+<li><code>410</code>: the exported file is no longer stored; start the export again</li>
+</ul>
+<h3 id='http-request-36'>HTTP Request</h3>
+<p><code>GET https://api.solvi.ag/v2/tasks/&lt;task-id&gt;/download</code></p>
 <h1 id='transactions'>Transactions</h1>
 <p>The Transactions API allows you to retrieve the user&#39;s credit and upload transaction history, including purchases and usage from project uploads and PlantAI detections.</p>
 <h2 id='get-transactions'>Get transactions</h2>
@@ -2615,7 +2813,7 @@ Location: https://api.solvi.ag/v2/tasks/3f0c1d6e2a9b4c8d7e6f5a4b3c2d1e0f9a8b7c6d
 <p>Retrieves the transaction history for the authenticated user, showing both usage (negative amounts) and purchases (positive amounts). By default, returns transactions from the last year. Transactions can be filtered by date range using the <code>from</code> and <code>to</code> parameters.</p>
 
 <p>Usage transactions include details about the related project and, for PlantAI detections, the analyzed area in hectares.</p>
-<h3 id='http-request-34'>HTTP Request</h3>
+<h3 id='http-request-37'>HTTP Request</h3>
 <p><code>GET https://api.solvi.ag/v1/transactions</code></p>
 <h3 id='parameters-24'>Parameters</h3>
 <table><thead>
