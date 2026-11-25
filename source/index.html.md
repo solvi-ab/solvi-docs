@@ -1027,7 +1027,7 @@ If processing was successfully started, the HTTP response code will be `200`. In
 ```shell
 curl -X GET
   -H "Authorization: Bearer <user-jwt-token>"
-  'https://api.solvi.ag/v1/projects?field_geom={"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[100.0, 0.0],[101.0, 0.0],[101.0, 1.0],[100.0, 1.0],[100.0, 0.0]]]}]}'
+  'https://api.solvi.ag/v1/projects?field_geom={"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[100.0, 0.0],[101.0, 0.0],[101.0, 1.0],[100.0, 1.0],[100.0, 0.0]]]}}]}'
 ```
 
 > Example response:
@@ -1096,7 +1096,7 @@ This endpoint retrieves the projects created by the user and the projects on far
 
 | Parameter        |          | Description                                                                                                                                                                       |
 | ---------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| field_geom       | optional | Boundaries of the field as a polygon in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system(lonlat); only projects whose extent overlaps the boundaries are returned |
+| field_geom       | optional | Boundaries of the field in [GeoJSON format](https://geojson.org/geojson-spec.html#introduction) and EPSG:4326 coordinate system (lonlat): a Polygon or MultiPolygon geometry, a Feature with such a geometry, or a FeatureCollection of such Features; only projects whose extent overlaps the boundaries are returned |
 | field_id         | optional | Only return projects on the field with this id                                                                                                                                    |
 | farm_id          | optional | Only return projects on the farm with this id                                                                                                                                     |
 | status           | optional | Only return projects with this status: `processed`, `not_processed` or `failed`                                                                                                   |
